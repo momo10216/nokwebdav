@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" version="3.2" method="upgrade">
+	<name>WebDAV</name>
+	<author>Norbert Kuemin</author>
+	<authorEmail>momo_102@bluemail.ch</authorEmail>
+	<creationDate>August 2017</creationDate>
+	<copyright>(C) 2017 Norbert Kuemin</copyright>
+	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
+	<version>0.0.1</version>
+	<description>COM_NOKWEBDAV_XML_DESC</description>
+
+	<install>
+		<sql>
+			<file driver="mysql" charset="utf8">sql/install.mysql.utf8.sql</file>
+		</sql>
+	</install>
+
+	<update> 
+		<schemas>
+			<schemapath type="mysql">sql/updates/mysql</schemapath> 
+		</schemas> 
+	</update>
+
+	<uninstall>
+		<sql>
+			<file driver="mysql" charset="utf8">sql/uninstall.mysql.utf8.sql</file>
+		</sql>
+	</uninstall>
+
+	<files folder="site">
+		<filename>nokwebdav.php</filename>
+		<filename>controller.php</filename>
+		<filename>index.html</filename>
+		<folder>models</folder>
+		<folder>views</folder>
+	</files>
+
+	<media/>
+
+	<languages folder="language">
+		<language tag="en-GB">en-GB.com_nokwebdav.ini</language>
+		<language tag="en-GB">en-GB.com_nokwebdav.sys.ini</language>
+		<language tag="de-DE">de-DE.com_nokwebdav.ini</language>
+		<language tag="de-DE">de-DE.com_nokwebdav.sys.ini</language>
+		<language tag="nl-NL">nl-NL.com_nokwebdav.ini</language>
+		<language tag="nl-NL">nl-NL.com_nokwebdav.sys.ini</language>
+	</languages>
+	<administration>
+		<menu>COM_NOKWEBDAV_MENU_MAIN</menu>
+		<files folder="admin">
+			<filename>access.xml</filename>
+			<filename>nokwebdav.php</filename>
+			<filename>config.xml</filename>
+			<filename>controller.php</filename>
+			<filename>index.html</filename>
+			<folder>controller</folder>
+			<folder>helpers</folder>
+			<folder>models</folder>
+			<folder>sql</folder>
+			<folder>tables</folder>
+			<folder>views</folder>
+		</files>
+		<languages folder="language">
+			<language tag="en-GB">en-GB.com_nokwebdav.ini</language>
+			<language tag="en-GB">en-GB.com_nokwebdav.sys.ini</language>
+			<language tag="de-DE">de-DE.com_nokwebdav.ini</language>
+			<language tag="de-DE">de-DE.com_nokwebdav.sys.ini</language>
+		</languages>
+	</administration>
+	<updateservers>
+		<server type="extension" priority="2" name="Club Management Updates">http://kuem.in/joomlaupdate/com_nokwebdav.xml</server>
+	</updateservers>
+</extension>

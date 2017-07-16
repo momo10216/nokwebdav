@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+	<fieldset name="common"
+		  label="COM_NOKWEBDAV_CONFIGSET_COMMON_LABEL"
+		  description="COM_NOKWEBDAV_CONFIGSET_COMMON_DESC">
+	</fieldset>
+</config>
