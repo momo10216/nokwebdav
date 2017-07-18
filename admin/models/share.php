@@ -2,8 +2,8 @@
 /**
 * @version	$Id$
 * @package	Joomla
-* @subpackage	ClubManagement-Person
-* @copyright	Copyright (c) 2014 Norbert Kümin. All rights reserved.
+* @subpackage	NoKWebDAV
+* @copyright	Copyright (c) 2017 Norbert Kümin. All rights reserved.
 * @license	http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE
 * @author	Norbert Kuemin
 * @authorEmail	momo_102@bluemail.ch
@@ -11,9 +11,10 @@
 
 defined('_JEXEC') or die;
 
-class ClubManagementModelPerson extends JModelAdmin {
-	protected $text_prefix = 'COM_CLUBMANAGEMENT';
-	public $typeAlias = 'com_clubmanagement.person';
+class NoKWebDAVModelShare extends JModelAdmin {
+	protected $text_prefix = 'COM_NOK_WEBDAV';
+	protected $component = 'com_nokwebdav';
+	public $typeAlias = 'share';
 
 	/**
 	 * Method to test whether a record can be deleted.
@@ -26,7 +27,7 @@ class ClubManagementModelPerson extends JModelAdmin {
 	protected function canDelete($record) {
 		if (!empty($record->id)) {
 			$user = JFactory::getUser();
-			return $user->authorise('core.delete', $this->typeAlias.'.' . (int) $record->id);
+			return $user->authorise('core.delete', $this->component.'.'.$this->typeAlias.'.' . (int) $record->id);
 		}
 	}
 
@@ -42,10 +43,10 @@ class ClubManagementModelPerson extends JModelAdmin {
 		$user = JFactory::getUser();
 		// Check for existing article.
 		if (!empty($record->id)) {
-			return $user->authorise('core.edit.state', $this->typeAlias.'.' . (int) $record->id);
+			return $user->authorise('core.edit.state', $this->component.'.'.$this->typeAlias.'.' . (int) $record->id);
 		} else {
 			// Default to component settings if neither article nor category known.
-			return parent::canEditState('com_clubmanagement');
+			return parent::canEditState($this->component);
 		}
 	}
 
@@ -58,7 +59,7 @@ class ClubManagementModelPerson extends JModelAdmin {
 	 *
 	 * @return  JTable    A database object
 	 */
-	public function getTable($type = 'Person', $prefix = 'ClubManagementTable', $config = array()) {
+	public function getTable($type = 'Share', $prefix = 'NoKWebDAVTable', $config = array()) {
 		return JTable::getInstance($type, $prefix, $config);
 	}
 
@@ -73,7 +74,7 @@ class ClubManagementModelPerson extends JModelAdmin {
 	 */
 	public function getForm($data = array(), $loadData = true) {
 		// Get the form.
-		$form = $this->loadForm($this->typeAlias, 'person', array('control' => 'jform', 'load_data' => $loadData));
+		$form = $this->loadForm($this->component.'.'.$this->typeAlias, $this->typeAlias, array('control' => 'jform', 'load_data' => $loadData));
 		if (empty($form)) { return false; }
 		return $form;
 	}
@@ -87,11 +88,11 @@ class ClubManagementModelPerson extends JModelAdmin {
 	protected function loadFormData() {
 		// Check the session for previously entered form data.
 		$app = JFactory::getApplication();
-		$data = $app->getUserState('com_clubmanagement.edit.person.data', array());
+		$data = $app->getUserState($this->component.'.edit.'.$this->typeAlias.'.data', array());
 		if (empty($data)) {
 			$data = $this->getItem();
 		}
-		$this->preprocessData('com_clubmanagement.person', $data);
+		$this->preprocessData($this->component.'.'.$this->typeAlias, $data);
 		return $data;
 	}
 
@@ -101,8 +102,7 @@ class ClubManagementModelPerson extends JModelAdmin {
 	 * @since   1.6
 	 */
 	protected function cleanCache($group = null, $client_id = 0) {
-		parent::cleanCache('com_clubmanagement');
+		parent::cleanCache($this->component);
 	}
-
 }
 ?>
