@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fieldset>
+		<field name="id"  type="text" class="readonly" label="JGLOBAL_FIELD_ID_LABEL"
+			description ="JGLOBAL_FIELD_ID_DESC" size="10" default="0"
+			readonly="true" />
+
+		<field name="name" type="text" label="COM_NOKWEBDAV_SHARE_FIELD_NAME_LABEL"
+			description="COM_NOKWEBDAV_SHARE_FIELD_NAME_DESC" size="40" required="true" />
+
+		<field name="filepath" type="text" label="COM_NOKWEBDAV_SHARE_FIELD_FILEPATH_LABEL"
+			description="COM_NOKWEBDAV_SHARE_FIELD_FILEPATH_DESC" size="40" required="true" />
+
+		<field name="published" type="list" label="COM_NOKWEBDAV_SHARE_FIELD_PUBLISHED_LABEL"
+			description="COM_NOKWEBDAV_SHARE_FIELD_PUBLISHED_DESC"
+			class="btn-group btn-group-yesno"
+			size="1"
+			default="1">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+
+		<field name="asset_id" type="hidden" filter="unset" />
+
+		<field name="access" type="accesslevel" label="COM_NOKWEBDAV_SHARE_FIELD_ACCESS_LABEL"
+			description="COM_NOKWEBDAV_SHARE_FIELD_ACCESS_DESC" size="1" />
+	</fieldset>
+</form>
