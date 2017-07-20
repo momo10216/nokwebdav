@@ -19,13 +19,13 @@ $listOrder	= $this->escape($this->state->get('list.ordering'));
 	<th width="1%" class="hidden-phone">
 		<?php echo JHtml::_('grid.checkall'); ?>
 	</th>
-	<th class="hidden-phone">
-		<?php echo JHtml::_('grid.sort', 'COM_NOKWEBDAV_SHARE_FIELD_PUBLISHED_LABEL', 's.published', $listDirn, $listOrder); ?>
-	</th>
 	<th>
 		<?php echo JHtml::_('grid.sort', 'COM_NOKWEBDAV_SHARE_FIELD_NAME_LABEL', 's.name', $listDirn, $listOrder); ?>
 	</th>
 	<th class="hidden-phone">
 		<?php echo JHtml::_('grid.sort', 'COM_NOKWEBDAV_SHARE_FIELD_FILEPATH_LABEL', 's.filepath', $listDirn, $listOrder); ?>
+	</th>
+	<th class="hidden-phone">
+		<?php echo JHtml::_('grid.sort', 'COM_NOKWEBDAV_SHARE_FIELD_PUBLISHED_LABEL', 's.published', $listDirn, $listOrder); ?>
 	</th>
 </tr>

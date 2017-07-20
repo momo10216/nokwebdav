@@ -18,13 +18,13 @@ defined('_JEXEC') or die('Restricted Access');
                         <?php echo JHtml::_('grid.id', $i, $item->id); ?>
                 </td>
                 <td>
-                        <?php if ($item->published == '0') { echo JText::_('JNO'); } else { echo JText::_('JYES'); }; ?>
-                </td>
-                <td>
                         <?php echo $item->name; ?>
                 </td>
                 <td>
                         <?php echo $item->filepath; ?>
+                </td>
+                <td>
+                        <?php if ($item->published == '0') { echo JText::_('JNO'); } else { echo JText::_('JYES'); }; ?>
                 </td>
         </tr>
 <?php endforeach; ?>
