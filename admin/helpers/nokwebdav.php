@@ -18,16 +18,18 @@ class NoKWebDAVHelper extends JHelperContent {
 			'index.php?option=com_nokwebdav&view=shares',
 			$vName == 'shares'
 		);
+/*
 		JHtmlSidebar::addEntry(
-			JText::_('COM_NOKWEBDAV_MENU_MEMBERSHIPS'),
-			'index.php?option=com_nokwebdav&view=contacts',
+			JText::_('COM_NOKWEBDAV_MENU_CONTACTLISTS'),
+			'index.php?option=com_nokwebdav&view=contactlists',
 			$vName == 'contacts'
 		);
 		JHtmlSidebar::addEntry(
-			JText::_('COM_NOKWEBDAV_MENU_BOARD'),
-			'index.php?option=com_nokwebdav&view=events',
+			JText::_('COM_NOKWEBDAV_MENU_CALENDARS'),
+			'index.php?option=com_nokwebdav&view=calendars',
 			$vName == 'events'
 		);
+*/
 	}
 }
 ?>

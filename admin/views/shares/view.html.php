@@ -54,7 +54,7 @@ class NoKWebDAVViewShares extends JViewLegacy {
 		// Get the toolbar object instance
 		$bar = JToolBar::getInstance('toolbar');
 		JToolbarHelper::title(JText::_('COM_NOKWEBDAV_SHARES_TITLE'), 'stack todo');
-		if ($canDo->get('core.create') || (count($user->getAuthorisedCategories('COM_NOKWEBDAV', 'core.create'))) > 0 ) {
+		if ($canDo->get('core.create') || (count($user->getAuthorisedCategories('com_nokwebdav', 'core.create'))) > 0 ) {
 			JToolbarHelper::addNew('share.add');
 		}
 		if (($canDo->get('core.edit')) || ($canDo->get('core.edit.own'))) {
@@ -71,8 +71,8 @@ class NoKWebDAVViewShares extends JViewLegacy {
 		if ($user->authorise('core.create', 'COM_NOKWEBDAV')) {
 			JToolBarHelper::custom('shares.import', 'import.png', 'import_f2.png', JText::_('JTOOLBAR_IMPORT'), false);
 		}
-		if ($user->authorise('core.admin', 'COM_NOKWEBDAV')) {
-			JToolbarHelper::preferences('COM_NOKWEBDAV');
+		if ($user->authorise('core.admin', 'com_nokwebdav')) {
+			JToolbarHelper::preferences('com_nokwebdav');
 		}
 		//JToolbarHelper::help('JHELP_CONTENT_ARTICLE_MANAGER');
 	}

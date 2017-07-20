@@ -12,7 +12,7 @@
 defined('_JEXEC') or die;
 
 class NoKWebDAVModelShare extends JModelAdmin {
-	protected $text_prefix = 'COM_NOK_WEBDAV';
+	protected $text_prefix = 'COM_NOKWEBDAV';
 	protected $component = 'com_nokwebdav';
 	public $typeAlias = 'share';
 

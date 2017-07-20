@@ -12,7 +12,7 @@
 // No direct access to this file
 defined('_JEXEC') or die('Restricted access');
 
-//JLoader::register('NoKWebDAVHelper', __DIR__.'/helpers/nokwebdav.php', true);
+JLoader::register('NoKWebDAVHelper', __DIR__.'/helpers/nokwebdav.php', true);
 
 // Get an instance of the controller prefixed by ClubManagement
 $controller = JControllerLegacy::getInstance('NoKWebDAV');

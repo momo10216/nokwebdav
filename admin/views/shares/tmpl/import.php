@@ -22,7 +22,7 @@ Joomla.submitbutton = function(pressbutton) {
 		var form = document.getElementById('adminForm');
 		if (form.importfile.value == \"\")
 		{
-			alert('".JText::_('COM_NOKWEBDAV_SHARES_IMPORT_ERROR')."');
+			alert('".JText::_('COM_NOKWEBDAV_IMPORT_ERROR')."');
 			return false;
 		}
 		jQuery('#loading').css('display', 'block');
@@ -35,15 +35,15 @@ JFactory::getDocument()->addScriptDeclaration($script);
 ?>
 <form action="<?php echo JRoute::_('index.php?option=com_nokwebdav'); ?>" method="post" name="adminForm" id="adminForm" enctype="multipart/form-data">
 	<fieldset class="uploadform">
-		<legend><?php echo JText::_('COM_NOKWEBDAV_SHARES_IMPORT_TITLE'); ?></legend>
+		<legend><?php echo JText::_('COM_NOKWEBDAV_IMPORT_TITLE'); ?></legend>
 		<div class="control-group">
-			<label for="importfile" class="control-label"><?php echo JText::_('COM_NOKWEBDAV_SHARES_IMPORT_FILE_LABEL'); ?></label>
+			<label for="importfile" class="control-label"><?php echo JText::_('COM_NOKWEBDAV_IMPORT_FILE_LABEL'); ?></label>
 			<div class="controls">
 				<input class="input_box" id="importfile" name="importfile" type="file" size="57" />
 			</div>
 		</div>
 		<div class="form-actions">
-			<input class="btn btn-primary" type="button" value="<?php echo JText::_('COM_NOKWEBDAV_SHARES_IMPORT_BUTTON'); ?>" onclick="Joomla.submitbutton('shares.import_do')" />
+			<input class="btn btn-primary" type="button" value="<?php echo JText::_('COM_NOKWEBDAV_IMPORT_BUTTON'); ?>" onclick="Joomla.submitbutton('shares.import_do')" />
 		</div>
 	</fieldset>
 	<input type="hidden" name="task" value="" />
