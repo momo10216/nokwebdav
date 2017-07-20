@@ -22,7 +22,32 @@
 
 		<field name="asset_id" type="hidden" filter="unset" />
 
-		<field name="access" type="accesslevel" label="COM_NOKWEBDAV_SHARE_FIELD_ACCESS_LABEL"
-			description="COM_NOKWEBDAV_SHARE_FIELD_ACCESS_DESC" size="1" />
+		<field name="createdby" type="text" label="COM_NOKWEBDAV_COMMON_FIELD_CREATEDBY_LABEL"
+			description="COM_NOKWEBDAV_COMMON_FIELD_CREATEDBY_DESC"
+			required="false"
+			readonly="true" />
+
+		<field name="createddate" type="calendar" label="COM_NOKWEBDAV_COMMON_FIELD_CREATEDDATE_LABEL"
+			description="COM_NOKWEBDAV_COMMON_FIELD_CREATEDDATE_DESC"
+			size="22"
+			format="%Y-%m-%d %H:%M:%S" filter="user_utc"
+			required="false"
+			readonly="true" />
+
+		<field name="modifiedby" type="text" label="COM_NOKWEBDAV_COMMON_FIELD_MODIFIEDBY_LABEL"
+			description="COM_NOKWEBDAV_COMMON_FIELD_MODIFIEDBY_DESC"
+			required="false"
+			readonly="true" />
+
+		<field name="modifieddate" type="calendar" label="COM_NOKWEBDAV_COMMON_FIELD_MODIFIEDDATE_LABEL"
+			description="COM_NOKWEBDAV_COMMON_FIELD_MODIFIEDDATE_DESC"
+			size="22"
+			format="%Y-%m-%d %H:%M:%S" filter="user_utc"
+			required="false"
+			readonly="true" />
+
+		<field name="rules" type="rules" label="JCONFIG_PERMISSIONS_LABEL"
+			description="JCONFIG_PERMISSIONS_DESC" validate="rules" filter="rules"
+			component="com_nokwebdav" section="share" />
 	</fieldset>
 </form>
