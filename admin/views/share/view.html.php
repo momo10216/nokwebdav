@@ -24,7 +24,7 @@ class NoKWebDAVViewShare extends JViewLegacy {
 		$this->form	= $this->get('Form');
 		$this->item	= $this->get('Item');
 		$this->state	= $this->get('State');
-		$this->canDo	= NoKPrjMgntHelper::getActions('com_nokwebdav', 'share', $this->item->id);
+		$this->canDo	= NoKWebDAVHelper::getActions('com_nokwebdav', 'share', $this->item->id);
 		// Check for errors.
 		if (count($errors = $this->get('Errors'))) {
 			JError::raiseError(500, implode("\n", $errors));
@@ -71,7 +71,7 @@ class NoKWebDAVViewShare extends JViewLegacy {
 			JToolbarHelper::cancel('share.cancel', 'JTOOLBAR_CLOSE');
 		}
 		JToolbarHelper::divider();
-		JToolbarHelper::help('JHELP_COM_NOKPRJMGNT_PERSON_MANAGER_EDIT');
+		JToolbarHelper::help('JHELP_COM_NOKWEBDAV_SHARE_MANAGER_EDIT');
 	}
 }
 ?>

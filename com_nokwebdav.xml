@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="component" version="3.2" method="upgrade">
-	<name>WebDAV</name>
+	<name>NoK WebDAV</name>
 	<author>Norbert Kuemin</author>
 	<authorEmail>momo_102@bluemail.ch</authorEmail>
 	<creationDate>August 2017</creationDate>
@@ -46,7 +46,7 @@
 		<language tag="nl-NL">nl-NL.com_nokwebdav.sys.ini</language>
 	</languages>
 	<administration>
-		<menu>COM_NOKWEBDAV_MENU_MAIN</menu>
+		<menu>COM_NOKWEBDAV_MENU</menu>
 		<files folder="admin">
 			<filename>access.xml</filename>
 			<filename>nokwebdav.php</filename>

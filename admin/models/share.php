@@ -12,9 +12,8 @@
 defined('_JEXEC') or die;
 
 class NoKWebDAVModelShare extends JModelAdmin {
-	protected $text_prefix = 'COM_NOKWEBDAV';
-	protected $component = 'com_nokwebdav';
-	public $typeAlias = 'share';
+	protected $text_prefix = 'com_nokwebdav';
+	public $typeAlias = 'com_nokwebdav.share';
 
 	/**
 	 * Method to test whether a record can be deleted.
@@ -27,7 +26,7 @@ class NoKWebDAVModelShare extends JModelAdmin {
 	protected function canDelete($record) {
 		if (!empty($record->id)) {
 			$user = JFactory::getUser();
-			return $user->authorise('core.delete', $this->component.'.'.$this->typeAlias.'.' . (int) $record->id);
+			return $user->authorise('core.delete', $this->typeAlias.'.' . (int) $record->id);
 		}
 	}
 
@@ -43,10 +42,10 @@ class NoKWebDAVModelShare extends JModelAdmin {
 		$user = JFactory::getUser();
 		// Check for existing article.
 		if (!empty($record->id)) {
-			return $user->authorise('core.edit.state', $this->component.'.'.$this->typeAlias.'.' . (int) $record->id);
+			return $user->authorise('core.edit.state', $this->typeAlias.'.' . (int) $record->id);
 		} else {
 			// Default to component settings if neither article nor category known.
-			return parent::canEditState($this->component);
+			return parent::canEditState('com_nokwebdav');
 		}
 	}
 
@@ -59,7 +58,7 @@ class NoKWebDAVModelShare extends JModelAdmin {
 	 *
 	 * @return  JTable    A database object
 	 */
-	public function getTable($type = 'Share', $prefix = 'NoKWebDAVTable', $config = array()) {
+	public function getTable($type = 'Shares', $prefix = 'NoKWebDAVTable', $config = array()) {
 		return JTable::getInstance($type, $prefix, $config);
 	}
 
@@ -74,7 +73,7 @@ class NoKWebDAVModelShare extends JModelAdmin {
 	 */
 	public function getForm($data = array(), $loadData = true) {
 		// Get the form.
-		$form = $this->loadForm($this->component.'.'.$this->typeAlias, $this->typeAlias, array('control' => 'jform', 'load_data' => $loadData));
+		$form = $this->loadForm($this->typeAlias, 'share', array('control' => 'jform', 'load_data' => $loadData));
 		if (empty($form)) { return false; }
 		return $form;
 	}
@@ -88,11 +87,11 @@ class NoKWebDAVModelShare extends JModelAdmin {
 	protected function loadFormData() {
 		// Check the session for previously entered form data.
 		$app = JFactory::getApplication();
-		$data = $app->getUserState($this->component.'.edit.'.$this->typeAlias.'.data', array());
+		$data = $app->getUserState('com_nokwebdav.edit.share.data', array());
 		if (empty($data)) {
 			$data = $this->getItem();
 		}
-		$this->preprocessData($this->component.'.'.$this->typeAlias, $data);
+		$this->preprocessData($this->typeAlias, $data);
 		return $data;
 	}
 
@@ -102,7 +101,7 @@ class NoKWebDAVModelShare extends JModelAdmin {
 	 * @since   1.6
 	 */
 	protected function cleanCache($group = null, $client_id = 0) {
-		parent::cleanCache($this->component);
+		parent::cleanCache('com_nokwebdav');
 	}
 }
 ?>

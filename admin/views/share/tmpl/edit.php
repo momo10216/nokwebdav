@@ -41,7 +41,7 @@ JHtml::_('formbehavior.chosen', 'select');
 			</div>
 		</div>
 		<?php echo JHtml::_('bootstrap.endTab'); ?>
-		<?php echo JHtml::_('bootstrap.addTab', 'myTab', 'custom', JText::_('COM_NOKWEBDAV_SHARE_TAB_CUSTOM_AND_RECORDINFO', true)); ?>
+		<?php echo JHtml::_('bootstrap.addTab', 'myTab', 'custom', JText::_('COM_NOKWEBDAV_SHARE_TAB_RECORDINFO', true)); ?>
 		<div class="row-fluid">
 			<div class="span12">
 				<div class="row-fluid form-horizontal-desktop">
