@@ -50,14 +50,21 @@ class WebDAVHelper {
 	public static function handleCommand($command) {
 		switch($command) {
 			case 'PROPFIND':
-				self::_executePropfind();
+				JLoader::register('WebDAVPropFinderHelper', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/propfind.php', true);
+				list($code, $headers, $content) = WebDAVPropFinderHelper::getResponse();
 				break;
 			default:
 				// Unsupported command
- 				$this->_sendHttpStatus(self::$HTTP_STATUS_ERROR_METHOD_NOT_ALLOWED);
-                		header('Allow: '.join(", ", self::$_allow()));
+				$code = self::$HTTP_STATUS_ERROR_METHOD_NOT_ALLOWED;
+                		$headers = array('Allow: '.join(", ", self::$_allow()));
+				$content = '';
 				break;
 		}
+		self::_sendHttpStatus($code);
+		foreach($headers as $header) {
+			header($header);
+		}
+		if (!empty($content)) { echo $content; }
 	}
 
 	private static function _sendHttpStatus($code) {
@@ -68,14 +75,6 @@ class WebDAVHelper {
 		}
 		header("HTTP/1.1 $status");
 		header("X-WebDAV-Status: $status", true);
-	}
-
-	private static function _getPathInfo() {
-		global $_SERVER;
-		return empty($_SERVER["PATH_INFO"]) ? '/' : $_SERVER["PATH_INFO"];
-	}
-
-	private static function _executePropfind() {
 	}
 }
 ?>
