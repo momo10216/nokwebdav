@@ -11,17 +11,18 @@
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die;
 class NoKWebDAVViewShare extends JViewLegacy {
-
-	function display($tpl = null)   {
+	function display($tpl = null) {
 		// Init variables
-		JLoader::register('WebDAVHelper', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav.php', true);
-		$this->user = JFactory::getUser();
-		$app = JFactory::getApplication();
-		$this->state = $this->get('State');
-		$this->paramsComponent = $this->state->get('params');
+		//$this->user = JFactory::getUser();
+		//$this->state = $this->get('State');
+		//$this->paramsComponent = $this->state->get('params');
 		// WebDAVHelper
-		$command = WebDAVHelper::getCommand();
-		// Output
+		JLoader::register('WebDAVHelper', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav.php', true);
+		$webdavHelper = new WebDAVHelper();
+		$webdavHelper->run();
+		// Exit
+		$app = JFactory::getApplication();
+		$app->close();
 	}
 }
 ?>

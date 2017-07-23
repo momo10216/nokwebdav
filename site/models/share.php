@@ -34,14 +34,14 @@ class NoKPrjMgntModelProject extends JModelForm {
 	private function getFields() {
 		$params = JComponentHelper::getParams($this->_component);
 		return array (
-			'id' => array(JText::_('COM_NOKWEBDAV_COMMON_FIELD_ID_LABEL',true),'`p`.`id`'),
-			'name' => array(JText::_('COM_NOKWEBDAV_PROJECT_FIELD_TITLE_LABEL',true),'`p`.`title`'),
-			'fielpath' => array(JText::_('COM_NOKWEBDAV_PROJECT_FIELD_DESCRIPTION_LABEL',true),'`p`.`description`'),
-			'published' => array(JText::_('COM_NOKWEBDAV_PROJECT_FIELD_CATEGORY_LABEL',true),'`c`.`title`'),
-			'createdby' => array(JText::_('COM_NOKWEBDAV_COMMON_FIELD_CREATEDBY_LABEL',true),'`p`.`createdby`'),
-			'createddate' => array(JText::_('COM_NOKWEBDAV_COMMON_FIELD_CREATEDDATE_LABEL',true),'`p`.`createddate`'),
-			'modifiedby' => array(JText::_('COM_NOKWEBDAV_COMMON_FIELD_MODIFIEDBY_LABEL',true),'`p`.`modifiedby`'),
-			'modifieddate' => array(JText::_('COM_NOKWEBDAV_COMMON_FIELD_MODIFIEDDATE_LABEL',true),'`p`.`modifieddate`')
+			'id' => array(JText::_('COM_NOKWEBDAV_COMMON_FIELD_ID_LABEL',true),'`s`.`id`'),
+			'name' => array(JText::_('COM_NOKWEBDAV_SHARE_FIELD_NAME_LABEL',true),'`s`.`name`'),
+			'filepath' => array(JText::_('COM_NOKWEBDAV_SHARE_FIELD_FILEPATH_LABEL',true),'`s`.`filepath`'),
+			'published' => array(JText::_('COM_NOKWEBDAV_COMMON_FIELD_PUBLISHED_LABEL',true),'`s`.`published`'),
+			'createdby' => array(JText::_('COM_NOKWEBDAV_COMMON_FIELD_CREATEDBY_LABEL',true),'`s`.`createdby`'),
+			'createddate' => array(JText::_('COM_NOKWEBDAV_COMMON_FIELD_CREATEDDATE_LABEL',true),'`s`.`createddate`'),
+			'modifiedby' => array(JText::_('COM_NOKWEBDAV_COMMON_FIELD_MODIFIEDBY_LABEL',true),'`s`.`modifiedby`'),
+			'modifieddate' => array(JText::_('COM_NOKWEBDAV_COMMON_FIELD_MODIFIEDDATE_LABEL',true),'`s`.`modifieddate`')
 		);
 	}
 
@@ -182,7 +182,6 @@ class NoKPrjMgntModelProject extends JModelForm {
 		} catch (Exception $e) {
 			$this->setError($e);
 			$this->_item[$pk] = false;
-		}
 		}
 		return $this->_item[$pk];
 	}

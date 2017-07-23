@@ -25,6 +25,9 @@ class WebDAVHelper {
 	public static $HTTP_STATUS_ERROR_LOCKED = '423';
 	public static $HTTP_STATUS_ERROR_NOT_IMPLEMENTED = '501';
 	private static $_allow = array();
+	private static $_debug = true;
+	private static $_debugFile = '/tmp/nokwebdav-{timestamp}.log';
+	private $_debugText = '';
 	private static $_http_status_text = array('200' => 'OK',
 		'206' => 'Partial Content',
 		'207' => 'Multi-Status',
@@ -38,43 +41,87 @@ class WebDAVHelper {
 		'501' => 'Not Implemented'
 	);
 
-	public static function run() {
-		self::handleCommand(self::getCommand());
+	public function run() {
+		$this->handleCommand($this->getCommand());
 	}
 
-	public static function getCommand() {
+	public function getCommand() {
 		global $_SERVER;
 		return $_SERVER["REQUEST_METHOD"];
 	}
 
-	public static function handleCommand($command) {
+	public function handleCommand($command) {
+		$this->debugServerEnv();
 		switch($command) {
+/*
 			case 'PROPFIND':
 				JLoader::register('WebDAVPropFinderHelper', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/propfind.php', true);
 				list($code, $headers, $content) = WebDAVPropFinderHelper::getResponse();
 				break;
+*/
 			default:
 				// Unsupported command
 				$code = self::$HTTP_STATUS_ERROR_METHOD_NOT_ALLOWED;
-                		$headers = array('Allow: '.join(", ", self::$_allow()));
+                		$headers = array('Allow: '.join(", ", self::$_allow));
 				$content = '';
 				break;
 		}
-		self::_sendHttpStatus($code);
-		foreach($headers as $header) {
-			header($header);
+		$this->_sendHttpStatusAndHeaders($code, $headers);
+/*
+		if (!empty($content)) {
+			echo $content;
 		}
-		if (!empty($content)) { echo $content; }
+*/
+		$this->_debugSave();
 	}
 
-	private static function _sendHttpStatus($code) {
+	public function debugAddMessage($message) {
+		if (self::$_debug === false) { return; }
+		$this->_debugText .= date('Y-m-d H:i:s');
+		$this->_debugText .= "\t$message\n";
+	}
+
+	public function debugAddArray($list, $name) {
+		if (self::$_debug === false) { return; }
+		$message = $name." = {\n";
+		foreach($list as $key => $value) {
+			$message .= "\t$key => $value\n";
+		}
+		$message .= '}';
+		$this->debugAddMessage($message);
+	}
+
+	public function debugServerEnv() {
+		global $_SERVER;
+		if (self::$_debug === false) { return; }
+		$this->debugAddArray($_SERVER,'_SERVER');
+	}
+
+	private function _sendHttpStatusAndHeaders($code, $additionalheaders) {
 		$text = '';
 		$status = $code;
-		if (isset(self::$_http_status_text[$code])) {
-			$status = $code.' '.self::$_http_status_text[$code];
+		if (isset($this->_http_status_text[$code])) {
+			$status = $code.' '.$this->_http_status_text[$code];
 		}
-		header("HTTP/1.1 $status");
-		header("X-WebDAV-Status: $status", true);
+		$statusheaders = array("HTTP/1.1 $status", "X-WebDAV-Status: $status");
+		$headers = array_merge($statusheaders, $additionalheaders);
+		$this->debugAddArray($headers, 'headers');
+		foreach($headers as $header) {
+			header($header,true);
+		}
+	}
+
+	private function _debugSave() {
+		global $_SERVER;
+		if (self::$_debug === false) { return; }
+		$filename = str_replace('{timestamp}',date('Ymd').'T'.date('His'),self::$_debugFile);
+foreach($_SERVER as $key => $value) {
+	header('x-comment-'.$key.': '.$value,true);
+}
+		$result = file_put_contents($filename, $this->_debugText);
+	}
+
+	private function _arrayToText($list, $name) {
 	}
 }
 ?>
