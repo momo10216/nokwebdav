@@ -16,5 +16,11 @@ class WebDAVGetHelper {
 	public static function getResponse() {
 		return array(WebDAVHelper::$HTTP_STATUS_OK, array(), '');
 	}
+
+	private static function _getPathInfo() {
+		global $_SERVER;
+		return empty($_SERVER["PATH_INFO"]) ? '/' : $_SERVER["PATH_INFO"];
+	}
+
 }
 ?>
