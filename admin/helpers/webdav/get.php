@@ -21,7 +21,7 @@ class WebDAVGetHelper {
 		WebDAVHelper::debugAddMessage('GET: '.self::_getFileType($location));
 		switch(self::_getFileType($location)) {
 			case 'file':
-				return array(WebDAVHelper::$HTTP_STATUS_OK, array(), '');
+				return self::_getFile($location);
 			case 'directory':
 				return self::_getDirectory($location);
 			default:
@@ -73,6 +73,15 @@ class WebDAVGetHelper {
 		closedir($dirHandle);
 		$content .= '</html>'.self::$EOL;
 		return array(WebDAVHelper::$HTTP_STATUS_OK, array(), $content);
+	}
+
+	private static function _getFile($filename) {
+		$header = array();
+		$header[] = 'Content-type: '.mime_content_type($filename);
+		$header[] = 'Content-length: '.filesize($filename);
+		$header[] = 'Last-modified: '.gmdate("D, d M Y H:i:s", filemtime($filename))." GMT";
+		$content = file_get_contents($filename);
+		return array(WebDAVHelper::$HTTP_STATUS_OK, $header, $content);
 	}
 }
 ?>

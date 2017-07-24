@@ -18,8 +18,7 @@ class WebDAVOptionsHelper {
 		$header = array(
 			'Allow: '.join(", ", WebDAVHelper::$DAV_ALLOWED_COMMANDS),
 			'DAV: '.join(", ", WebDAVHelper::$DAV_SUPPORTED_PROTOCOLS,
-			'MS-Author-Via: DAV',
-			'Content-length: 0'
+			'MS-Author-Via: DAV'
 		);
 		$content = '';
 		return array($status, $header, $content);

@@ -73,6 +73,8 @@ class WebDAVHelper {
 				$content = '';
 				break;
 		}
+		if (is_string($content)) { $headers[] = 'Content-length: '.strlen($content); }
+
 		$this->_sendHttpStatusAndHeaders($code, $headers);
 		if (!empty($content)) {
 			echo $content;
