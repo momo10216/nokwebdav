@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<layout title="COM_NOKWEBDAV_SHARES_VIEW_LIST_LAYOUT_TITLE">
+		<message><![CDATA[COM_NOKWEBDAV_SHARES_VIEW_LIST_LAYOUT_DESC]]></message>
+	</layout>
+	<fields name="params" addfieldpath="/administrator/components/com_nokwebdav/models/fields">
+		<!-- Basic options. -->
+	</fields>
+</metadata>
