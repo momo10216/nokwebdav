@@ -74,11 +74,9 @@ class WebDAVHelper {
 				break;
 		}
 		$this->_sendHttpStatusAndHeaders($code, $headers);
-/*
 		if (!empty($content)) {
 			echo $content;
 		}
-*/
 	}
 
 	public function debugAddMessage($message) {

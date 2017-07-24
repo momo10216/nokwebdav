@@ -1,5 +1,7 @@
 http://webdav.org/
 https://de.wikipedia.org/wiki/WebDAV
+https://evertpot.com/167/
+http://talks.php.net/show/webdav/2
 
 dav://localhost/J3/index.php/en/?option=com_nokwebdav&view=share&format=webdav&name=media
 
