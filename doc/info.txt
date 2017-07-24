@@ -1,2 +1,5 @@
 http://webdav.org/
 https://de.wikipedia.org/wiki/WebDAV
+
+dav://localhost/J3/index.php/en/?option=com_nokwebdav&view=share&format=webdav&name=media
+

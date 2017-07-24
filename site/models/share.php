@@ -17,7 +17,7 @@ jimport('joomla.application.component.modelitem');
 jimport('joomla.event.dispatcher');
 // Include dependancy of the component helper
 jimport('joomla.application.component.helper');
-class NoKPrjMgntModelProject extends JModelForm {
+class NoKWebDAVModelShare extends JModelForm {
 	/**
 	 * @since   1.6
 	 */
@@ -202,8 +202,7 @@ class NoKPrjMgntModelProject extends JModelForm {
 		foreach($fields as $field) {
 			if (isset($allFields[$field]) && !empty($allFields[$field])) {
 				if ($removePrefix) {
-					$resultField = str_replace('`p`.', '' , $allFields[$field][1]);
-					$resultField = str_replace('`c`.', '' , $resultField);
+					$resultField = str_replace('`s`.', '' , $allFields[$field][1]);
 					$resultField = str_replace('`', '' , $resultField);
 					array_push($result,$resultField);
 				} else {

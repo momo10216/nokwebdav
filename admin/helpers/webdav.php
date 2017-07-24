@@ -24,7 +24,8 @@ class WebDAVHelper {
 	public static $HTTP_STATUS_ERROR_REQUESTED_RANGE_NOT_SATISFIABLE = '416';
 	public static $HTTP_STATUS_ERROR_LOCKED = '423';
 	public static $HTTP_STATUS_ERROR_NOT_IMPLEMENTED = '501';
-	private static $_allow = array();
+	public static $DAV_ALLOWED_COMMANDS = array('GET');
+	public static $DAV_SUPPORTED_PROTOCOLS = array('1');
 	private static $_http_status_text = array('200' => 'OK',
 		'206' => 'Partial Content',
 		'207' => 'Multi-Status',
@@ -48,18 +49,27 @@ class WebDAVHelper {
 	}
 
 	public function handleCommand($command) {
-		$this->debugServerEnv();
+//		$this->debugServerEnv();
+		$this->debugAddMessage('Received command "'.$command.'"');
 		switch($command) {
 /*
 			case 'PROPFIND':
-				JLoader::register('WebDAVPropFinderHelper', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/propfind.php', true);
-				list($code, $headers, $content) = WebDAVPropFinderHelper::getResponse();
+				JLoader::register('WebDAVPropFindHelper', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/propfind.php', true);
+				list($code, $headers, $content) = WebDAVPropFindHelper::getResponse();
 				break;
 */
+			case 'GET':
+				JLoader::register('WebDAVGetHelper', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/get.php', true);
+				list($code, $headers, $content) = WebDAVGetHelper::getResponse();
+				break;
+			case 'OPTIONS':
+				JLoader::register('WebDAVOptionsHelper', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/options.php', true);
+				list($code, $headers, $content) = WebDAVOptionsHelper::getResponse();
+				break;
 			default:
 				// Unsupported command
 				$code = self::$HTTP_STATUS_ERROR_METHOD_NOT_ALLOWED;
-                		$headers = array('Allow: '.join(", ", self::$_allow));
+                		$headers = array('Allow: '.join(", ", self::$DAV_ALLOWED_COMMANDS));
 				$content = '';
 				break;
 		}
@@ -96,7 +106,7 @@ class WebDAVHelper {
 		}
 		$statusheaders = array("HTTP/1.1 $status", "X-WebDAV-Status: $status");
 		$headers = array_merge($statusheaders, $additionalheaders);
-		$this->debugAddArray($headers, 'headers');
+//		$this->debugAddArray($headers, 'headers');
 		foreach($headers as $header) {
 			header($header,true);
 		}

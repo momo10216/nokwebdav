@@ -18,11 +18,6 @@ class WebDAVPropFindHelper {
 		if ($info === false) { return array('400', array(), ''); }
 	}
 
-	private static function _getPathInfo() {
-		global $_SERVER;
-		return empty($_SERVER["PATH_INFO"]) ? '/' : $_SERVER["PATH_INFO"];
-	}
-
 	private static function _getDepth() {
 		global $_SERVER;
 		return isset($_SERVER["HTTP_DEPTH"]) ? $_SERVER["HTTP_DEPTH"] : "infinity";
