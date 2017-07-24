@@ -49,7 +49,7 @@ class WebDAVHelper {
 	}
 
 	public function handleCommand($command) {
-//		$this->debugServerEnv();
+		$this->debugServerEnv();
 		$this->debugAddMessage('Received command "'.$command.'"');
 		switch($command) {
 /*
