@@ -5,14 +5,22 @@
 			description ="JGLOBAL_FIELD_ID_DESC" size="10" default="0"
 			readonly="true" />
 
-		<field name="name" type="text" label="COM_NOKWEBDAV_SHARE_FIELD_NAME_LABEL"
-			description="COM_NOKWEBDAV_SHARE_FIELD_NAME_DESC" size="40" required="true" />
+		<field name="name" type="text" label="COM_NOKWEBDAV_CONTAINER_FIELD_NAME_LABEL"
+			description="COM_NOKWEBDAV_CONTAINER_FIELD_NAME_DESC" size="40" required="true" />
 
-		<field name="filepath" type="text" label="COM_NOKWEBDAV_SHARE_FIELD_FILEPATH_LABEL"
-			description="COM_NOKWEBDAV_SHARE_FIELD_FILEPATH_DESC" size="40" required="true" />
+		<field name="type" type="list" label="COM_NOKWEBDAV_CONTAINER_FIELD_PUBLISHED_LABEL"
+			description="COM_NOKWEBDAV_CONTAINER_FIELD_PUBLISHED_DESC"
+			default="files">
+			<option value="files">COM_NOKWEBDAV_CONTAINER_FIELD_TYPE_FILES</option>
+			<option value="contacts">COM_NOKWEBDAV_CONTAINER_FIELD_TYPE_CONTACTS</option>
+			<option value="events">COM_NOKWEBDAV_CONTAINER_FIELD_TYPE_EVENTS</option>
+		</field>
 
-		<field name="published" type="list" label="COM_NOKWEBDAV_SHARE_FIELD_PUBLISHED_LABEL"
-			description="COM_NOKWEBDAV_SHARE_FIELD_PUBLISHED_DESC"
+		<field name="filepath" type="text" label="COM_NOKWEBDAV_CONTAINER_FIELD_FILEPATH_LABEL"
+			description="COM_NOKWEBDAV_CONTAINER_FIELD_FILEPATH_DESC" size="40" required="true" />
+
+		<field name="published" type="list" label="COM_NOKWEBDAV_CONTAINER_FIELD_PUBLISHED_LABEL"
+			description="COM_NOKWEBDAV_CONTAINER_FIELD_PUBLISHED_DESC"
 			class="btn-group btn-group-yesno"
 			size="1"
 			default="1">
@@ -48,6 +56,6 @@
 
 		<field name="rules" type="rules" label="JCONFIG_PERMISSIONS_LABEL"
 			description="JCONFIG_PERMISSIONS_DESC" validate="rules" filter="rules"
-			component="com_nokwebdav" section="share" />
+			component="com_nokwebdav" section="container" />
 	</fieldset>
 </form>

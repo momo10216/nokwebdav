@@ -18,14 +18,14 @@ jimport('joomla.database.table');
 /**
  * Shares Table class
  */
-class NoKWebDAVTableShares extends JTable {
+class NoKWebDAVTableContainers extends JTable {
 	/**
 	 * Constructor
 	 *
 	 * @param object Database connector object
 	 */
 	function __construct(&$db)  {
-			parent::__construct('#__nokWebDAV_shares', 'id', $db);
+			parent::__construct('#__nokWebDAV_containers', 'id', $db);
 	}
 
 	/**

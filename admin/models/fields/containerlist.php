@@ -15,9 +15,9 @@ defined('_JEXEC') or die('Restricted access');
 jimport('joomla.form.formfield');
  
 // The class name must always be the same as the filename (in camel case)
-class JFormFieldShareList extends JFormField {
+class JFormFieldContainerList extends JFormField {
         //The field class must know its own type through the variable $type.
-        protected $type = 'sharelist';
+        protected $type = 'containerlist';
  
         public function getInput() {
 			$fields = array();
@@ -32,9 +32,9 @@ class JFormFieldShareList extends JFormField {
 			$db = JFactory::getDBO();
 			$query = $db->getQuery(true);
 			$query
-			->select(array('s.id', 's.name'))
-			->from($db->quoteName('#__nokWebDAV_shares','s'))
-			->order('s.name');
+			->select(array('c.id', 'c.name'))
+			->from($db->quoteName('#__nokWebDAV_containers','c'))
+			->order('c.name');
 			$db->setQuery($query);
 			$results = $db->loadRowList();
 			foreach($results as $result) {

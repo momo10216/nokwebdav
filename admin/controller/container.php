@@ -11,9 +11,9 @@
 
 defined('_JEXEC') or die;
 
-class NoKWebDAVControllerShare extends JControllerForm {
+class NoKWebDAVControllerContainer extends JControllerForm {
 	protected $component = 'com_nokwebdav';
-	protected $type = 'share';
+	protected $type = 'Container';
 
 	/**
 	 * Method override to check if you can edit an existing record.

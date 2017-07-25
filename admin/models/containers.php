@@ -18,15 +18,15 @@ jimport('joomla.application.component.modellist');
 /**
  * NoKWebDAV List Shares Model
  */
-class NoKWebDAVModelShares extends JModelList {
+class NoKWebDAVModelContainers extends JModelList {
 	public function __construct($config = array()) {
 		if (!isset($config['filter_fields']) || empty($config['filter_fields'])) {
 			$config['filter_fields'] = array(
-				'id', 's.id',
-				'name', 's.name',
-				'filepath', 's.filepath',
-				'createddate', 'p.createddate',
-				'createdby', 'p.createdby'
+				'id', 'c.id',
+				'name', 'c.name',
+				'filepath', 'c.filepath',
+				'createddate', 'c.createddate',
+				'createdby', 'c.createdby'
 			);
 			$app = JFactory::getApplication();
 		}
@@ -42,7 +42,7 @@ class NoKWebDAVModelShares extends JModelList {
 		$search = $this->getUserStateFromRequest($this->context . '.filter.search', 'filter_search');
 		$this->setState('filter.search', $search);
 		// List state information.
-		parent::populateState('s.name', 'asc');
+		parent::populateState('c.name', 'asc');
 	}
 
 	/**
@@ -56,13 +56,13 @@ class NoKWebDAVModelShares extends JModelList {
 		$query = $db->getQuery(true);
 		// Select some fields from the hello table
 		$query
-			->select($db->quoteName(array('s.id', 's.name', 's.filepath')))
-			->from($db->quoteName('#__nokWebDAV_shares','s'));
+			->select($db->quoteName(array('c.id', 'c.name', 'c.type', 'c.filepath')))
+			->from($db->quoteName('#__nokWebDAV_containers','c'));
 		// special filtering (houshold, excludeid).
 		$whereExtList = array();
 		$app = JFactory::getApplication();
 		if ($excludeId = $app->input->get('excludeid')) {
-			array_push($whereExtList,"NOT ".$db->quoteName("s.id")." = ".$excludeId);
+			array_push($whereExtList,"NOT ".$db->quoteName("c.id")." = ".$excludeId);
 		}
 		$whereExt = implode(" AND ",$whereExtList);
 		// Filter by search in name.
@@ -70,10 +70,10 @@ class NoKWebDAVModelShares extends JModelList {
 		if (!empty($search)) {
 			if (!empty($whereExt)) $whereExt = " AND ".$whereExt;
 			if (stripos($search, 'id:') === 0) {
-				$query->where('s.id = ' . (int) substr($search, 3).$whereExt);
+				$query->where('c.id = ' . (int) substr($search, 3).$whereExt);
 			} else {
 				$search = $db->quote('%' . $db->escape($search, true) . '%');
-				$query->where('(s.name LIKE ' . $search . ' OR s.filepath LIKE ' . $search . ')'.$whereExt);
+				$query->where('(c.name LIKE ' . $search . ' OR c.filepath LIKE ' . $search . ')'.$whereExt);
 			}
 		} else {
 			if (!empty($whereExt)) {
@@ -81,7 +81,7 @@ class NoKWebDAVModelShares extends JModelList {
 			}
 		}
 		// Add the list ordering clause.
-		$orderColText = $this->state->get('list.ordering', 's.name');
+		$orderColText = $this->state->get('list.ordering', 'c.name');
 		$orderDirn = $this->state->get('list.direction', 'asc');
 		$orderCols = explode(",",$orderColText);
 		$orderEntry = array();
@@ -99,15 +99,15 @@ class NoKWebDAVModelShares extends JModelList {
          */
         public function getFieldMapping() {
 		return array (
-			'name'=>'s.name',
-			'filepath'=>'s.filepath',
-			'createdby'=>'s.createdby',
-			'createddate'=>'s.createddate'
+			'name'=>'c.name',
+			'filepath'=>'c.filepath',
+			'createdby'=>'c.createdby',
+			'createddate'=>'c.createddate'
 		);
 	}
 
 	public function getTableName() {
-		return "#__nokWebDAV_shares";
+		return "#__nokWebDAV_containers";
 	}
 
 	public function getIdFieldName() {

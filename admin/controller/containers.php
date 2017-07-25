@@ -11,8 +11,8 @@
 
 defined('_JEXEC') or die;
 
-class NoKWebDAVControllerShares extends JControllerAdmin {
-	public function getModel($name = 'Share', $prefix = 'NoKWebDAVModel', $config = array('ignore_request' => true)) {
+class NoKWebDAVControllerContainers extends JControllerAdmin {
+	public function getModel($name = 'Container', $prefix = 'NoKWebDAVModel', $config = array('ignore_request' => true)) {
 		$model = parent::getModel($name, $prefix, $config);
 		return $model;
 	}
@@ -23,7 +23,7 @@ class NoKWebDAVControllerShares extends JControllerAdmin {
 	}
 
 	public function import() {
-		$view = $this->getView('Shares', 'html');
+		$view = $this->getView('Containers', 'html');
 		$view->setLayout('import');
 		$view->display();
 	}
@@ -52,7 +52,7 @@ class NoKWebDAVControllerShares extends JControllerAdmin {
 	public function delete() {
 		$cid = JFactory::getApplication()->input->get('cid', array(), 'array');
 		//TODO: Delete tasks for project
-		$model = $this->getModel('Share');
+		$model = $this->getModel('Container');
 		$model->delete($cid);
 		$this->setRedirect(JRoute::_('index.php?option='.$this->option, false));
 	}
