@@ -9,27 +9,13 @@
 		<action name="core.edit.state" title="JACTION_EDITSTATE" description="JACTION_EDITSTATE_COMPONENT_DESC" />
 		<action name="core.edit.own" title="JACTION_EDITOWN" description="JACTION_EDITOWN_COMPONENT_DESC" />
 	</section>
-	<section name="share">
+	<section name="container">
 		<action name="core.delete" title="JACTION_DELETE" description="COM_NOKWEBDAV_ACCESS_DELETE_SHARE_DESC" />
 		<action name="core.edit" title="JACTION_EDIT" description="COM_NOKWEBDAV_ACCESS_EDIT_SHARE_DESC" />
 		<action name="core.edit.state" title="JACTION_EDITSTATE" description="COM_NOKWEBDAV_ACCESS_EDITSTATE_SHARE_DESC" />
-		<action name="file.read" title="COM_NOKWEBDAV_ACCESS_READ_FILE_LABEL" description="COM_NOKWEBDAV_ACCESS_READ_FILE_DESC" />
-		<action name="file.create" title="COM_NOKWEBDAV_ACCESS_CREATE_FILE_LABEL" description="COM_NOKWEBDAV_ACCESS_CREATE_FILE_DESC" />
-		<action name="file.change" title="COM_NOKWEBDAV_ACCESS_CHANGE_FILE_LABEL" description="COM_NOKWEBDAV_ACCESS_CHANGE_FILE_DESC" />
-		<action name="file.delete" title="COM_NOKWEBDAV_ACCESS_DELETE_FILE_LABEL" description="COM_NOKWEBDAV_ACCESS_DELETE_FILE_DESC" />
-		<action name="directory.read" title="COM_NOKWEBDAV_ACCESS_READ_DIRECTORY_LABEL" description="COM_NOKWEBDAV_ACCESS_READ_DIRECTORY_DESC" />
-		<action name="directory.create" title="COM_NOKWEBDAV_ACCESS_CREATE_DIRECTORY_LABEL" description="COM_NOKWEBDAV_ACCESS_CREATE_DIRECTORY_DESC" />
-		<action name="directory.change" title="COM_NOKWEBDAV_ACCESS_CHANGE_DIRECTORY_LABEL" description="COM_NOKWEBDAV_ACCESS_CHANGE_DIRECTORY_DESC" />
-		<action name="directory.delete" title="COM_NOKWEBDAV_ACCESS_DELETE_DIRECTORY_LABEL" description="COM_NOKWEBDAV_ACCESS_DELETE_DIRECTORY_DESC" />
-	</section>
-	<section name="contact">
-		<action name="core.delete" title="JACTION_DELETE" description="COM_NOKWEBDAV_ACCESS_DELETE_CONTACT_DESC" />
-		<action name="core.edit" title="JACTION_EDIT" description="COM_NOKWEBDAV_ACCESS_EDIT_CONTACT_DESC" />
-		<action name="core.edit.state" title="JACTION_EDITSTATE" description="COM_NOKWEBDAV_ACCESS_EDITSTATE_CONTACT_DESC" />
-	</section>
-	<section name="event">
-		<action name="core.delete" title="JACTION_DELETE" description="COM_NOKWEBDAV_ACCESS_DELETE_EVENT_DESC" />
-		<action name="core.edit" title="JACTION_EDIT" description="COM_NOKWEBDAV_ACCESS_EDIT_EVENT_DESC" />
-		<action name="core.edit.state" title="JACTION_EDITSTATE" description="COM_NOKWEBDAV_ACCESS_EDITSTATE_EVENT_DESC" />
+		<action name="content.read" title="COM_NOKWEBDAV_ACCESS_READ_CONTENT_LABEL" description="COM_NOKWEBDAV_ACCESS_READ_CONTENT_DESC" />
+		<action name="content.create" title="COM_NOKWEBDAV_ACCESS_CREATE_CONTENT_LABEL" description="COM_NOKWEBDAV_ACCESS_CREATE_CONTENT_DESC" />
+		<action name="content.change" title="COM_NOKWEBDAV_ACCESS_CHANGE_CONTENT_LABEL" description="COM_NOKWEBDAV_ACCESS_CHANGE_CONTENT_DESC" />
+		<action name="content.delete" title="COM_NOKWEBDAV_ACCESS_DELETE_CONTENT_LABEL" description="COM_NOKWEBDAV_ACCESS_DELETE_CONTENT_DESC" />
 	</section>
 </access>

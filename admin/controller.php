@@ -21,7 +21,7 @@ class NoKWebDAVController extends JControllerLegacy
 	 * @var		string	The default view.
 	 * @since   1.6
 	 */
-	protected $default_view = 'shares';
+	protected $default_view = 'containers';
 
         /**
          * display task
@@ -32,7 +32,7 @@ class NoKWebDAVController extends JControllerLegacy
         {
                 // set default view if not set
                 $input = JFactory::getApplication()->input;
-                $input->set('view', $input->get('view', 'shares'));
+                $input->set('view', $input->get('view', 'containers'));
  
                 // call parent behavior
                 parent::display($cachable, $urlparams);

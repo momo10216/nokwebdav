@@ -14,9 +14,9 @@ defined('_JEXEC') or die;
 class NoKWebDAVHelper extends JHelperContent {
 	public static function addSidebar($vName) {
 		JHtmlSidebar::addEntry(
-			JText::_('COM_NOKWEBDAV_MENU_SHARES'),
-			'index.php?option=com_nokwebdav&view=shares',
-			$vName == 'shares'
+			JText::_('COM_NOKWEBDAV_MENU_CONTAINERS'),
+			'index.php?option=com_nokwebdav&view=containers',
+			$vName == 'containers'
 		);
 /*
 		JHtmlSidebar::addEntry(
