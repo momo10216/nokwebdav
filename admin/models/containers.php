@@ -16,7 +16,7 @@ defined('_JEXEC') or die('Restricted access');
 jimport('joomla.application.component.modellist');
 
 /**
- * NoKWebDAV List Shares Model
+ * NoKWebDAV List Containers Model
  */
 class NoKWebDAVModelContainers extends JModelList {
 	public function __construct($config = array()) {
@@ -24,6 +24,7 @@ class NoKWebDAVModelContainers extends JModelList {
 			$config['filter_fields'] = array(
 				'id', 'c.id',
 				'name', 'c.name',
+				'type', 'c.type',
 				'filepath', 'c.filepath',
 				'createddate', 'c.createddate',
 				'createdby', 'c.createdby'
@@ -100,6 +101,7 @@ class NoKWebDAVModelContainers extends JModelList {
         public function getFieldMapping() {
 		return array (
 			'name'=>'c.name',
+			'type'=>'c.type',
 			'filepath'=>'c.filepath',
 			'createdby'=>'c.createdby',
 			'createddate'=>'c.createddate'

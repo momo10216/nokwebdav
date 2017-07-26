@@ -93,7 +93,7 @@ class NoKWebDAVViewContainers extends JViewLegacy {
 	 */
 	protected function getSortFields() {
 		return array (
-			'c.name' => JText::_('COM_NOKWEBDAV_SHARE_FIELD_NAME_LABEL')
+			'c.name' => JText::_('COM_NOKWEBDAV_CONTAINER_FIELD_NAME_LABEL')
 		);
 	}
 }

@@ -10,7 +10,7 @@
 */
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die;
-class NoKWebDAVViewShare extends JViewLegacy {
+class NoKWebDAVViewConnector extends JViewLegacy {
 	function display($tpl = null) {
 		// WebDAVHelper
 		JLoader::register('WebDAVHelper', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav.php', true);
