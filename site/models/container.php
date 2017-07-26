@@ -17,31 +17,32 @@ jimport('joomla.application.component.modelitem');
 jimport('joomla.event.dispatcher');
 // Include dependancy of the component helper
 jimport('joomla.application.component.helper');
-class NoKWebDAVModelShare extends JModelForm {
+class NoKWebDAVModelContainer extends JModelForm {
 	/**
 	 * @since   1.6
 	 */
 	private $pk = '0';
 	private $useAlias= true;
-	protected $view_item = 'project';
+	protected $view_item = 'container';
 	protected $_item = null;
 	protected $_membershipItems = null;
-	protected $_model = 'project';
+	protected $_model = 'container';
 	protected $_component = 'com_nokwebdav';
-	protected $_context = 'com_nokwebdav.project';
+	protected $_context = 'com_nokwebdav.container';
 	protected $_taskItems = null;
 
 	private function getFields() {
 		$params = JComponentHelper::getParams($this->_component);
 		return array (
-			'id' => array(JText::_('COM_NOKWEBDAV_COMMON_FIELD_ID_LABEL',true),'`s`.`id`'),
-			'name' => array(JText::_('COM_NOKWEBDAV_SHARE_FIELD_NAME_LABEL',true),'`s`.`name`'),
-			'filepath' => array(JText::_('COM_NOKWEBDAV_SHARE_FIELD_FILEPATH_LABEL',true),'`s`.`filepath`'),
-			'published' => array(JText::_('COM_NOKWEBDAV_COMMON_FIELD_PUBLISHED_LABEL',true),'`s`.`published`'),
-			'createdby' => array(JText::_('COM_NOKWEBDAV_COMMON_FIELD_CREATEDBY_LABEL',true),'`s`.`createdby`'),
-			'createddate' => array(JText::_('COM_NOKWEBDAV_COMMON_FIELD_CREATEDDATE_LABEL',true),'`s`.`createddate`'),
-			'modifiedby' => array(JText::_('COM_NOKWEBDAV_COMMON_FIELD_MODIFIEDBY_LABEL',true),'`s`.`modifiedby`'),
-			'modifieddate' => array(JText::_('COM_NOKWEBDAV_COMMON_FIELD_MODIFIEDDATE_LABEL',true),'`s`.`modifieddate`')
+			'id' => array(JText::_('COM_NOKWEBDAV_COMMON_FIELD_ID_LABEL',true),'`c`.`id`'),
+			'name' => array(JText::_('COM_NOKWEBDAV_CONTAINER_FIELD_NAME_LABEL',true),'`c`.`name`'),
+			'type' => array(JText::_('COM_NOKWEBDAV_CONTAINER_FIELD_TYPE_LABEL',true),'`c`.`type`'),
+			'filepath' => array(JText::_('COM_NOKWEBDAV_CONTAINER_FIELD_FILEPATH_LABEL',true),'`c`.`filepath`'),
+			'published' => array(JText::_('COM_NOKWEBDAV_COMMON_FIELD_PUBLISHED_LABEL',true),'`c`.`published`'),
+			'createdby' => array(JText::_('COM_NOKWEBDAV_COMMON_FIELD_CREATEDBY_LABEL',true),'`c`.`createdby`'),
+			'createddate' => array(JText::_('COM_NOKWEBDAV_COMMON_FIELD_CREATEDDATE_LABEL',true),'`c`.`createddate`'),
+			'modifiedby' => array(JText::_('COM_NOKWEBDAV_COMMON_FIELD_MODIFIEDBY_LABEL',true),'`c`.`modifiedby`'),
+			'modifieddate' => array(JText::_('COM_NOKWEBDAV_COMMON_FIELD_MODIFIEDDATE_LABEL',true),'`c`.`modifieddate`')
 		);
 	}
 
@@ -76,7 +77,7 @@ class NoKWebDAVModelShare extends JModelForm {
 	 *
 	 * @return  JTable    A database object
 	 */
-	public function getTable($type = 'Shares', $prefix = 'NoKWebDAVTable', $config = array()) {
+	public function getTable($type = 'Containers', $prefix = 'NoKWebDAVTable', $config = array()) {
 		return JTable::getInstance($type, $prefix, $config);
 	}
 
@@ -145,8 +146,8 @@ class NoKWebDAVModelShare extends JModelForm {
 					}
 				}
 				$query->select($fields)
-					->from($db->quoteName('#__nokWebDAV_shares','s'))
-					->where('s.id = ' . (int) $pk);
+					->from($db->quoteName('#__nokWebDAV_containers','c'))
+					->where('c.id = ' . (int) $pk);
 				$db->setQuery($query);
 				$data = $db->loadObject();
 				$this->_item[$pk] = $data;
@@ -173,8 +174,8 @@ class NoKWebDAVModelShare extends JModelForm {
 				}
 			}
 			$query->select($fields)
-				->from($db->quoteName('#__nokWebDAV_shares','s'))
-				->where($db->quoteName('s.name').' = '.$db->quote($name));
+				->from($db->quoteName('#__nokWebDAV_containers','c'))
+				->where($db->quoteName('c.name').' = '.$db->quote($name));
 			$db->setQuery($query);
 			$data = $db->loadObject();
 			$pk = $data['id'];
@@ -202,7 +203,7 @@ class NoKWebDAVModelShare extends JModelForm {
 		foreach($fields as $field) {
 			if (isset($allFields[$field]) && !empty($allFields[$field])) {
 				if ($removePrefix) {
-					$resultField = str_replace('`s`.', '' , $allFields[$field][1]);
+					$resultField = str_replace('`c`.', '' , $allFields[$field][1]);
 					$resultField = str_replace('`', '' , $resultField);
 					array_push($result,$resultField);
 				} else {
