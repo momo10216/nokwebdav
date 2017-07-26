@@ -110,7 +110,7 @@ class NoKWebDAVModelContainer extends JModelForm {
 	}
 
 	/**
-	 * Gets a contact
+	 * Gets a container
 	 *
 	 * @param   integer  $pk  Id for the contact
 	 *
