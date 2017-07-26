@@ -31,7 +31,7 @@ class NoKWebDAVController extends JControllerLegacy {
 	public function display($cachable = false, $urlparams = false) {
 		$cachable = true;
 		// Set the default view name and format from the Request.
-		$vName = $this->input->get('view', 'share');
+		$vName = $this->input->get('view', 'container');
 		$this->input->set('view', $vName);
 		$safeurlparams = array('catid' => 'INT', 'id' => 'INT', 'cid' => 'ARRAY', 'year' => 'INT', 'month' => 'INT', 'limit' => 'UINT', 'limitstart' => 'UINT',
 			'showall' => 'INT', 'return' => 'BASE64', 'filter' => 'STRING', 'filter_order' => 'CMD', 'filter_order_Dir' => 'CMD', 'filter-search' => 'STRING', 'print' => 'BOOLEAN', 'lang' => 'CMD');

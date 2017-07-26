@@ -12,10 +12,6 @@
 defined('_JEXEC') or die;
 class NoKWebDAVViewShare extends JViewLegacy {
 	function display($tpl = null) {
-		// Init variables
-		//$this->user = JFactory::getUser();
-		//$this->state = $this->get('State');
-		//$this->paramsComponent = $this->state->get('params');
 		// WebDAVHelper
 		JLoader::register('WebDAVHelper', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav.php', true);
 		$webdavHelper = new WebDAVHelper();

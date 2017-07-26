@@ -35,6 +35,9 @@ class JFormFieldContainerList extends JFormField {
 			->select(array('c.id', 'c.name'))
 			->from($db->quoteName('#__nokWebDAV_containers','c'))
 			->order('c.name');
+			if (isset($this->element["type"])) {
+				$query->where($db->quoteName('c.type').' = '.$db->quote($this->element["type"]));
+			}
 			$db->setQuery($query);
 			$results = $db->loadRowList();
 			foreach($results as $result) {
