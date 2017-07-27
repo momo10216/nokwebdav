@@ -76,21 +76,21 @@ class WebDAVHelper {
 		}
 	}
 
-	public function debugAddMessage($message) {
+	public static function debugAddMessage($message) {
 		JLog::add($message, JLog::DEBUG);
 	}
 
-	public function debugAddArray($list, $name) {
+	public static function debugAddArray($list, $name) {
 		$entries = array();
 		foreach($list as $key => $value) {
 			$entries[] = "$key => $value";
 		}
-		$this->debugAddMessage($name.' = {'.join(', ',$entries).'}');
+		self::debugAddMessage($name.' = {'.join(', ',$entries).'}');
 	}
 
-	public function debugServerEnv() {
+	public static function debugServerEnv() {
 		global $_SERVER;
-		$this->debugAddArray($_SERVER,'_SERVER');
+		self::debugAddArray($_SERVER,'_SERVER');
 	}
 
 	private function _sendHttpStatusAndHeaders($code, $additionalheaders) {
