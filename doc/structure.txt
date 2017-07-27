@@ -1,0 +1,8 @@
+WebDAV-Class
+	static getInstance($type, $access, $fileLocation, $contactData, $eventData)
+
+$type = files|contacts|events
+$access = {read => true, create => true, change => true, delete => true}
+$fileLocation = /
+$contactData = {}
+$eventData = {}

@@ -38,6 +38,24 @@ class WebDAVHelper {
 		'423' => 'Locked',
 		'501' => 'Not Implemented'
 	);
+	private $_type;
+	private $_access;
+	private $_fileLocation;
+	private $_contactData;
+	private $_eventData;
+
+	public function __construct($type='files', $access, $fileLocation='/', $contactData=array(), $eventData=array()) {
+		$this->_type = $type;
+		$this->_access = $access;
+		$this->_fileLocation = $fileLocation;
+		$this->_contactData = $contactData;
+		$this->_eventData = $eventData;
+		$this->_initializePlugin($type, $access, $fileLocation, $contactData, $eventData);
+	}
+
+	public static function getInstance($type='files', $access, $fileLocation='/', $contactData=array(), $eventData=array()) {
+		return new self($type, $access, $fileLocation, $contactData, $eventData);
+	}
 
 	public function run() {
 		$this->handleCommand($this->getCommand());
@@ -49,30 +67,7 @@ class WebDAVHelper {
 	}
 
 	public function handleCommand($command) {
-		$this->debugServerEnv();
-		$this->debugAddMessage('Received command "'.$command.'"');
-		switch($command) {
-/*
-			case 'PROPFIND':
-				JLoader::register('WebDAVPropFindHelper', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/propfind.php', true);
-				list($code, $headers, $content) = WebDAVPropFindHelper::getResponse();
-				break;
-*/
-			case 'GET':
-				JLoader::register('WebDAVGetHelper', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/get.php', true);
-				list($code, $headers, $content) = WebDAVGetHelper::getResponse();
-				break;
-			case 'OPTIONS':
-				JLoader::register('WebDAVOptionsHelper', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/options.php', true);
-				list($code, $headers, $content) = WebDAVOptionsHelper::getResponse();
-				break;
-			default:
-				// Unsupported command
-				$code = self::$HTTP_STATUS_ERROR_METHOD_NOT_ALLOWED;
-                		$headers = array('Allow: '.join(", ", self::$DAV_ALLOWED_COMMANDS));
-				$content = '';
-				break;
-		}
+		list($code, $headers, $content) = $this->_plugin->handleCommand($command);
 		if (is_string($content)) { $headers[] = 'Content-length: '.strlen($content); }
 
 		$this->_sendHttpStatusAndHeaders($code, $headers);
@@ -109,6 +104,19 @@ class WebDAVHelper {
 //		$this->debugAddArray($headers, 'headers');
 		foreach($headers as $header) {
 			header($header,true);
+		}
+	}
+
+	private function _initializePlugin($type, $access, $fileLocation, $contactData, $eventData) {
+		switch(strtolower($type)) {
+			case 'files':
+				JLoader::register('WebDAVHelperPlugin', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files.php', true);
+				$this->_plugin = new WebDAVHelperPlugin($access, $fileLocation, $contactData, $eventData);
+				break;
+			default:
+				JLog::add('Unknown type: '.$type, JLog::ERROR);
+				$this->_plugin = null;
+				break;
 		}
 	}
 }

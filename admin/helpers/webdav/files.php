@@ -12,40 +12,68 @@
 // No direct access
 defined('_JEXEC') or die('Restricted access');
  
-class WebDAVGetHelper {
+class WebDAVHelperPlugin {
 	private static $EOL = "\n";
+	private static $_allowedCommands = array('GET','OPTIONS');
+	private $_access;
+	private $_fileLocation;
+	private $_contactData;
+	private $_eventData;
 
-	public static function getResponse() {
-		$location = self::_getLocation();
-		WebDAVHelper::debugAddMessage('GET: '.$location);
-		WebDAVHelper::debugAddMessage('GET: '.self::_getFileType($location));
-		switch(self::_getFileType($location)) {
+	public function __construct($access, $fileLocation, $contactData, $eventData) {
+		$this->_access = $access;
+		$this->_fileLocation = $fileLocation;
+		$this->_contactData = $contactData;
+		$this->_eventData = $eventData;
+	}
+
+	public function handleCommand($command) {
+		switch($command) {
+			case 'GET':
+				return $this->_handleGET();
+			case 'OPTIONS':
+				return $this->_handleOPTIONS();
+			default:
+				// Unsupported command
+				$code = WebDAVHelper::$HTTP_STATUS_ERROR_METHOD_NOT_ALLOWED;
+                		$headers = array('Allow: '.join(", ", self::$_allowedCommands));
+				$content = '';
+				return array($code, $headers, $content);
+		}
+	}
+
+	private function _handleGET() {
+		WebDAVHelper::debugAddMessage('GET: '.$this->_fileLocation);
+		WebDAVHelper::debugAddMessage('GET: '.$this->_getFileType($this->_fileLocation));
+		switch($this->_getFileType($this->_fileLocation)) {
 			case 'file':
-				return self::_getFile($location);
+				return $this->_getFile($this->_fileLocation);
 			case 'directory':
-				return self::_getDirectory($location);
+				return $this->_getDirectory($this->_fileLocation);
 			default:
 				return array(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND, array(), '');
 		}
 		return array(WebDAVHelper::$HTTP_STATUS_OK, array(), '');
 	}
 
-	private static function _getLocation() {
-		global $_SERVER;
-		$language = JFactory::getLanguage();
-		$shortlang = explode('-',$language->getTag())[0];
-		$location = empty($_SERVER["PATH_INFO"]) ? '/' : $_SERVER["PATH_INFO"];
-		$location = str_replace('/'.$shortlang,'',$location);
-		return $location;
+	private function _handleOPTIONS() {
+		$status = WebDAVHelper::$HTTP_STATUS_OK;
+		$header = array(
+			'Allow: '.join(", ", $this->_allowedCommands),
+			'DAV: '.join(", ", WebDAVHelper::$DAV_SUPPORTED_PROTOCOLS),
+			'MS-Author-Via: DAV'
+		);
+		$content = '';
+		return array($status, $header, $content);
 	}
 
-	private static function _getFileType($file) {
+	private function _getFileType($file) {
 		if (!file_exists($file)) { return 'missing'; }
 		if (is_dir($file)) { return 'directory'; }
 		return 'file';
 	}
 
-	private static function _getDirectory($directory) {
+	private function _getDirectory($directory) {
 		global $_SERVER;
 		$params = '';
 		if (isset($_SERVER['QUERY_STRING']) && !empty($_SERVER['QUERY_STRING'])) { $params = '?'.$_SERVER['QUERY_STRING']; }
@@ -75,7 +103,7 @@ class WebDAVGetHelper {
 		return array(WebDAVHelper::$HTTP_STATUS_OK, array(), $content);
 	}
 
-	private static function _getFile($filename) {
+	private function _getFile($filename) {
 		$header = array();
 		$header[] = 'Content-type: '.mime_content_type($filename);
 		$header[] = 'Content-length: '.filesize($filename);
