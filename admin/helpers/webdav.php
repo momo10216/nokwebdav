@@ -93,13 +93,18 @@ class WebDAVHelper {
 		self::debugAddArray($_SERVER,'_SERVER');
 	}
 
+	public static function directoryWithSlash($directory) {
+		if (substr($directory,-1) == '/') { return $directory; }
+		return $directory.'/';
+	}
+
 	private function _sendHttpStatusAndHeaders($code, $additionalheaders) {
 		$text = '';
 		$status = $code;
 		if (isset($this->_http_status_text[$code])) {
 			$status = $code.' '.$this->_http_status_text[$code];
 		}
-		$statusheaders = array("HTTP/1.1 $status", "X-WebDAV-Status: $status");
+		$statusheaders = array("HTTP/1.1 $status", "X-WebDAV-Status: $status", 'X-Dav-Powered-By: NoK-WebDAV');
 		$headers = array_merge($statusheaders, $additionalheaders);
 //		$this->debugAddArray($headers, 'headers');
 		foreach($headers as $header) {

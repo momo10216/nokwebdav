@@ -17,8 +17,8 @@ class WebDAVHelperPluginCommand {
 
 	public static function execute($fileLocation) {
 		WebDAVHelper::debugAddMessage('GET: '.$fileLocation);
-		WebDAVHelper::debugAddMessage('GET: '.self::_getFileType($fileLocation));
-		switch(self::_getFileType($fileLocation)) {
+		WebDAVHelper::debugAddMessage('GET: '.WebDAVHelperPlugin::getFileType($fileLocation));
+		switch(WebDAVHelperPlugin::getFileType($fileLocation)) {
 			case 'file':
 				return self::_getFile($fileLocation);
 			case 'directory':
@@ -29,38 +29,26 @@ class WebDAVHelperPluginCommand {
 		return array(WebDAVHelper::$HTTP_STATUS_OK, array(), '');
 	}
 
-	private function _getFileType($file) {
-		if (!file_exists($file)) { return 'missing'; }
-		if (is_dir($file)) { return 'directory'; }
-		return 'file';
-	}
-
 	private function _getDirectory($directory) {
-		global $_SERVER;
-		$params = '';
-		if (isset($_SERVER['QUERY_STRING']) && !empty($_SERVER['QUERY_STRING'])) { $params = '?'.$_SERVER['QUERY_STRING']; }
-        	$dirHandle = opendir($directory);
-		if (!$dirHandle) { return array(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND, array(), ''); }
-		$saveDir = htmlspecialchars($directory);
+		$dirEntries = WebDAVHelperPlugin::getDirectoryList($directory);
+		if ($dirEntries === false) { return array(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND, array(), ''); }
+		$title = 'Index of '.htmlspecialchars($directory);
 		$displayFormat = "%15s  %-19s  %-s".self::$EOL;
-		$content = '<html><head><title>Index of '.$saveDir.'</title></head>'.self::$EOL;
-		$content .= '<h1>Index of '.$saveDir.'</h1>'.self::$EOL;
+		$content = '<html><head><title>'.$title.'</title></head>'.self::$EOL;
+		$content .= '<h1>'.$title.'</h1>'.self::$EOL;
 		$content .= '<pre>';
 		$content .= sprintf($displayFormat, "Size", "Last modified", "Filename");
 		$content .= '<hr>';
-		while ($filename = readdir($dirHandle)) {
-			if ($filename != '.' && $filename != '..') {
-				$filenameWithPath = $directory."/".$filename;
-				$saveFilename = htmlspecialchars($filename);
+		foreach($dirEntries as $dirEntry) {
+			if (($dirEntry['name'] != '.') && ($dirEntry['name'] != '..')) {
 				$content .= sprintf($displayFormat,
-					number_format(filesize($filenameWithPath)),
-					strftime("%Y-%m-%d %H:%M:%S", filemtime($filenameWithPath)),
-					'<a href="'.$_SERVER['PHP_SELF'].'/'.$saveFilename.$params.'">'.$saveFilename.'</a>'
+					number_format($dirEntry['size']),
+					strftime("%Y-%m-%d %H:%M:%S", $dirEntry['mtime']),
+					'<a href="'.$dirEntry['html_ref'].'">'.$dirEntry['html_name'].'</a>'
 				);
 			}
 		}
 		$content .= '</pre>';
-		closedir($dirHandle);
 		$content .= '</html>'.self::$EOL;
 		return array(WebDAVHelper::$HTTP_STATUS_OK, array(), $content);
 	}
