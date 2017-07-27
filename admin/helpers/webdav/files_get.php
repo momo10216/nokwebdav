@@ -14,20 +14,15 @@ defined('_JEXEC') or die('Restricted access');
  
 class WebDAVHelperPluginCommand {
 	private static $EOL = "\n";
-	private static $_allowedCommands = array('GET','OPTIONS');
-	private $_access;
-	private $_fileLocation;
-	private $_contactData;
-	private $_eventData;
 
-	public function execute($fileLocation)) {
+	public static function execute($fileLocation) {
 		WebDAVHelper::debugAddMessage('GET: '.$fileLocation);
-		WebDAVHelper::debugAddMessage('GET: '.$this->_getFileType($fileLocation));
-		switch($this->_getFileType($fileLocation)) {
+		WebDAVHelper::debugAddMessage('GET: '.self::_getFileType($fileLocation));
+		switch(self::_getFileType($fileLocation)) {
 			case 'file':
-				return $this->_getFile($fileLocation);
+				return self::_getFile($fileLocation);
 			case 'directory':
-				return $this->_getDirectory($fileLocation);
+				return self::_getDirectory($fileLocation);
 			default:
 				return array(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND, array(), '');
 		}

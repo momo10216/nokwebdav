@@ -13,7 +13,7 @@
 defined('_JEXEC') or die('Restricted access');
  
 class WebDAVHelperPluginCommand {
-	public function execute($allowedCommands) {
+	public static function execute($allowedCommands) {
 		$status = WebDAVHelper::$HTTP_STATUS_OK;
 		$header = array(
 			'Allow: '.join(", ", $allowedCommands),
