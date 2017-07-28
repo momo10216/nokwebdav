@@ -1,4 +1,15 @@
 <?php
+function getInfosFromUrl() {
+	global $_SERVER;
+	$location = str_replace($_SERVER["SCRIPT_INFO"],'',$_SERVER["PATH_INFO"]);
+	$locElements = explode('/',$location);
+	if (count($locElements) < 2) { return array('',''); }
+	$containerName = $locElements[1];
+	unset($locElements[1]);
+	$location = implode('/',$locElements);
+	return array($containerName, $location);
+}
+
 function getLocation() {
 	global $_SERVER;
 	$location = str_replace($_SERVER["SCRIPT_INFO"],'',$_SERVER["PATH_INFO"]);
@@ -47,20 +58,27 @@ JLog::addLogger(
 	JLog::ALL
 );
 
-/*
 // Init controller
 jimport('joomla.application.component.controller');
 $controller = JControllerLegacy::getInstance('NoKWebDAV');
-*/
+$container = $controller->getModel('container');
 
 JLoader::register('WebDAVHelper', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav.php', true);
 $type = 'files';
 $access = array('read' => true, 'create' => true, 'change' => true, 'delete' => true);
-$baseDir = '/var/www/html/J3';
 $uriLocation = $_SERVER['PHP_SELF'];
-$webdavHelper = WebDAVHelper::getFilesInstance($access, joinDirAndFile($baseDir,getLocation()), $uriLocation);
+list ($containerName, $location) = getInfosFromUrl();
+$item = $container->getItemByName($containerName);
+$baseDir = $item->filepath;
+if ((strlen($baseDir) < 1) || (substr($baseDir,0,1) != '/')) {
+	// relative path
+	$baseDir = joinDirAndFile(JPATH_BASE,$item->filepath);
+}
+$currentDir = joinDirAndFile($baseDir,$location);
+$webdavHelper = WebDAVHelper::getFilesInstance($access, $currentDir, $uriLocation);
 $webdavHelper->run();
-
+//echo "$currentDir $uriLocation\n";
+//flush();
 // Exit
 $app->close();
 ?>
