@@ -4,6 +4,22 @@ function getLocation() {
 	$location = str_replace($_SERVER["SCRIPT_INFO"],'',$_SERVER["PATH_INFO"]);
 	return $location;
 }
+
+function joinDirAndFile($directory, $filename) {
+	if (substr($directory,-1) == '/') {
+		if (substr($filename,0,1) == '/') {
+			return $directory.substr($filename,1);
+		} else {
+			return $directory.$filename;
+		}
+	} else {
+		if (substr($filename,0,1) == '/') {
+			return $directory.$filename;
+		} else {
+			return $directory.'/'.$filename;
+		}
+	}
+}
 $component = 'com_nokwebdav';
 
 define('_JEXEC', 1);
@@ -40,10 +56,9 @@ $controller = JControllerLegacy::getInstance('NoKWebDAV');
 JLoader::register('WebDAVHelper', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav.php', true);
 $type = 'files';
 $access = array('read' => true, 'create' => true, 'change' => true, 'delete' => true);
-$fileLocation = '/';
-$contactData = array();
-$eventData = array();
-$webdavHelper = WebDAVHelper::getInstance($type, $access, $fileLocation, $contactData, $eventData);
+$baseDir = '/var/www/html/J3';
+$uriLocation = $_SERVER['PHP_SELF'];
+$webdavHelper = WebDAVHelper::getFilesInstance($access, joinDirAndFile($baseDir,getLocation()), $uriLocation);
 $webdavHelper->run();
 
 // Exit

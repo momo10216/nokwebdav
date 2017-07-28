@@ -15,10 +15,10 @@ defined('_JEXEC') or die('Restricted access');
 class WebDAVHelperPluginCommand {
 	private static $EOL = "\n";
 
-	public static function execute($directory) {
+	public static function execute($directory, $uriLocation) {
 		$propertiesRequested = self::_parseInfo();
 		if ($propertiesRequested === false) { return array(WebDAVHelper::$HTTP_STATUS_ERROR_BAD_REQUEST, array(), ''); }
-		return self::_generateAnswer($directory, $propertiesRequested);
+		return self::_generateAnswer($directory, $uriLocation, $propertiesRequested);
 	}
 
 	private static function _parseInfo() {
@@ -49,41 +49,42 @@ class WebDAVHelperPluginCommand {
 			}
 		}
 		if (count($info) < 1) { return 'all'; }
-		WebDAVHelper::debugAddArray($info,'Requested properties: ');
+		//WebDAVHelper::debugAddArray($info,'Requested properties: ');
 		return $info;
 	}
 
-	private static function _generateAnswer($directory, $propertiesRequested) {
+	private static function _generateAnswer($directory, $uriLocation, $propertiesRequested) {
 		$status = WebDAVHelper::$HTTP_STATUS_OK_MULTI_STATUS;
 		$header = array('Content-Type: text/xml; charset="utf-8');
 		$content = '<?xml version="1.0" encoding="utf-8"?>'.self::$EOL;
-		WebDAVHelper::debugAddMessage('Depth: '.WebDAVHelperPlugin::getDepth());
-		WebDAVHelper::debugAddMessage('Directory: '.$directory);
+		//WebDAVHelper::debugAddMessage('Depth: '.WebDAVHelperPlugin::getDepth());
+		//WebDAVHelper::debugAddMessage('Directory: '.$directory);
 		$content .= '<d:multistatus xmlns:d="DAV:">'.self::$EOL;
 		switch (WebDAVHelperPlugin::getDepth()) {
 			case '0': // Single object info
-				$content .= self::_getSingleInfo($directory, $propertiesRequested);
+				$content .= self::_getSingleInfo($directory, $uriLocation, $propertiesRequested);
 				break;
 			case '1': // Directory info
-				$content .= self::_getDirectoryInfo($directory, $propertiesRequested, false);
+				$content .= self::_getDirectoryInfo($directory, $uriLocation, $propertiesRequested, false);
 				break;
 			case 'infinity': // Recursive directory info
 			default:
-				$content .= self::_getDirectoryInfo($directory, $propertiesRequested, true);
+				$content .= self::_getDirectoryInfo($directory, $uriLocation, $propertiesRequested, true);
 				break;
 		}
 		$content .= '</d:multistatus>'.self::$EOL;
-		WebDAVHelper::debugAddMessage('Propfind output: '.$content);
+		//WebDAVHelper::debugAddMessage('Propfind output: '.$content);
 		return array($status, $header, $content);
 	}
 
-	private static function _getSingleInfo($directory, $propertiesRequested) {
-		return self::_getResponse(WebDAVHelperPlugin::getObjectInfo($directory), $propertiesRequested);
+	private static function _getSingleInfo($directory, $uriLocation, $propertiesRequested) {
+		return self::_getResponse(WebDAVHelperPlugin::getObjectInfo($directory, $uriLocation), $propertiesRequested);
 	}
 
-	private static function _getDirectoryInfo($directory, $propertiesRequested, $recursive = false) {
+	private static function _getDirectoryInfo($directory, $uriLocation, $propertiesRequested, $recursive = false) {
 		$content = '';
-		$dirEntries = WebDAVHelperPlugin::getDirectoryList($directory);
+		$dirEntries = WebDAVHelperPlugin::getDirectoryList($directory, $uriLocation, $recursive);
+		//WebDAVHelper::debugAddArray($dirEntries,'dirEntries: ');
 		if ($dirEntries === false) { return array(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND, array(), ''); }
 		foreach ($dirEntries as $dirEntry) {
 			if (($dirEntry['name'] != '.') && ($dirEntry['name'] != '..')) {

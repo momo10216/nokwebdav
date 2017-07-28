@@ -16,13 +16,15 @@ class WebDAVHelperPlugin {
 	private static $EOL = "\n";
 	private static $_allowedCommands = array('GET', 'OPTIONS', 'PROPFIND');
 	private $_access;
+	private $_uriLocation;
 	private $_fileLocation;
 	private $_contactData;
 	private $_eventData;
 
-	public function __construct($access, $fileLocation, $contactData, $eventData) {
+	public function __construct($access, $fileLocation, $uriLocation, $contactData, $eventData) {
 		$this->_access = $access;
 		$this->_fileLocation = $fileLocation;
+		$this->_uriLocation = $uriLocation;
 		$this->_contactData = $contactData;
 		$this->_eventData = $eventData;
 	}
@@ -38,7 +40,7 @@ class WebDAVHelperPlugin {
 				return WebDAVHelperPluginCommand::execute(self::$_allowedCommands);
 			case 'PROPFIND':
 				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files_propfind.php', true);
-				return WebDAVHelperPluginCommand::execute($this->_fileLocation);
+				return WebDAVHelperPluginCommand::execute($this->_fileLocation, $this->_uriLocation);
 			default:
 				// Unsupported command
 				WebDAVHelper::debugAddMessage('Unsupported command: '.$command);
@@ -55,31 +57,32 @@ class WebDAVHelperPlugin {
 		return 'file';
 	}
 
-	public static function getDirectoryList($directory) {
+	public static function getDirectoryList($directory, $uriLocation, $recursive = false) {
 		global $_SERVER;
+		//WebDAVHelper::debugAddMessage('directory: '.$directory);
         	$dirHandle = opendir($directory);
 		$dirList = array();
 		if (!$dirHandle) { return false; }
 		while ($filename = readdir($dirHandle)) {
-			if (is_readable($filename)) {
-				$filenameWithPath = WebDAVHelper::joinDirAndFile($directory,$filename);
-				$dirList[] = self::getObjectInfo($filenameWithPath);
-			}
+			//WebDAVHelper::debugAddMessage('Filename: '.$filename);
+			$filenameWithPath = WebDAVHelper::joinDirAndFile($directory,$filename);
+			$link = WebDAVHelper::joinDirAndFile($uriLocation,$filename);
+			$dirList[] = self::getObjectInfo($filenameWithPath, $link);
 		}
 		closedir($dirHandle);
 		return $dirList;
 	}
 
-	public static function getObjectInfo($filenameWithPath) {
+	public static function getObjectInfo($filenameWithPath, $link) {
 		$directory = dirname($filenameWithPath);
 		$filename = str_replace(WebDAVHelper::directoryWithSlash($directory),'',$filenameWithPath);
-		WebDAVHelper::debugAddMessage('Filename with path: '.$filenameWithPath);
-		WebDAVHelper::debugAddMessage('Path: '.$directory);
-		WebDAVHelper::debugAddMessage('Filename: '.$filename);
+		//WebDAVHelper::debugAddMessage('Filename with path: '.$filenameWithPath);
+		//WebDAVHelper::debugAddMessage('Path: '.$directory);
+		//WebDAVHelper::debugAddMessage('Filename: '.$filename);
 		$fileinfo = array();
 		$fileinfo['name'] = $filename;
 		$fileinfo['html_name'] = htmlspecialchars($filename);
-		$fileinfo['html_ref'] = WebDAVHelper::joinDirAndFile($_SERVER['PHP_SELF'],$fileinfo['html_name']);
+		$fileinfo['html_ref'] = $link;
 		$fileinfo['type'] = self::getFileType($filenameWithPath);
 		$fileinfo['mime_type'] = mime_content_type($filenameWithPath);
 		$fileinfo['ctime'] = filectime($filenameWithPath);
@@ -88,7 +91,7 @@ class WebDAVHelperPlugin {
 		$perm = fileperms($filenameWithPath);
 		$fileinfo['permission'] = sprintf('%o', $perm);
 		$fileinfo['executable'] = substr(sprintf('%12b', $perm),3,1);
-		WebDAVHelper::debugAddArray($fileinfo, 'fileinfo');
+		//WebDAVHelper::debugAddArray($fileinfo, 'fileinfo');
 		return $fileinfo;
 	}
 

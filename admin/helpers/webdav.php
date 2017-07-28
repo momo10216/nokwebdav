@@ -41,20 +41,22 @@ class WebDAVHelper {
 	private $_type;
 	private $_access;
 	private $_fileLocation;
+	private $_uriLocation;
 	private $_contactData;
 	private $_eventData;
 
-	public function __construct($type='files', $access, $fileLocation='/', $contactData=array(), $eventData=array()) {
+	public function __construct($type='files', $access, $fileLocation='/', $uriLocation='/', $contactData=array(), $eventData=array()) {
 		$this->_type = $type;
 		$this->_access = $access;
 		$this->_fileLocation = $fileLocation;
+		$this->_uriLocation = $uriLocation;
 		$this->_contactData = $contactData;
 		$this->_eventData = $eventData;
-		$this->_initializePlugin($type, $access, $fileLocation, $contactData, $eventData);
+		$this->_initializePlugin($type, $access, $fileLocation, $uriLocation, $contactData, $eventData);
 	}
 
-	public static function getInstance($type='files', $access, $fileLocation='/', $contactData=array(), $eventData=array()) {
-		return new self($type, $access, $fileLocation, $contactData, $eventData);
+	public static function getFilesInstance($access, $fileLocation='/', $uriLocation='/') {
+		return new self('files', $access, $fileLocation, $uriLocation, array(), array());
 	}
 
 	public function run() {
@@ -127,11 +129,11 @@ class WebDAVHelper {
 		}
 	}
 
-	private function _initializePlugin($type, $access, $fileLocation, $contactData, $eventData) {
+	private function _initializePlugin($type, $access, $fileLocation, $uriLocation, $contactData, $eventData) {
 		switch(strtolower($type)) {
 			case 'files':
 				JLoader::register('WebDAVHelperPlugin', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files.php', true);
-				$this->_plugin = new WebDAVHelperPlugin($access, $fileLocation, $contactData, $eventData);
+				$this->_plugin = new WebDAVHelperPlugin($access, $fileLocation, $uriLocation, $contactData, $eventData);
 				break;
 			default:
 				JLog::add('Unknown type: '.$type, JLog::ERROR);
