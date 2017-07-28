@@ -1,0 +1,3 @@
+set debug socket,http,xml,httpauth,cleartext
+open "http://localhost/J3/index.php/en/webdav"
+quit
