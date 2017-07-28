@@ -29,6 +29,7 @@
 
 	<files folder="site">
 		<filename>nokwebdav.php</filename>
+		<filename>connector.php</filename>
 		<filename>controller.php</filename>
 		<filename>index.html</filename>
 		<folder>models</folder>
