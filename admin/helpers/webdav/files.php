@@ -62,24 +62,42 @@ class WebDAVHelperPlugin {
 		if (!$dirHandle) { return false; }
 		while ($filename = readdir($dirHandle)) {
 			if (is_readable($filename)) {
-				$fileinfo = array();
-				$fileinfo['name'] = $filename;
-				$fileinfo['html_name'] = htmlspecialchars($filename);
-				$fileinfo['html_ref'] = WebDAVHelper::directoryWithSlash($_SERVER['PHP_SELF']).$fileinfo['html_name'];
-				$fileinfo['type'] = self::getFileType($filename);
-				$fileinfo['mime_type'] = mime_content_type($filename);
-				$filenameWithPath = WebDAVHelper::directoryWithSlash($directory).$filename;
-				$fileinfo['ctime'] = filectime($filenameWithPath);
-				$fileinfo['mtime'] = filemtime($filenameWithPath);
-				$fileinfo['size'] = filesize($filename);
-				$perm = fileperms($filename);
-				$fileinfo['permission'] = sprintf('%o', $perm);
-				$fileinfo['executable'] = substr(sprintf('%12b', $perm),3,1);
-				$dirList[] = $fileinfo;
+				$filenameWithPath = WebDAVHelper::joinDirAndFile($directory,$filename);
+				$dirList[] = self::getObjectInfo($filenameWithPath);
 			}
 		}
 		closedir($dirHandle);
 		return $dirList;
+	}
+
+	public static function getObjectInfo($filenameWithPath) {
+		$directory = dirname($filenameWithPath);
+		$filename = str_replace(WebDAVHelper::directoryWithSlash($directory),'',$filenameWithPath);
+		WebDAVHelper::debugAddMessage('Filename with path: '.$filenameWithPath);
+		WebDAVHelper::debugAddMessage('Path: '.$directory);
+		WebDAVHelper::debugAddMessage('Filename: '.$filename);
+		$fileinfo = array();
+		$fileinfo['name'] = $filename;
+		$fileinfo['html_name'] = htmlspecialchars($filename);
+		$fileinfo['html_ref'] = WebDAVHelper::joinDirAndFile($_SERVER['PHP_SELF'],$fileinfo['html_name']);
+		$fileinfo['type'] = self::getFileType($filenameWithPath);
+		$fileinfo['mime_type'] = mime_content_type($filenameWithPath);
+		$fileinfo['ctime'] = filectime($filenameWithPath);
+		$fileinfo['mtime'] = filemtime($filenameWithPath);
+		$fileinfo['size'] = filesize($filenameWithPath);
+		$perm = fileperms($filenameWithPath);
+		$fileinfo['permission'] = sprintf('%o', $perm);
+		$fileinfo['executable'] = substr(sprintf('%12b', $perm),3,1);
+		WebDAVHelper::debugAddArray($fileinfo, 'fileinfo');
+		return $fileinfo;
+	}
+
+	public static function getDepth() {
+		global $_SERVER;
+		if (isset($_SERVER['HTTP_DEPTH'])) {
+			return $_SERVER["HTTP_DEPTH"];
+		}
+		return "infinity";
 	}
 }
 ?>

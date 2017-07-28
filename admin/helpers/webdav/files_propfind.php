@@ -16,14 +16,9 @@ class WebDAVHelperPluginCommand {
 	private static $EOL = "\n";
 
 	public static function execute($directory) {
-		$proprequested = self::_parseInfo();
-		if ($proprequested === false) { return array(WebDAVHelper::$HTTP_STATUS_ERROR_BAD_REQUEST, array(), ''); }
-		return self::_getResponse($directory, $proprequested);
-	}
-
-	private static function _getDepth() {
-		global $_SERVER;
-		return isset($_SERVER["HTTP_DEPTH"]) ? $_SERVER["HTTP_DEPTH"] : "infinity";
+		$propertiesRequested = self::_parseInfo();
+		if ($propertiesRequested === false) { return array(WebDAVHelper::$HTTP_STATUS_ERROR_BAD_REQUEST, array(), ''); }
+		return self::_generateAnswer($directory, $propertiesRequested);
 	}
 
 	private static function _parseInfo() {
@@ -58,24 +53,52 @@ class WebDAVHelperPluginCommand {
 		return $info;
 	}
 
-	private static function _getResponse($directory, $proprequested) {
+	private static function _generateAnswer($directory, $propertiesRequested) {
 		$status = WebDAVHelper::$HTTP_STATUS_OK_MULTI_STATUS;
 		$header = array('Content-Type: text/xml; charset="utf-8');
 		$content = '<?xml version="1.0" encoding="utf-8"?>'.self::$EOL;
+		WebDAVHelper::debugAddMessage('Depth: '.WebDAVHelperPlugin::getDepth());
+		WebDAVHelper::debugAddMessage('Directory: '.$directory);
 		$content .= '<d:multistatus xmlns:d="DAV:">'.self::$EOL;
+		switch (WebDAVHelperPlugin::getDepth()) {
+			case '0': // Single object info
+				$content .= self::_getSingleInfo($directory, $propertiesRequested);
+				break;
+			case '1': // Directory info
+				$content .= self::_getDirectoryInfo($directory, $propertiesRequested, false);
+				break;
+			case 'infinity': // Recursive directory info
+			default:
+				$content .= self::_getDirectoryInfo($directory, $propertiesRequested, true);
+				break;
+		}
+		$content .= '</d:multistatus>'.self::$EOL;
+		WebDAVHelper::debugAddMessage('Propfind output: '.$content);
+		return array($status, $header, $content);
+	}
+
+	private static function _getSingleInfo($directory, $propertiesRequested) {
+		return self::_getResponse(WebDAVHelperPlugin::getObjectInfo($directory), $propertiesRequested);
+	}
+
+	private static function _getDirectoryInfo($directory, $propertiesRequested, $recursive = false) {
+		$content = '';
 		$dirEntries = WebDAVHelperPlugin::getDirectoryList($directory);
 		if ($dirEntries === false) { return array(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND, array(), ''); }
 		foreach ($dirEntries as $dirEntry) {
 			if (($dirEntry['name'] != '.') && ($dirEntry['name'] != '..')) {
-				$content .= '	<d:response>'.self::$EOL;
-				$content .= '		<d:href>'.$dirEntry['html_ref'].'</d:href>'.self::$EOL;
-				$content .= self::_getProperties($dirEntry, $proprequested,'		');
-				$content .= '	</d:response>'.self::$EOL;
+				$content .= self::_getResponse($dirEntry, $propertiesRequested);
 			}
 		}
-		$content .= '</d:multistatus>'.self::$EOL;
-		//WebDAVHelper::debugAddMessage('Propfind output: '.$content);
-		return array($status, $header, $content);
+		return $content;
+	}
+	private static function _getResponse($dirEntry, $propertiesRequested) {
+		$content = '';
+		$content .= '	<d:response>'.self::$EOL;
+		$content .= '		<d:href>'.$dirEntry['html_ref'].'</d:href>'.self::$EOL;
+		$content .= self::_getProperties($dirEntry, $propertiesRequested, "\t\t");
+		$content .= '	</d:response>'.self::$EOL;
+		return $content;
 	}
 
 	private static function _getProperties($dirEntry, $propertiesRequested, $prefix) {
@@ -96,14 +119,14 @@ class WebDAVHelperPluginCommand {
 					break;
 				case 'resourcetype';
 					$resourcetype = '';
-					if ($dirEntry['mime_type'] == 'directory') { $resourcetype = '<d:collection/>'; }
+					if ($dirEntry['mime_type'] == 'directory') { $resourcetype = '<d:collection />'; }
 					$content .= $prefix.'		<d:resourcetype>'.self::$EOL;
 					$content .= $prefix.'			'.$resourcetype.self::$EOL;
 					$content .= $prefix.'		</d:resourcetype>'.self::$EOL;
 					break;
 				case 'executable';
 					if ($dirEntry['executable'] == '1') {
-						$content .= $prefix.'		<d:executable/>'.self::$EOL;
+						$content .= $prefix.'		<d:executable />'.self::$EOL;
 					}
 					break;
 				case 'creationdate';
@@ -123,7 +146,7 @@ class WebDAVHelperPluginCommand {
 			$content .= $prefix.'	<d:prop>'.self::$EOL;
 			$content .= $prefix.'		<d:executable xmlns="http://apache.org/dav/props/" />'.self::$EOL;
 			foreach ($unknowns as $unknown) {
-				$content .= $prefix.'		<d:'.$unknown.'/>'.self::$EOL;
+				$content .= $prefix.'		<d:'.$unknown.' />'.self::$EOL;
 			}
 			$content .= $prefix.'	</d:prop>'.self::$EOL;
 			$content .= $prefix.'	<d:status>HTTP/1.1 404 Not Found</d:status>'.self::$EOL;

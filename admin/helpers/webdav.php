@@ -97,6 +97,22 @@ class WebDAVHelper {
 		return $directory.'/';
 	}
 
+	public static function joinDirAndFile($directory, $filename) {
+		if (substr($directory,-1) == '/') {
+			if (substr($filename,0,1) == '/') {
+				return $directory.substr($filename,1);
+			} else {
+				return $directory.$filename;
+			}
+		} else {
+			if (substr($filename,0,1) == '/') {
+				return $directory.$filename;
+			} else {
+				return $directory.'/'.$filename;
+			}
+		}
+	}
+
 	private function _sendHttpStatusAndHeaders($code, $additionalheaders) {
 		$text = '';
 		$status = $code;
