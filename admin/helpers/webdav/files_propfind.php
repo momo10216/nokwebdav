@@ -54,7 +54,7 @@ class WebDAVHelperPluginCommand {
 			}
 		}
 		if (count($info) < 1) { return 'all'; }
-		WebDAVHelper::debugAddArray($info,'info');
+		WebDAVHelper::debugAddArray($info,'Requested properties: ');
 		return $info;
 	}
 
@@ -74,7 +74,7 @@ class WebDAVHelperPluginCommand {
 			}
 		}
 		$content .= '</d:multistatus>'.self::$EOL;
-		WebDAVHelper::debugAddMessage('Propfind output: '.$content);
+		//WebDAVHelper::debugAddMessage('Propfind output: '.$content);
 		return array($status, $header, $content);
 	}
 

@@ -28,6 +28,7 @@ class WebDAVHelperPlugin {
 	}
 
 	public function handleCommand($command) {
+		WebDAVHelper::debugAddMessage('Incoming file command: '.$command);
 		switch($command) {
 			case 'GET':
 				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files_get.php', true);

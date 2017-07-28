@@ -69,7 +69,6 @@ class WebDAVHelper {
 	public function handleCommand($command) {
 		list($code, $headers, $content) = $this->_plugin->handleCommand($command);
 		if (is_string($content)) { $headers[] = 'Content-length: '.strlen($content); }
-
 		$this->_sendHttpStatusAndHeaders($code, $headers);
 		if (!empty($content)) {
 			echo $content;
@@ -85,7 +84,7 @@ class WebDAVHelper {
 		foreach($list as $key => $value) {
 			$entries[] = "$key => $value";
 		}
-		self::debugAddMessage($name.' = {'.join(', ',$entries).'}');
+		self::debugAddMessage($name.' {'.join(', ',$entries).'}');
 	}
 
 	public static function debugServerEnv() {
