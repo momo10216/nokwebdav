@@ -15,6 +15,7 @@ defined('_JEXEC') or die('Restricted access');
 class WebDAVHelper {
 	public static $HTTP_STATUS_OK = '200';
 	public static $HTTP_STATUS_CREATED = '201';
+	public static $HTTP_STATUS_NO_CONTENT = '204';
 	public static $HTTP_STATUS_OK_PARTIAL = '206';
 	public static $HTTP_STATUS_OK_MULTI_STATUS = '207';
 	public static $HTTP_STATUS_ERROR_BAD_REQUEST = '400';

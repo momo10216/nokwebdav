@@ -57,10 +57,12 @@ class WebDAVHelperPluginCommand {
 		$status = WebDAVHelper::$HTTP_STATUS_OK_MULTI_STATUS;
 		$header = array('Content-Type: text/xml; charset="utf-8');
 		$content = '<?xml version="1.0" encoding="utf-8"?>'.self::$EOL;
-		//WebDAVHelper::debugAddMessage('Depth: '.WebDAVHelperPlugin::getDepth());
-		//WebDAVHelper::debugAddMessage('Directory: '.$directory);
+		$depth = WebDAVHelperPlugin::getDepth();
+		WebDAVHelper::debugAddMessage('Depth: '.$depth);
+		WebDAVHelper::debugAddMessage('Directory: '.$directory);
 		$content .= '<d:multistatus xmlns:d="DAV:">'.self::$EOL;
-		switch (WebDAVHelperPlugin::getDepth()) {
+		if (WebDAVHelperPlugin::getFileType($directory) == 'file') { $depth = '0'; }
+		switch ($depth) {
 			case '0': // Single object info
 				if (!file_exists($directory)) { return array(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND, array(), ''); }
 				$content .= self::_getSingleInfo($directory, $uriLocation, $propertiesRequested);
@@ -78,7 +80,7 @@ class WebDAVHelperPluginCommand {
 				break;
 		}
 		$content .= '</d:multistatus>'.self::$EOL;
-		//WebDAVHelper::debugAddMessage('Propfind output: '.$content);
+		WebDAVHelper::debugAddMessage('Propfind output: '.$content);
 		return array($status, $header, $content);
 	}
 

@@ -14,7 +14,7 @@ defined('_JEXEC') or die('Restricted access');
  
 class WebDAVHelperPlugin {
 	private static $EOL = "\n";
-	private static $_allowedCommands = array('GET', 'OPTIONS', 'PROPFIND', 'MKCOL', 'DELETE');
+	private static $_allowedCommands = array('GET', 'OPTIONS', 'PROPFIND', 'MKCOL', 'DELETE', 'PUT');
 	private $_access;
 	private $_uriLocation;
 	private $_fileLocation;
@@ -46,6 +46,9 @@ class WebDAVHelperPlugin {
 				return WebDAVHelperPluginCommand::execute($this->_fileLocation);
 			case 'DELETE':
 				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files_delete.php', true);
+				return WebDAVHelperPluginCommand::execute($this->_fileLocation);
+			case 'PUT':
+				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files_put.php', true);
 				return WebDAVHelperPluginCommand::execute($this->_fileLocation);
 			default:
 				// Unsupported command
