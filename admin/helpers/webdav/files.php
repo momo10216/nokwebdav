@@ -14,7 +14,7 @@ defined('_JEXEC') or die('Restricted access');
  
 class WebDAVHelperPlugin {
 	private static $EOL = "\n";
-	private static $_allowedCommands = array('GET', 'OPTIONS', 'PROPFIND');
+	private static $_allowedCommands = array('GET', 'OPTIONS', 'PROPFIND', 'MKCOL');
 	private $_access;
 	private $_uriLocation;
 	private $_fileLocation;
@@ -41,6 +41,9 @@ class WebDAVHelperPlugin {
 			case 'PROPFIND':
 				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files_propfind.php', true);
 				return WebDAVHelperPluginCommand::execute($this->_fileLocation, $this->_uriLocation);
+			case 'MKCOL':
+				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files_mkcol.php', true);
+				return WebDAVHelperPluginCommand::execute($this->_fileLocation);
 			default:
 				// Unsupported command
 				WebDAVHelper::debugAddMessage('Unsupported command: '.$command);
@@ -97,10 +100,17 @@ class WebDAVHelperPlugin {
 
 	public static function getDepth() {
 		global $_SERVER;
-		if (isset($_SERVER['HTTP_DEPTH'])) {
-			return $_SERVER["HTTP_DEPTH"];
-		}
+		if (isset($_SERVER['HTTP_DEPTH'])) { return $_SERVER["HTTP_DEPTH"]; }
 		return "infinity";
+	}
+
+	public static function getPathAndFilename($filenameWithPath) {
+		$dirEntries = explode(DIRECTORY_SEPARATOR, $filenameWithPath);
+		WebDAVHelper::debugAddArray($dirEntries, 'dirEntries');
+		$file = array_pop($dirEntries);
+		if (!$file) { $file = array_pop($dirEntries); }
+		$directory = implode(DIRECTORY_SEPARATOR, $dirEntries);
+		return array($directory, $file);
 	}
 }
 ?>
