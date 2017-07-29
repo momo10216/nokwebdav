@@ -1,11 +1,10 @@
 ToDo
 ====
-Authentication
+COPY
+MOVE
 Propfind - Depth = infinity
 POST
 TRACE
-COPY
-MOVE
 PROPPATCH
 LOCK
 UNLOCK
@@ -14,6 +13,7 @@ DAV: 1, 2, ordered-collections
 
 Done
 ====
+Authentication
 HEAD
 OPTIONS
 GET
