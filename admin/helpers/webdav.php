@@ -69,12 +69,33 @@ class WebDAVHelper {
 	}
 
 	public function handleCommand($command) {
-		list($code, $headers, $content) = $this->_plugin->handleCommand($command);
+		if (self::hasAccess($command)) {
+			list($code, $headers, $content) = $this->_plugin->handleCommand($command);
+		} else {
+			$code = self::$HTTP_STATUS_ERROR_UNAUTHORIZED;
+			$headers = array();
+			$content = '';
+		}
 		if (is_string($content)) { $headers[] = 'Content-length: '.strlen($content); }
 		$this->_sendHttpStatusAndHeaders($code, $headers);
 		if (!empty($content)) {
 			echo $content;
 		}
+	}
+
+	public function hasAccess($command) {
+		$hasAccess = '';
+		switch(strtoupper($command)) {
+			case 'GET':
+			case 'OPTIONS':
+			case 'PROPFIND':
+				if ($this->_access['read']) { $hasAccess =  '1'; }
+				break;
+			default:
+				break;
+		}
+		self::debugAddMessage('Access command:'.$command.' result:'.$hasAccess);
+		return $hasAccess;
 	}
 
 	public static function debugAddMessage($message) {
