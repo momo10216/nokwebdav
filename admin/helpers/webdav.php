@@ -111,8 +111,7 @@ class WebDAVHelper {
 			list($code, $headers, $content) = $this->_plugin->handleCommand($command);
 		} else {
 			$code = self::$HTTP_STATUS_ERROR_UNAUTHORIZED;
-			$headers = array();
-			$content = '';
+			$headers = array('WWW-Authenticate: Basic realm="Joomla (NoK-WebDAV)"');
 		}
 		if (is_string($content)) { $headers[] = 'Content-length: '.strlen($content); }
 		$this->_sendHttpStatusAndHeaders($code, $headers);

@@ -37,6 +37,40 @@ function getAccess($id) {
 	return $access;
 }
 
+function handleAuthentication() {
+	global $_SERVER;
+
+	if (isset($_SERVER['PHP_AUTH_USER']) && !empty($_SERVER['PHP_AUTH_USER'])) {
+		$user = JFactory::getUser();
+		if ($user->username != $_SERVER['PHP_AUTH_USER']) {
+			$app = JFactory::getApplication();
+			JLog::add('User: '.$_SERVER['PHP_AUTH_USER'], JLog::DEBUG);
+			JLog::add('Password: '.$_SERVER['PHP_AUTH_PW'], JLog::DEBUG);
+			return $app->login(array(
+				'username' => $_SERVER['PHP_AUTH_USER'],
+				'password' => $_SERVER['PHP_AUTH_PW']
+			),array());
+		} else {
+			JLog::add('User "'.$_SERVER['PHP_AUTH_USER'].'" already logged in.', JLog::DEBUG);
+		}
+	} else {
+		JLog::add('No username provided.', JLog::DEBUG);
+	}
+	return true;
+}
+
+/*
+function _generatePassword($username, $password) {
+	self::debugAddMessage('PW from in:  '.$password);
+	$user = JFactory::getuser(JUserHelper::getUserId($username));
+	self::debugAddMessage('PW from db:  '.$user->password);
+	$salt = explode(':',$user->password)[1];
+	$crypt = JUserHelper::getCryptedPassword($password, $salt);
+	self::debugAddMessage('PW to check: '.JUserHelper::hashPassword($password_choose));
+	return JUserHelper::hashPassword($password_choose);
+}
+*/
+
 $component = 'com_nokwebdav';
 
 define('_JEXEC', 1);
@@ -52,6 +86,7 @@ require_once (JPATH_BASE.'/includes/framework.php' );
 jimport( 'joomla.application.application' );
 jimport( 'joomla.filter.filteroutput' );
 $app = JFactory::getApplication('site');
+
 // Logging
 jimport('joomla.log.log');
 JLog::addLogger(
@@ -62,6 +97,9 @@ JLog::addLogger(
 	),
 	JLog::ALL
 );
+
+// Auth
+handleAuthentication();
 
 // Init controller
 jimport('joomla.application.component.controller');
