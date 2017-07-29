@@ -58,22 +58,26 @@ class WebDAVHelperPluginCommand {
 		$header = array('Content-Type: text/xml; charset="utf-8');
 		$content = '<?xml version="1.0" encoding="utf-8"?>'.self::$EOL;
 		//WebDAVHelper::debugAddMessage('Depth: '.WebDAVHelperPlugin::getDepth());
-		//WebDAVHelper::debugAddMessage('Directory: '.$directory);
+		WebDAVHelper::debugAddMessage('Directory: '.$directory);
 		$content .= '<d:multistatus xmlns:d="DAV:">'.self::$EOL;
 		switch (WebDAVHelperPlugin::getDepth()) {
 			case '0': // Single object info
 				$content .= self::_getSingleInfo($directory, $uriLocation, $propertiesRequested);
 				break;
 			case '1': // Directory info
-				$content .= self::_getDirectoryInfo($directory, $uriLocation, $propertiesRequested, false);
+				$dirEntries = WebDAVHelperPlugin::getDirectoryList($directory, $uriLocation, array('.','..'), false);
+				if (count($dirEntries) < 1) { return array(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND, array(), ''); }
+				$content .= self::_getDirectoryInfo($directory, $uriLocation, $propertiesRequested, $dirEntries);
 				break;
 			case 'infinity': // Recursive directory info
 			default:
-				$content .= self::_getDirectoryInfo($directory, $uriLocation, $propertiesRequested, true);
+				$dirEntries = WebDAVHelperPlugin::getDirectoryList($directory, $uriLocation, array('.','..'), true);
+				if (count($dirEntries) < 1) { return array(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND, array(), ''); }
+				$content .= self::_getDirectoryInfo($directory, $uriLocation, $propertiesRequested, $dirEntries);
 				break;
 		}
 		$content .= '</d:multistatus>'.self::$EOL;
-		//WebDAVHelper::debugAddMessage('Propfind output: '.$content);
+		WebDAVHelper::debugAddMessage('Propfind output: '.$content);
 		return array($status, $header, $content);
 	}
 
@@ -81,18 +85,14 @@ class WebDAVHelperPluginCommand {
 		return self::_getResponse(WebDAVHelperPlugin::getObjectInfo($directory, $uriLocation), $propertiesRequested);
 	}
 
-	private static function _getDirectoryInfo($directory, $uriLocation, $propertiesRequested, $recursive = false) {
+	private static function _getDirectoryInfo($directory, $uriLocation, $propertiesRequested, $dirEntries) {
 		$content = '';
-		$dirEntries = WebDAVHelperPlugin::getDirectoryList($directory, $uriLocation, $recursive);
-		//WebDAVHelper::debugAddArray($dirEntries,'dirEntries: ');
-		if ($dirEntries === false) { return array(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND, array(), ''); }
 		foreach ($dirEntries as $dirEntry) {
-			if (($dirEntry['name'] != '.') && ($dirEntry['name'] != '..')) {
-				$content .= self::_getResponse($dirEntry, $propertiesRequested);
-			}
+			$content .= self::_getResponse($dirEntry, $propertiesRequested);
 		}
 		return $content;
 	}
+
 	private static function _getResponse($dirEntry, $propertiesRequested) {
 		$content = '';
 		$content .= '	<d:response>'.self::$EOL;
@@ -109,29 +109,35 @@ class WebDAVHelperPluginCommand {
 		$unknowns = array();
 		foreach ($propertiesRequested as $propertyRequested) {
 			switch($propertyRequested) {
-				case 'displayname';
+				case 'displayname':
 					$content .= $prefix.'		<d:displayname>'.$dirEntry['name'].'</d:displayname>'.self::$EOL;
 					break;
-				case 'getcontentlength';
+				case 'getcontentlength':
 					$content .= $prefix.'		<d:getcontentlength>'.$dirEntry['size'].'</d:getcontentlength>'.self::$EOL;
 					break;
-				case 'getlastmodified';
-					$content .= $prefix.'		<d:getlastmodified '.$datens.'>'.gmdate('D, d M Y H:i:s', $dirEntry['mtime']).' GMT</d:getlastmodified>'.self::$EOL;
+				case 'getcontenttype':
+					$content .= $prefix.'		<d:getcontenttype>'.$dirEntry['mime_type'].'</d:getcontenttype>'.self::$EOL;
 					break;
-				case 'resourcetype';
+				case 'resourcetype':
 					$resourcetype = '';
 					if ($dirEntry['mime_type'] == 'directory') { $resourcetype = '<d:collection />'; }
 					$content .= $prefix.'		<d:resourcetype>'.self::$EOL;
 					$content .= $prefix.'			'.$resourcetype.self::$EOL;
 					$content .= $prefix.'		</d:resourcetype>'.self::$EOL;
 					break;
-				case 'executable';
+				case 'executable':
 					if ($dirEntry['executable'] == '1') {
 						$content .= $prefix.'		<d:executable />'.self::$EOL;
 					}
 					break;
-				case 'creationdate';
+				case 'creationdate':
 					$content .= $prefix.'		<d:creationdate '.$datens.'>'.gmdate('D, d M Y H:i:s', $dirEntry['ctime']).' GMT</d:creationdate>'.self::$EOL;
+					break;
+				case 'getlastmodified':
+					$content .= $prefix.'		<d:getlastmodified '.$datens.'>'.gmdate('D, d M Y H:i:s', $dirEntry['mtime']).' GMT</d:getlastmodified>'.self::$EOL;
+					break;
+				case 'getetag':
+					$content .= $prefix.'		<d:getetag>'.$dirEntry['etag'].'</d:getetag>'.self::$EOL;
 					break;
 				default:
 					// Unsupported property
