@@ -178,6 +178,7 @@ class NoKWebDAVModelContainer extends JModelForm {
 				->where($db->quoteName('c.name').' = '.$db->quote($name));
 			$db->setQuery($query);
 			$data = $db->loadObject();
+			if (!$data) { return false; }
 			$pk = $data->id;
 			$this->_item[$pk] = $data;
 		} catch (Exception $e) {

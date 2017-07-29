@@ -114,7 +114,7 @@ class WebDAVHelper {
 			$headers = array('WWW-Authenticate: Basic realm="Joomla (NoK-WebDAV)"');
 		}
 		if (is_string($content)) { $headers[] = 'Content-length: '.strlen($content); }
-		$this->_sendHttpStatusAndHeaders($code, $headers);
+		self::sendHttpStatusAndHeaders($code, $headers);
 		if (!empty($content)) {
 			echo $content;
 		}
@@ -190,11 +190,11 @@ class WebDAVHelper {
 		}
 	}
 
-	private function _sendHttpStatusAndHeaders($code, $additionalheaders) {
+	public static function sendHttpStatusAndHeaders($code, $additionalheaders = array()) {
 		$text = '';
 		$status = $code;
-		if (isset($this->_http_status_text[$code])) {
-			$status = $code.' '.$this->_http_status_text[$code];
+		if (isset(self::$_http_status_text[$code])) {
+			$status = $code.' '.self::$_http_status_text[$code];
 		}
 		$statusheaders = array("HTTP/1.1 $status", "X-WebDAV-Status: $status", 'X-Dav-Powered-By: NoK-WebDAV');
 		$headers = array_merge($statusheaders, $additionalheaders);

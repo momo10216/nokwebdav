@@ -1,7 +1,8 @@
 <?php
 function getInfosFromUrl() {
 	global $_SERVER;
-	$location = str_replace($_SERVER["SCRIPT_INFO"],'',$_SERVER["PATH_INFO"]);
+
+	$location = str_replace($_SERVER['SCRIPT_NAME'],'',$_SERVER['PATH_INFO']);
 	$locElements = explode('/',$location);
 	if (count($locElements) < 2) { return array('',''); }
 	$containerName = $locElements[1];
@@ -43,15 +44,18 @@ function handleAuthentication() {
 	if (isset($_SERVER['PHP_AUTH_USER']) && !empty($_SERVER['PHP_AUTH_USER'])) {
 		$user = JFactory::getUser();
 		if ($user->username != $_SERVER['PHP_AUTH_USER']) {
+			$user = '';
+			$password = '';
+			if (isset($_SERVER['PHP_AUTH_USER'])) { $user = $_SERVER['PHP_AUTH_USER']; }
+			if (isset($_SERVER['PHP_AUTH_PW'])) { $password = $_SERVER['PHP_AUTH_PW']; }
 			$app = JFactory::getApplication();
-			JLog::add('User: '.$_SERVER['PHP_AUTH_USER'], JLog::DEBUG);
-			JLog::add('Password: '.$_SERVER['PHP_AUTH_PW'], JLog::DEBUG);
-			return $app->login(array(
-				'username' => $_SERVER['PHP_AUTH_USER'],
-				'password' => $_SERVER['PHP_AUTH_PW']
-			),array());
+			JLog::add('User: '.$user, JLog::DEBUG);
+			JLog::add('Password: '.$password, JLog::DEBUG);
+			$credentials = array('username' => $user,'password' => $password);
+			$options = array();
+			$app->login($credentials, $options);
 		} else {
-			JLog::add('User "'.$_SERVER['PHP_AUTH_USER'].'" already logged in.', JLog::DEBUG);
+			JLog::add('User "'.$user.'" already logged in.', JLog::DEBUG);
 		}
 	} else {
 		JLog::add('No username provided.', JLog::DEBUG);
@@ -110,25 +114,30 @@ JLoader::register('WebDAVHelper', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav
 $uriLocation = $_SERVER['PHP_SELF'];
 list ($containerName, $location) = getInfosFromUrl();
 $item = $container->getItemByName($containerName);
-switch($item->type) {
-	case 'files':
-		$baseDir = $item->filepath;
-		if ((strlen($baseDir) < 1) || (substr($baseDir,0,1) != '/')) {
-			// relative path
-			$baseDir = joinDirAndFile(JPATH_BASE,$item->filepath);
-		}
-		$currentDir = joinDirAndFile($baseDir,$location);
-		$webdavHelper = WebDAVHelper::getFilesInstance(getAccess($item->id), $currentDir, $uriLocation);
-		break;
-	default:
-		break;
-}
+if ($item === false) {
+	JLog::add('Container "'.$containerName.'" not found.', JLog::ERROR);
+	WebDAVHelper::sendHttpStatusAndHeaders(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND);
+} else {
+	switch($item->type) {
+		case 'files':
+			$baseDir = $item->filepath;
+			if ((strlen($baseDir) < 1) || (substr($baseDir,0,1) != '/')) {
+				// relative path
+				$baseDir = joinDirAndFile(JPATH_BASE,$item->filepath);
+			}
+			$currentDir = joinDirAndFile($baseDir,$location);
+			$webdavHelper = WebDAVHelper::getFilesInstance(getAccess($item->id), $currentDir, $uriLocation);
+			break;
+		default:
+			break;
+	}
 
 //print_r(getAccess($item->id));
 //echo "$currentDir $uriLocation\n";
 //flush();
-// Exit
 
-$webdavHelper->run();
+	// Exit
+	$webdavHelper->run();
+}
 $app->close();
 ?>
