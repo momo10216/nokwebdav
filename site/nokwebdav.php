@@ -15,19 +15,6 @@ defined('_JEXEC') or die('Restricted access');
 // import joomla controller library
 jimport('joomla.application.component.controller');
 
-// Include the JLog class.
-jimport('joomla.log.log');
-
-// Initialise a basic logger with no options (once only).
-JLog::addLogger(
-	array(
-		'text_file' => 'nokwebdav.log',
-		'text_file_path' => '/tmp/',
-		'text_entry_format' => '{DATETIME} {PRIORITY} {MESSAGE}'
-	),
-	JLog::ALL
-);
-
 // Get an instance of the controller prefixed by HelloWorld
 $controller = JControllerLegacy::getInstance('NoKWebDAV');
 

@@ -69,23 +69,28 @@ $controller = JControllerLegacy::getInstance('NoKWebDAV');
 $container = $controller->getModel('container');
 
 JLoader::register('WebDAVHelper', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav.php', true);
-$type = 'files';
-$access = array('read' => true, 'create' => true, 'change' => true, 'delete' => true);
 $uriLocation = $_SERVER['PHP_SELF'];
 list ($containerName, $location) = getInfosFromUrl();
 $item = $container->getItemByName($containerName);
-$baseDir = $item->filepath;
-if ((strlen($baseDir) < 1) || (substr($baseDir,0,1) != '/')) {
-	// relative path
-	$baseDir = joinDirAndFile(JPATH_BASE,$item->filepath);
+switch($item->type) {
+	case 'files':
+		$baseDir = $item->filepath;
+		if ((strlen($baseDir) < 1) || (substr($baseDir,0,1) != '/')) {
+			// relative path
+			$baseDir = joinDirAndFile(JPATH_BASE,$item->filepath);
+		}
+		$currentDir = joinDirAndFile($baseDir,$location);
+		$webdavHelper = WebDAVHelper::getFilesInstance(getAccess($item->id), $currentDir, $uriLocation);
+		break;
+	default:
+		break;
 }
-$currentDir = joinDirAndFile($baseDir,$location);
-//$webdavHelper = WebDAVHelper::getFilesInstance($access, $currentDir, $uriLocation);
-//$webdavHelper->run();
 
-print_r(getAccess($item->id));
+//print_r(getAccess($item->id));
 //echo "$currentDir $uriLocation\n";
-flush();
+//flush();
 // Exit
+
+$webdavHelper->run();
 $app->close();
 ?>
