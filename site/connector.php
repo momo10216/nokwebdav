@@ -10,12 +10,6 @@ function getInfosFromUrl() {
 	return array($containerName, $location);
 }
 
-function getLocation() {
-	global $_SERVER;
-	$location = str_replace($_SERVER["SCRIPT_INFO"],'',$_SERVER["PATH_INFO"]);
-	return $location;
-}
-
 function joinDirAndFile($directory, $filename) {
 	if (substr($directory,-1) == '/') {
 		if (substr($filename,0,1) == '/') {
@@ -31,6 +25,18 @@ function joinDirAndFile($directory, $filename) {
 		}
 	}
 }
+
+function getAccess($id) {
+	$commands = array('read','create','change','delete');
+	$access = array();
+	$user = JFactory::getUser();
+	$assetName = 'com_nokwebdav.container.'.$id;
+	foreach($commands as $command) {
+		$access[$command] = $user->authorise('content.'.$command, $assetName);
+	}
+	return $access;
+}
+
 $component = 'com_nokwebdav';
 
 define('_JEXEC', 1);
@@ -45,7 +51,6 @@ define('JPATH_COMPONENT_ADMINISTRATOR', JPATH_ADMINISTRATOR . DIRECTORY_SEPARATO
 require_once (JPATH_BASE.'/includes/framework.php' );
 jimport( 'joomla.application.application' );
 jimport( 'joomla.filter.filteroutput' );
-JDEBUG ? JProfiler::getInstance('Application')->setStart($startTime, $startMem)->mark('afterLoad') : null;
 $app = JFactory::getApplication('site');
 // Logging
 jimport('joomla.log.log');
@@ -75,10 +80,12 @@ if ((strlen($baseDir) < 1) || (substr($baseDir,0,1) != '/')) {
 	$baseDir = joinDirAndFile(JPATH_BASE,$item->filepath);
 }
 $currentDir = joinDirAndFile($baseDir,$location);
-$webdavHelper = WebDAVHelper::getFilesInstance($access, $currentDir, $uriLocation);
-$webdavHelper->run();
+//$webdavHelper = WebDAVHelper::getFilesInstance($access, $currentDir, $uriLocation);
+//$webdavHelper->run();
+
+print_r(getAccess($item->id));
 //echo "$currentDir $uriLocation\n";
-//flush();
+flush();
 // Exit
 $app->close();
 ?>

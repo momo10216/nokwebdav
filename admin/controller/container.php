@@ -13,7 +13,7 @@ defined('_JEXEC') or die;
 
 class NoKWebDAVControllerContainer extends JControllerForm {
 	protected $component = 'com_nokwebdav';
-	protected $type = 'Container';
+	protected $type = 'container';
 
 	/**
 	 * Method override to check if you can edit an existing record.

@@ -10,9 +10,9 @@
 		<action name="core.edit.own" title="JACTION_EDITOWN" description="JACTION_EDITOWN_COMPONENT_DESC" />
 	</section>
 	<section name="container">
-		<action name="core.delete" title="JACTION_DELETE" description="COM_NOKWEBDAV_ACCESS_DELETE_SHARE_DESC" />
-		<action name="core.edit" title="JACTION_EDIT" description="COM_NOKWEBDAV_ACCESS_EDIT_SHARE_DESC" />
-		<action name="core.edit.state" title="JACTION_EDITSTATE" description="COM_NOKWEBDAV_ACCESS_EDITSTATE_SHARE_DESC" />
+		<action name="core.delete" title="JACTION_DELETE" description="COM_NOKWEBDAV_ACCESS_DELETE_CONTAINER_DESC" />
+		<action name="core.edit" title="JACTION_EDIT" description="COM_NOKWEBDAV_ACCESS_EDIT_CONTAINER_DESC" />
+		<action name="core.edit.state" title="JACTION_EDITSTATE" description="COM_NOKWEBDAV_ACCESS_EDITSTATE_CONTAINER_DESC" />
 		<action name="content.read" title="COM_NOKWEBDAV_ACCESS_READ_CONTENT_LABEL" description="COM_NOKWEBDAV_ACCESS_READ_CONTENT_DESC" />
 		<action name="content.create" title="COM_NOKWEBDAV_ACCESS_CREATE_CONTENT_LABEL" description="COM_NOKWEBDAV_ACCESS_CREATE_CONTENT_DESC" />
 		<action name="content.change" title="COM_NOKWEBDAV_ACCESS_CHANGE_CONTENT_LABEL" description="COM_NOKWEBDAV_ACCESS_CHANGE_CONTENT_DESC" />

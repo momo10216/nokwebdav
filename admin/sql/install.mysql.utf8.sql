@@ -4,6 +4,7 @@ DROP TABLE IF EXISTS `#__nokWebDAV_containers`;
 
 CREATE TABLE `#__nokWebDAV_containers` (
   `id` integer NOT NULL auto_increment,
+  `asset_id` INT(255) UNSIGNED NOT NULL DEFAULT '0',
   `name` varchar(50) NOT NULL default '',
   `type` varchar(30) NOT NULL default 'files',
   `filepath` varchar(50) NULL default NULL,
@@ -19,6 +20,7 @@ CREATE TABLE `#__nokWebDAV_containers` (
 
 CREATE TABLE `#__nokWebDAV_contacts` (
   `id` integer NOT NULL auto_increment,
+  `asset_id` INT(255) UNSIGNED NOT NULL DEFAULT '0',
   `container_id` integer NOT NULL,
   `published` int(1) NOT NULL default 0,
   `createdby` varchar(50) NULL default NULL,
@@ -30,6 +32,7 @@ CREATE TABLE `#__nokWebDAV_contacts` (
 
 CREATE TABLE `#__nokWebDAV_events` (
   `id` integer NOT NULL auto_increment,
+  `asset_id` INT(255) UNSIGNED NOT NULL DEFAULT '0',
   `container_id` integer NOT NULL,
   `published` int(1) NOT NULL default 0,
   `createdby` varchar(50) NULL default NULL,

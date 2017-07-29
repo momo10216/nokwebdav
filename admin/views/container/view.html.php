@@ -57,18 +57,18 @@ class NoKWebDAVViewContainer extends JViewLegacy {
 		} else {
 			// Since it's an existing record, check the edit permission, or fall back to edit own if the owner.
 			if ($canDo->get('core.edit') || ($canDo->get('core.edit.own') && $this->item->created_by == $userId)) {
-				JToolbarHelper::apply('share.apply');
-				JToolbarHelper::save('share.save');
+				JToolbarHelper::apply('container.apply');
+				JToolbarHelper::save('container.save');
 				// We can save this record, but check the create permission to see if we can return to make a new one.
 				if ($canDo->get('core.create')) {
-					JToolbarHelper::save2new('share.save2new');
+					JToolbarHelper::save2new('container.save2new');
 				}
 			}
 			// If checked out, we can still save
 			if ($canDo->get('core.create')) {
 				JToolbarHelper::save2copy('container.save2copy');
 			}
-			JToolbarHelper::cancel('share.cancel', 'JTOOLBAR_CLOSE');
+			JToolbarHelper::cancel('container.cancel', 'JTOOLBAR_CLOSE');
 		}
 		JToolbarHelper::divider();
 		JToolbarHelper::help('JHELP_COM_NOKWEBDAV_CONTAINER_MANAGER_EDIT');

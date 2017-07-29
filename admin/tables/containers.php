@@ -29,7 +29,7 @@ class NoKWebDAVTableContainers extends JTable {
 	}
 
 	/**
-	 * Stores a contact
+	 * Stores a container
 	 *
 	 * @param   boolean  True to update fields even if they are null.
 	 *
@@ -48,5 +48,31 @@ class NoKWebDAVTableContainers extends JTable {
 		TableHelper::updateCommonFieldsOnSave($this);
 		return parent::store($updateNulls);
 	}
-}
+
+	public function bind($array, $ignore = '') {
+		// Bind the rules. 
+		if (isset($array['rules']) && is_array($array['rules'])) { 
+			$rules = new JRules($array['rules']); 
+			$this->setRules($rules); 
+		}
+		return parent::bind($array, $ignore);
+	}
+	
+	/**
+	 * Redefined asset name, as we support action control
+	 */
+        protected function _getAssetName() {
+		$k = $this->_tbl_key;
+		return 'com_nokwebdav.container.'.(int) $this->$k;
+        }
+    
+        /**
+         * We provide our global ACL as parent
+     	 * @see JTable::_getAssetParentId()
+         */
+	protected function _getAssetParentId($table = null, $id = null) {
+		$asset = JTable::getInstance('Asset');
+		$asset->loadByName('com_nokwebdav');
+		return $asset->id;
+	}}
 ?>
