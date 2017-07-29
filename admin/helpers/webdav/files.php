@@ -33,8 +33,9 @@ class WebDAVHelperPlugin {
 		WebDAVHelper::debugAddMessage('Incoming file command: '.$command);
 		switch($command) {
 			case 'GET':
+			case 'HEAD':
 				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files_get.php', true);
-				return WebDAVHelperPluginCommand::execute($this->_fileLocation);
+				return WebDAVHelperPluginCommand::execute($this->_fileLocation,$command);
 			case 'OPTIONS':
 				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files_options.php', true);
 				return WebDAVHelperPluginCommand::execute(self::$_allowedCommands);

@@ -15,21 +15,22 @@ defined('_JEXEC') or die('Restricted access');
 class WebDAVHelperPluginCommand {
 	private static $EOL = "\n";
 
-	public static function execute($fileLocation) {
+	public static function execute($fileLocation,$command) {
 		WebDAVHelper::debugAddMessage('GET: '.$fileLocation);
 		WebDAVHelper::debugAddMessage('GET: '.WebDAVHelperPlugin::getFileType($fileLocation));
 		switch(WebDAVHelperPlugin::getFileType($fileLocation)) {
 			case 'file':
-				return self::_getFile($fileLocation);
+				return self::_getFile($fileLocation,$command);
 			case 'directory':
-				return self::_getDirectory($fileLocation);
+				return self::_getDirectory($fileLocation,$command);
 			default:
 				return array(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND, array(), '');
 		}
 		return array(WebDAVHelper::$HTTP_STATUS_OK, array(), '');
 	}
 
-	private function _getDirectory($directory) {
+	private function _getDirectory($directory,$command) {
+		if ($command == 'HEAD') { return array(WebDAVHelper::$HTTP_STATUS_OK, array(), ''); }
 		$dirEntries = WebDAVHelperPlugin::getDirectoryList($directory);
 		if ($dirEntries === false) { return array(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND, array(), ''); }
 		$title = 'Index of '.htmlspecialchars($directory);
@@ -53,11 +54,12 @@ class WebDAVHelperPluginCommand {
 		return array(WebDAVHelper::$HTTP_STATUS_OK, array(), $content);
 	}
 
-	private function _getFile($filename) {
+	private function _getFile($filename,$command) {
 		$header = array();
 		$header[] = 'Content-type: '.mime_content_type($filename);
 		$header[] = 'Content-length: '.filesize($filename);
 		$header[] = 'Last-modified: '.gmdate("D, d M Y H:i:s", filemtime($filename))." GMT";
+		if ($command == 'HEAD') { return array(WebDAVHelper::$HTTP_STATUS_OK, $header, ''); }
 		$content = file_get_contents($filename);
 		return array(WebDAVHelper::$HTTP_STATUS_OK, $header, $content);
 	}

@@ -1,0 +1,23 @@
+ToDo
+====
+Propfind - Depth = infinity
+POST
+TRACE
+COPY
+MOVE
+PROPPATCH
+LOCK
+UNLOCK
+ORDERPATCH
+DAV: 1, 2, ordered-collections
+
+Done
+====
+HEAD
+OPTIONS
+GET
+PUT
+DELETE
+MKCOL
+PROPFIND
+
