@@ -29,6 +29,7 @@ class WebDAVHelper {
 	public static $HTTP_STATUS_ERROR_UNSUPPORTED_MEDIA_TYPE = '415';
 	public static $HTTP_STATUS_ERROR_REQUESTED_RANGE_NOT_SATISFIABLE = '416';
 	public static $HTTP_STATUS_ERROR_LOCKED = '423';
+	public static $HTTP_STATUS_ERROR_INTERNAL_SERVER_ERROR = '500';
 	public static $HTTP_STATUS_ERROR_NOT_IMPLEMENTED = '501';
 	public static $DAV_ALLOWED_COMMANDS = array('GET');
 	public static $DAV_SUPPORTED_PROTOCOLS = array('1');
@@ -92,9 +93,15 @@ class WebDAVHelper {
 		$this->handleCommand($this->getCommand());
 	}
 
-	public function getCommand() {
+	public static function getCommand() {
 		global $_SERVER;
 		return $_SERVER["REQUEST_METHOD"];
+	}
+
+	public static function getDepth() {
+		global $_SERVER;
+		if (isset($_SERVER['HTTP_DEPTH'])) { return $_SERVER["HTTP_DEPTH"]; }
+		return "infinity";
 	}
 
 	public function handleCommand($command) {
@@ -163,7 +170,73 @@ class WebDAVHelper {
 		}
 	}
 
+	public static function isLocked($type, $location) {
+		$lockInfo = self::getLockInfoByObject($type, $location);
+		if (($lockInfo !== false) && ($lockInfo['expires'] >= time())) { return true; }
+		return false;
+	}
+
+	public static function getLockInfoByToken($token) {
+		if ($token) {
+			$db = JFactory::getDBO();
+			return self::_getLockInfo(array($db->quoteName('l.token').' = '.$db->quote($token)));
+		}
+		return false;
+	}
+
+	public static function getLockInfoByObject($type, $location) {
+		if ($token) {
+			$db = JFactory::getDBO();
+			return self::_getLockInfo(array($db->quoteName('l.type').' = '.$db->quote($type),
+				$db->quoteName('l.location').' = '.$db->quote($location)));
+		}
+		return false;
+	}
+
+	public static function uuid() {
+		// use uuid extension from PECL if available
+		if (function_exists("uuid_create")) { return uuid_create(); }
+
+		// fallback
+		global $_SERVER;
+		$uuid = md5(microtime().$_SERVER['SERVER_NAME'].getmypid());
+		return substr($uuid, 0, 8)."-".substr($uuid,  8, 4)."-".substr($uuid, 12, 4)."-".substr($uuid, 16, 4)."-".substr($uuid, 20);
+	}
+
+	private function _useCommandPlugin($command) {
+		switch ($command) {
+			case 'LOCK':
+			case 'UNLOCK':
+				return true;
+			default:
+				return false;
+		}
+	}
+
 	private function _initializePlugin($type, $access, $fileLocation, $targetAccess, $targetFileLocation, $uriLocation, $contactData, $eventData) {
+		$command = $this->getCommand();
+		if ($this->_useCommandPlugin($command)) {
+			return $this->_initializeCommandPlugin($command, $type, $access, $fileLocation, $targetAccess, $targetFileLocation, $uriLocation, $contactData, $eventData)
+		} else {
+			return $this->_initializeTypePlugin($type, $access, $fileLocation, $targetAccess, $targetFileLocation, $uriLocation, $contactData, $eventData)
+		}
+	}
+
+	private function _initializeCommandPlugin($command, $type, $access, $fileLocation, $targetAccess, $targetFileLocation, $uriLocation, $contactData, $eventData) {
+		switch(strtolower($command)) {
+			case 'LOCK':
+			case 'UNLOCK':
+				JLoader::register('WebDAVHelperPlugin', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/locking.php', true);
+				$this->_plugin = new WebDAVHelperPlugin($type, $access, $fileLocation, $targetAccess, $targetFileLocation, $uriLocation);
+				break;
+			default:
+				JLog::add('Unknown command: '.$type, JLog::ERROR);
+				$this->_plugin = null;
+				break;
+		}
+	}
+
+	private function _initializeTypePlugin($type, $access, $fileLocation, $targetAccess, $targetFileLocation, $uriLocation, $contactData, $eventData) {
 		switch(strtolower($type)) {
 			case 'files':
 				JLoader::register('WebDAVHelperPlugin', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files.php', true);
@@ -174,6 +247,17 @@ class WebDAVHelper {
 				$this->_plugin = null;
 				break;
 		}
+	}
+
+	private static function _getLockInfo($whereList) {
+		$where = implode(" AND ",$whereList);
+		$db = JFactory::getDBO();
+		$query = $db->getQuery(true);
+		$query->select('*')
+			->from($db->quoteName('#__nokWebDAV_locks','l'))
+			->where($where);
+		$db->setQuery($query);
+		return $db->loadObject();
 	}
 }
 ?>

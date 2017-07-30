@@ -29,7 +29,6 @@ class WebDAVHelperPlugin {
 		$this->_uriLocation = $uriLocation;
 	}
 
-	//TODO: move this to plugin
 	public function hasAccess($command) {
 		$hasAccess = '';
 		switch(strtoupper($command)) {
@@ -100,7 +99,7 @@ class WebDAVHelperPlugin {
 				return WebDAVHelperPluginCommand::execute($this->_fileLocation, $this->_targetFileLocation, $command);
 			default:
 				// Unsupported command
-				WebDAVHelper::debugAddMessage('Unsupported command: '.$command);
+				WebDAVHelper::debugAddMessage('Unsupported file command: '.$command);
 				$code = WebDAVHelper::$HTTP_STATUS_ERROR_METHOD_NOT_ALLOWED;
                 		$headers = array('Allow: '.join(", ", self::$_allowedCommands));
 				$content = '';
