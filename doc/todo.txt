@@ -1,18 +1,18 @@
 ToDo
 ====
-COPY
-MOVE
 Propfind - Depth = infinity
-POST
-TRACE
-PROPPATCH
 LOCK
 UNLOCK
+PROPPATCH
 ORDERPATCH
 DAV: 1, 2, ordered-collections
 
 Done
 ====
+POST -> RFC4918: not mentioned -> no support
+TRACE -> RFC4918: not mentioned -> no support
+COPY
+MOVE
 Authentication
 HEAD
 OPTIONS

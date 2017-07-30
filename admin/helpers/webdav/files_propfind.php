@@ -58,8 +58,8 @@ class WebDAVHelperPluginCommand {
 		$header = array('Content-Type: text/xml; charset="utf-8');
 		$content = '<?xml version="1.0" encoding="utf-8"?>'.self::$EOL;
 		$depth = WebDAVHelperPlugin::getDepth();
-		WebDAVHelper::debugAddMessage('Depth: '.$depth);
-		WebDAVHelper::debugAddMessage('Directory: '.$directory);
+		//WebDAVHelper::debugAddMessage('Depth: '.$depth);
+		//WebDAVHelper::debugAddMessage('Directory: '.$directory);
 		$content .= '<d:multistatus xmlns:d="DAV:">'.self::$EOL;
 		if (WebDAVHelperPlugin::getFileType($directory) == 'file') { $depth = '0'; }
 		switch ($depth) {
@@ -80,7 +80,7 @@ class WebDAVHelperPluginCommand {
 				break;
 		}
 		$content .= '</d:multistatus>'.self::$EOL;
-		WebDAVHelper::debugAddMessage('Propfind output: '.$content);
+		//WebDAVHelper::debugAddMessage('Propfind output: '.$content);
 		return array($status, $header, $content);
 	}
 
@@ -122,11 +122,11 @@ class WebDAVHelperPluginCommand {
 					$content .= $prefix.'		<d:getcontenttype>'.$dirEntry['mime_type'].'</d:getcontenttype>'.self::$EOL;
 					break;
 				case 'resourcetype':
-					$resourcetype = '';
-					if ($dirEntry['mime_type'] == 'directory') { $resourcetype = '<d:collection />'; }
-					$content .= $prefix.'		<d:resourcetype>'.self::$EOL;
-					$content .= $prefix.'			'.$resourcetype.self::$EOL;
-					$content .= $prefix.'		</d:resourcetype>'.self::$EOL;
+					if ($dirEntry['mime_type'] == 'directory') {
+						$content .= $prefix.'		<d:resourcetype><d:collection /></d:resourcetype>';
+					} else {
+						$content .= $prefix.'		<d:resourcetype />'.self::$EOL;
+					}
 					break;
 				case 'executable':
 					if ($dirEntry['executable'] == '1') {

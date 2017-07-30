@@ -77,24 +77,15 @@ class WebDAVHelper {
 		'501' => 'Not Implemented'
 	);
 	private $_type;
-	private $_access;
-	private $_fileLocation;
-	private $_uriLocation;
-	private $_contactData;
-	private $_eventData;
+	private $_plugin;
 
-	public function __construct($type='files', $access, $fileLocation='/', $uriLocation='/', $contactData=array(), $eventData=array()) {
+	public function __construct($type='files', $access, $fileLocation='/', $targetAccess=array(), $targetFileLocation='', $uriLocation='/', $contactData=array(), $eventData=array()) {
 		$this->_type = $type;
-		$this->_access = $access;
-		$this->_fileLocation = $fileLocation;
-		$this->_uriLocation = $uriLocation;
-		$this->_contactData = $contactData;
-		$this->_eventData = $eventData;
-		$this->_initializePlugin($type, $access, $fileLocation, $uriLocation, $contactData, $eventData);
+		$this->_initializePlugin($type, $access, $fileLocation, $targetAccess, $targetFileLocation, $uriLocation, $contactData, $eventData);
 	}
 
-	public static function getFilesInstance($access, $fileLocation='/', $uriLocation='/') {
-		return new self('files', $access, $fileLocation, $uriLocation, array(), array());
+	public static function getFilesInstance($access, $fileLocation, $targetAccess, $targetFileLocation='/', $uriLocation='/') {
+		return new self('files', $access, $fileLocation, $targetAccess, $targetFileLocation, $uriLocation, array(), array());
 	}
 
 	public function run() {
@@ -107,7 +98,7 @@ class WebDAVHelper {
 	}
 
 	public function handleCommand($command) {
-		if (self::hasAccess($command)) {
+		if ($this->_plugin->hasAccess($command)) {
 			list($code, $headers, $content) = $this->_plugin->handleCommand($command);
 		} else {
 			$code = self::$HTTP_STATUS_ERROR_UNAUTHORIZED;
@@ -118,38 +109,6 @@ class WebDAVHelper {
 		if (!empty($content)) {
 			echo $content;
 		}
-	}
-
-	public function hasAccess($command) {
-		$hasAccess = '';
-		switch(strtoupper($command)) {
-			case 'GET':
-			case 'OPTIONS':
-			case 'PROPFIND':
-				if ($this->_access['read']) { $hasAccess =  '1'; }
-				break;
-			case 'COPY':
-			case 'MKCOL':
-				if ($this->_access['create']) { $hasAccess =  '1'; }
-				break;
-			case 'DELETE':
-				if ($this->_access['delete']) { $hasAccess =  '1'; }
-				break;
-			case 'MOVE':
-				if ($this->_access['create'] && $this->_access['delete']) { $hasAccess =  '1'; }
-				break;
-			case 'PUT':
-				if (file_exists($this->_fileLocation) === true) {
-					if ($this->_access['change']) { $hasAccess =  '1'; }
-				} else {
-					if ($this->_access['create']) { $hasAccess =  '1'; }
-				}
-				break;
-			default:
-				break;
-		}
-		//self::debugAddMessage('Access command:'.$command.' result:'.$hasAccess);
-		return $hasAccess;
 	}
 
 	public static function debugAddMessage($message) {
@@ -204,11 +163,11 @@ class WebDAVHelper {
 		}
 	}
 
-	private function _initializePlugin($type, $access, $fileLocation, $uriLocation, $contactData, $eventData) {
+	private function _initializePlugin($type, $access, $fileLocation, $targetAccess, $targetFileLocation, $uriLocation, $contactData, $eventData) {
 		switch(strtolower($type)) {
 			case 'files':
 				JLoader::register('WebDAVHelperPlugin', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files.php', true);
-				$this->_plugin = new WebDAVHelperPlugin($access, $fileLocation, $uriLocation, $contactData, $eventData);
+				$this->_plugin = new WebDAVHelperPlugin($access, $fileLocation, $targetAccess, $targetFileLocation, $uriLocation);
 				break;
 			default:
 				JLog::add('Unknown type: '.$type, JLog::ERROR);

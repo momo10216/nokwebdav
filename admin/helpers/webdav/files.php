@@ -14,19 +14,62 @@ defined('_JEXEC') or die('Restricted access');
  
 class WebDAVHelperPlugin {
 	private static $EOL = "\n";
-	private static $_allowedCommands = array('GET', 'OPTIONS', 'PROPFIND', 'MKCOL', 'DELETE', 'PUT');
+	private static $_allowedCommands = array('GET', 'OPTIONS', 'PROPFIND', 'MKCOL', 'DELETE', 'PUT', 'COPY', 'MOVE');
 	private $_access;
-	private $_uriLocation;
 	private $_fileLocation;
-	private $_contactData;
-	private $_eventData;
+	private $_targetAccess;
+	private $_targetFileLocation;
+	private $_uriLocation;
 
-	public function __construct($access, $fileLocation, $uriLocation, $contactData, $eventData) {
+	public function __construct($access, $fileLocation, $targetAccess, $targetFileLocation, $uriLocation) {
 		$this->_access = $access;
 		$this->_fileLocation = $fileLocation;
+		$this->_targetAccess = $targetAccess;
+		$this->_targetFileLocation = $targetFileLocation;
 		$this->_uriLocation = $uriLocation;
-		$this->_contactData = $contactData;
-		$this->_eventData = $eventData;
+	}
+
+	//TODO: move this to plugin
+	public function hasAccess($command) {
+		$hasAccess = '';
+		switch(strtoupper($command)) {
+			case 'GET':
+			case 'OPTIONS':
+			case 'PROPFIND':
+				if ($this->_access['read']) { $hasAccess =  '1'; }
+				break;
+			case 'MKCOL':
+				if ($this->_access['create']) { $hasAccess =  '1'; }
+				break;
+			case 'DELETE':
+				if ($this->_access['delete']) { $hasAccess =  '1'; }
+				break;
+			case 'COPY':
+				if (file_exists($this->_targetFileLocation) === true) {
+					if ($this->_access['read'] && $this->_targetAccess['change']) { $hasAccess =  '1'; }
+				} else {
+					if ($this->_access['read'] && $this->_targetAccess['create']) { $hasAccess =  '1'; }
+				}
+				break;
+			case 'MOVE':
+				if (file_exists($this->_fileLocation) === true) {
+					if ($this->_access['read'] && $this->_targetAccess['change'] && $this->_access['delete']) { $hasAccess =  '1'; }
+				} else {
+					if ($this->_access['read'] && $this->_targetAccess['create'] && $this->_access['delete']) { $hasAccess =  '1'; }
+				}
+				break;
+			case 'PUT':
+				if (file_exists($this->_fileLocation) === true) {
+					if ($this->_access['change']) { $hasAccess =  '1'; }
+				} else {
+					if ($this->_access['create']) { $hasAccess =  '1'; }
+				}
+				break;
+			default:
+				break;
+		}
+		//self::debugAddMessage('Access command:'.$command.' result:'.$hasAccess);
+		return $hasAccess;
 	}
 
 	public function handleCommand($command) {
@@ -35,7 +78,7 @@ class WebDAVHelperPlugin {
 			case 'GET':
 			case 'HEAD':
 				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files_get.php', true);
-				return WebDAVHelperPluginCommand::execute($this->_fileLocation,$command);
+				return WebDAVHelperPluginCommand::execute($this->_fileLocation, $command);
 			case 'OPTIONS':
 				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files_options.php', true);
 				return WebDAVHelperPluginCommand::execute(self::$_allowedCommands);
@@ -51,6 +94,10 @@ class WebDAVHelperPlugin {
 			case 'PUT':
 				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files_put.php', true);
 				return WebDAVHelperPluginCommand::execute($this->_fileLocation);
+			case 'COPY':
+			case 'MOVE':
+				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files_copymove.php', true);
+				return WebDAVHelperPluginCommand::execute($this->_fileLocation, $this->_targetFileLocation, $command);
 			default:
 				// Unsupported command
 				WebDAVHelper::debugAddMessage('Unsupported command: '.$command);
