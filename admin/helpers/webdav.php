@@ -31,8 +31,7 @@ class WebDAVHelper {
 	public static $HTTP_STATUS_ERROR_LOCKED = '423';
 	public static $HTTP_STATUS_ERROR_INTERNAL_SERVER_ERROR = '500';
 	public static $HTTP_STATUS_ERROR_NOT_IMPLEMENTED = '501';
-	public static $DAV_ALLOWED_COMMANDS = array('GET');
-	public static $DAV_SUPPORTED_PROTOCOLS = array('1');
+	public static $DAV_SUPPORTED_PROTOCOLS = array('1','2');
 	private static $_http_status_text = array('200' => 'OK',
 		'201' => 'Created',
 		'202' => 'Accepted',
@@ -110,6 +109,7 @@ class WebDAVHelper {
 		} else {
 			$code = self::$HTTP_STATUS_ERROR_UNAUTHORIZED;
 			$headers = array('WWW-Authenticate: Basic realm="Joomla (NoK-WebDAV)"');
+			$content = '';
 		}
 		if (is_string($content)) { $headers[] = 'Content-length: '.strlen($content); }
 		self::sendHttpStatusAndHeaders($code, $headers);
@@ -120,6 +120,10 @@ class WebDAVHelper {
 
 	public static function debugAddMessage($message) {
 		JLog::add($message, JLog::DEBUG);
+	}
+
+	public static function debugAddQuery($query) {
+		self::debugAddMessage('SQL: '.$query->__toString());
 	}
 
 	public static function debugAddArray($list, $name) {
@@ -170,9 +174,16 @@ class WebDAVHelper {
 		}
 	}
 
-	public static function isLocked($type, $location) {
+	public static function isLocked($type, $location, $exclusiveOnly= false) {
+		global $_SERVER;
+
+		self::_cleanupExpiredLocks();
 		$lockInfo = self::getLockInfoByObject($type, $location);
-		if (($lockInfo !== false) && ($lockInfo['expires'] >= time())) { return true; }
+		if ($lockInfo) {
+			if (!isset($_SERVER["HTTP_IF"]) || !strstr($_SERVER["HTTP_IF"], $lockInfo["token"])) {
+				if (!$exclusiveOnly || ($lockInfo["scope"] != "shared")) { return true; }
+			}
+		}
 		return false;
 	}
 
@@ -185,10 +196,10 @@ class WebDAVHelper {
 	}
 
 	public static function getLockInfoByObject($type, $location) {
-		if ($token) {
+		if (!empty($type) && !empty($location)) {
 			$db = JFactory::getDBO();
-			return self::_getLockInfo(array($db->quoteName('l.type').' = '.$db->quote($type),
-				$db->quoteName('l.location').' = '.$db->quote($location)));
+			return self::_getLockInfo(array($db->quoteName('resourcetype').' = '.$db->quote($type),
+				$db->quoteName('resourcelocation').' = '.$db->quote($location)));
 		}
 		return false;
 	}
@@ -203,7 +214,7 @@ class WebDAVHelper {
 		return substr($uuid, 0, 8)."-".substr($uuid,  8, 4)."-".substr($uuid, 12, 4)."-".substr($uuid, 16, 4)."-".substr($uuid, 20);
 	}
 
-	private function _useCommandPlugin($command) {
+	private static function _useCommandPlugin($command) {
 		switch ($command) {
 			case 'LOCK':
 			case 'UNLOCK':
@@ -214,23 +225,23 @@ class WebDAVHelper {
 	}
 
 	private function _initializePlugin($type, $access, $fileLocation, $targetAccess, $targetFileLocation, $uriLocation, $contactData, $eventData) {
-		$command = $this->getCommand();
-		if ($this->_useCommandPlugin($command)) {
-			return $this->_initializeCommandPlugin($command, $type, $access, $fileLocation, $targetAccess, $targetFileLocation, $uriLocation, $contactData, $eventData)
+		$command = self::getCommand();
+		if (self::_useCommandPlugin($command)) {
+			return $this->_initializeCommandPlugin($command, $type, $access, $fileLocation, $targetAccess, $targetFileLocation, $uriLocation, $contactData, $eventData);
 		} else {
-			return $this->_initializeTypePlugin($type, $access, $fileLocation, $targetAccess, $targetFileLocation, $uriLocation, $contactData, $eventData)
+			return $this->_initializeTypePlugin($type, $access, $fileLocation, $targetAccess, $targetFileLocation, $uriLocation, $contactData, $eventData);
 		}
 	}
 
 	private function _initializeCommandPlugin($command, $type, $access, $fileLocation, $targetAccess, $targetFileLocation, $uriLocation, $contactData, $eventData) {
-		switch(strtolower($command)) {
+		switch($command) {
 			case 'LOCK':
 			case 'UNLOCK':
 				JLoader::register('WebDAVHelperPlugin', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/locking.php', true);
 				$this->_plugin = new WebDAVHelperPlugin($type, $access, $fileLocation, $targetAccess, $targetFileLocation, $uriLocation);
 				break;
 			default:
-				JLog::add('Unknown command: '.$type, JLog::ERROR);
+				JLog::add('Unknown command: "'.$command.'"', JLog::ERROR);
 				$this->_plugin = null;
 				break;
 		}
@@ -254,10 +265,23 @@ class WebDAVHelper {
 		$db = JFactory::getDBO();
 		$query = $db->getQuery(true);
 		$query->select('*')
-			->from($db->quoteName('#__nokWebDAV_locks','l'))
+			->from('#__nokWebDAV_locks')
 			->where($where);
 		$db->setQuery($query);
+//		self::debugAddQuery($query);
 		return $db->loadObject();
+	}
+
+	private static function _cleanupExpiredLocks() {
+		$db = JFactory::getDBO();
+		$query = $db->getQuery(true);
+		$query->delete($db->quoteName('#__nokWebDAV_locks'))
+			->where($db->quoteName('expires').'<'.time());
+		$db->setQuery($query);
+//		WebDAVHelper::debugAddQuery($query);
+		if (!$db->execute()) {
+			JLog::add('Error while cleanup expired locks', JLog::ERROR);
+		}
 	}
 }
 ?>

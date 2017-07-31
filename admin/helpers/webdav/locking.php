@@ -15,6 +15,7 @@ defined('_JEXEC') or die('Restricted access');
 class WebDAVHelperPlugin {
 	private static $EOL = "\n";
 	private static $_allowedCommands = array('LOCK','UNLOCK');
+	private static $_timeout = 300;
 	private $_type;
 	private $_access;
 	private $_fileLocation;
@@ -73,79 +74,84 @@ class WebDAVHelperPlugin {
 	}
 
 	private function _newLock() {
-		if (WebDAVHelper::getLockInfoByObject($type, $this->_fileLocation)) {
-			return (WebDAVHelper::$HTTP_STATUS_ERROR_CONFLICT,array(),'');
+		WebDAVHelper::debugAddMessage('New lock');
+		if (WebDAVHelper::isLocked($this->_type, $this->_fileLocation)) {
+			return array(WebDAVHelper::$HTTP_STATUS_ERROR_CONFLICT,array(),'');
 		}
 		$depth = WebDAVHelper::getDepth();
 		if (!empty($depth) && ($depth != '0')) {
 			//no directory or reverse locking
-			return (WebDAVHelper::$HTTP_STATUS_ERROR_METHOD_NOT_ALLOWED,array(),'');
+			return array(WebDAVHelper::$HTTP_STATUS_ERROR_METHOD_NOT_ALLOWED,array(),'');
 		}
 		$info = $this->_parseInfo();
-		$date = JFactory::getDate()
+		$date = JFactory::getDate();
 		$db = JFactory::getDBO();
 		$query = $db->getQuery(true);
-		$fields = {
+		$fields = array(
 			'token' => 'opaquelocktoken:'.WebDAVHelper::uuid(),
 			'resourcetype' => $this->_type,
 			'resourcelocation' => $this->_fileLocation,
-			'expires' => time()+$this->_getTimeout(),
-			'recursive' = '0';
+			'expires' => time()+self::$_timeout,
+			'recursive' => '0',
 			'scope' => $info['scope'],
 			'type' => $info['type'],
-			'owner' => $info['owner'],
 			'createtime' => time(),
 			'modifytime' => time()
-		};
-		$query->insert($db->quoteName('#__nokWebDAV_locks','l'))
+		);
+		if (isset($info['owner'])) { $fields['owner'] = $info['owner']; }
+
+		$query->insert($db->quoteName('#__nokWebDAV_locks'))
 			->columns($db->quoteName(array_keys($fields)))
-			->values($db->quote(array_values($fields)));
+			->values(implode(',',$db->quote(array_values($fields))));
 		$db->setQuery($query);
+//		WebDAVHelper::debugAddQuery($query);
 		if ($db->execute()) {
 			$content = self::_generateLockResponse($fields);
-			return (WebDAVHelper::$HTTP_STATUS_OK, array('Content-Type: text/xml; charset="utf-8"', 'Lock-Token: <'.$fields['token'].'>'), $content);
+//			WebDAVHelper::debugAddMessage('Response: '.$content);
+			return array(WebDAVHelper::$HTTP_STATUS_OK, array('Content-Type: text/xml; charset="utf-8"', 'Lock-Token: <'.$fields['token'].'>'), $content);
 		}
-		return (WebDAVHelper::$HTTP_STATUS_ERROR_INTERNAL_SERVER_ERROR, array(), '');
+//		WebDAVHelper::debugAddMessage('SQL Error: '.$db->getErrorMsg());
+		return array(WebDAVHelper::$HTTP_STATUS_ERROR_INTERNAL_SERVER_ERROR, array(), '');
 	}
 
 	private function _updateLock($token) {
-		$date = JFactory::getDate()
+		WebDAVHelper::debugAddMessage('Lock update');
+		$date = JFactory::getDate();
 		$db = JFactory::getDBO();
 		$query = $db->getQuery(true);
-		$fields = {
-			$db->quoteName('expires').'='.$db->quote(time()+$this->_getTimeout()),
+		$fields = array(
+			$db->quoteName('expires').'='.$db->quote(time()+self::$_timeout),
 			$db->quoteName('modifytime').'='.time()
-		};
+		);
 		$query->update($db->quoteName('#__nokWebDAV_locks','l'))
 			->set($fields)
 			->where($db->quoteName('token').'='.$db->quote($token));
 		$db->setQuery($query);
 		if ($db->execute()) {
+			WebDAVHelper::debugAddMessage('Lock updated');
 			$content = self::_generateLockResponse($fields);
-			return (WebDAVHelper::$HTTP_STATUS_OK, array('Content-Type: text/xml; charset="utf-8"', 'Lock-Token: <'.$fields['token'].'>'), $content);
+			return array(WebDAVHelper::$HTTP_STATUS_OK, array('Content-Type: text/xml; charset="utf-8"', 'Lock-Token: <'.$token.'>'), $content);
 		}
-		return (WebDAVHelper::$HTTP_STATUS_ERROR_INTERNAL_SERVER_ERROR, array(), '');
+		return array('451', array(), '');
+		//return array(WebDAVHelper::$HTTP_STATUS_ERROR_INTERNAL_SERVER_ERROR, array(), '');
 	}
 
 	private function _unlock() {
 		global $_SERVER;
 		if (!isset($_SERVER['HTTP_LOCK_TOKEN']) || empty($_SERVER['HTTP_LOCK_TOKEN'])) {
-			return (WebDAVHelper::$HTTP_STATUS_ERROR_PRECONDITION_FAILED,array(),'');
+			return array(WebDAVHelper::$HTTP_STATUS_ERROR_PRECONDITION_FAILED,array(),'');
 		}
 		$token = substr(trim($_SERVER['HTTP_LOCK_TOKEN']), 1, -1);
 		$db = JFactory::getDBO();
 		$query = $db->getQuery(true);
 		$query->delete($db->quoteName('#__nokWebDAV_locks'))
 			->where($db->quoteName('token').'='.$db->quote($token));
+		$db->setQuery($query);
+//		WebDAVHelper::debugAddQuery($query);
 		if ($db->execute()) {
-			$content = self::_generateLockResponse($fields);
-			return (WebDAVHelper::$HTTP_STATUS_NO_CONTENT, array(), '');
+			return array(WebDAVHelper::$HTTP_STATUS_NO_CONTENT, array(), '');
 		}
-		return (WebDAVHelper::$HTTP_STATUS_ERROR_INTERNAL_SERVER_ERROR, array(), '');
-	}
-
-	private function _getTimeout() {
-		return 300;
+		return array(WebDAVHelper::$HTTP_STATUS_ERROR_INTERNAL_SERVER_ERROR, array(), '');
 	}
 
 	private static function _parseInfo() {
@@ -186,12 +192,14 @@ class WebDAVHelperPlugin {
 		$content .= '			<d:lockscope><d:'.$fields['scope'].' /></d:lockscope>'.self::$EOL;
 		$content .= '			<d:locktype><d:'.$fields['type'].' /></d:locktype>'.self::$EOL;
 		$content .= '			<d:depth>'.WebDAVHelper::getDepth().'</d:depth>'.self::$EOL;
-		$content .= '			<d:owner><d:href>'.$fields['owner'].' </d:href></d:owner>'.self::$EOL;
-		$content .= '			<d:timeout>'.$this->_getTimeout().'</d:timeout>'.self::$EOL;
+		if (isset($fields['owner'])) {
+			$content .= '			<d:owner><d:href>'.$fields['owner'].' </d:href></d:owner>'.self::$EOL;
+		}
+		$content .= '			<d:timeout>Second-'.self::$_timeout.'</d:timeout>'.self::$EOL;
 		$content .= '			<d:locktoken><d:href>'.$fields['token'].'</d:href></d:locktoken>'.self::$EOL;
 		$content .= '		</d:activelock>'.self::$EOL;
 		$content .= '	</d:lockdiscovery>'.self::$EOL;
-		$content .= '</d:prop>'.self::$EOL.self::$EOL;
+		$content .= '</d:prop>'.self::$EOL;
 		return $content;
 	}
 }

@@ -142,6 +142,18 @@ class WebDAVHelperPluginCommand {
 				case 'getetag':
 					$content .= $prefix.'		<d:getetag>'.$dirEntry['etag'].'</d:getetag>'.self::$EOL;
 					break;
+				case 'supportedlock':
+					$content .= $prefix.'		<d:supportedlock>'.self::$EOL;
+					$content .= $prefix.'			<d:lockentry>'.self::$EOL;
+					$content .= $prefix.'				<d:lockscope><d:exclusive /></d:lockscope>'.self::$EOL;
+					$content .= $prefix.'				<d:locktype><d:write /></D:locktype>'.self::$EOL;
+					$content .= $prefix.'			</d:lockentry>'.self::$EOL;
+					$content .= $prefix.'			<d:lockentry>'.self::$EOL;
+					$content .= $prefix.'				<d:lockscope><d:shared /></d:lockscope>'.self::$EOL;
+					$content .= $prefix.'				<d:locktype><d:write /></D:locktype>'.self::$EOL;
+					$content .= $prefix.'			</d:lockentry>'.self::$EOL;
+					$content .= $prefix.'		</d:supportedlock>'.self::$EOL;
+					break;
 				default:
 					// Unsupported property
 					$unknowns[] = $propertyRequested;

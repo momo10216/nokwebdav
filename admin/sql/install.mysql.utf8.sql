@@ -29,11 +29,11 @@ CREATE TABLE `#__nokWebDAV_locks` (
 	`type` int(11) NOT NULL default 0,
 	`owner` varchar(200) default NULL,
 	`createtime` int(11) NOT NULL default 0,
-	`modifiytime` int(11) NOT NULL default 0,
+	`modifytime` int(11) NOT NULL default 0,
 	PRIMARY KEY (`token`),
-	KEY KEY_lock_location (`type`,`location`),
+	KEY KEY_lock_location (`resourcetype`,`resourcelocation`),
 	KEY KEY_lock_expires (`expires`),
-	CONSTRAINT UC_lock_name UNIQUE (`type`,`location`)
+	CONSTRAINT UC_lock_name UNIQUE (`resourcetype`,`resourcelocation`)
 ) DEFAULT CHARSET=utf8;
 
 CREATE TABLE `#__nokWebDAV_contacts` (
