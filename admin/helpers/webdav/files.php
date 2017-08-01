@@ -14,7 +14,7 @@ defined('_JEXEC') or die('Restricted access');
  
 class WebDAVHelperPlugin {
 	private static $EOL = "\n";
-	private static $_allowedCommands = array('GET', 'OPTIONS', 'PROPFIND', 'MKCOL', 'DELETE', 'PUT', 'COPY', 'MOVE', 'LOCK', 'UNLOCK');
+	private static $_allowedCommands = array('GET', 'OPTIONS', 'PROPFIND', 'MKCOL', 'DELETE', 'PUT', 'COPY', 'MOVE', 'LOCK', 'UNLOCK', 'PROPPATCH');
 	private $_access;
 	private $_fileLocation;
 	private $_targetAccess;
@@ -96,6 +96,9 @@ class WebDAVHelperPlugin {
 			case 'COPY':
 			case 'MOVE':
 				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files_copymove.php', true);
+				return WebDAVHelperPluginCommand::execute($this->_fileLocation, $this->_targetFileLocation, $command);
+			case 'PROPPATCH':
+				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files_propatch.php', true);
 				return WebDAVHelperPluginCommand::execute($this->_fileLocation, $this->_targetFileLocation, $command);
 			default:
 				// Unsupported command

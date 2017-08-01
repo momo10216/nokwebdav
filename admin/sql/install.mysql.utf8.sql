@@ -1,6 +1,7 @@
 DROP TABLE IF EXISTS `#__nokWebDAV_events`;
 DROP TABLE IF EXISTS `#__nokWebDAV_contacts`;
 DROP TABLE IF EXISTS `#__nokWebDAV_locks`;
+DROP TABLE IF EXISTS `#__nokWebDAV_properties`;
 DROP TABLE IF EXISTS `#__nokWebDAV_containers`;
 
 CREATE TABLE `#__nokWebDAV_containers` (
@@ -34,6 +35,16 @@ CREATE TABLE `#__nokWebDAV_locks` (
 	KEY KEY_lock_location (`resourcetype`,`resourcelocation`),
 	KEY KEY_lock_expires (`expires`),
 	CONSTRAINT UC_lock_name UNIQUE (`resourcetype`,`resourcelocation`)
+) DEFAULT CHARSET=utf8;
+
+CREATE TABLE `#__nokWebDAV_properties` (
+	`resourcetype` varchar(30) NOT NULL default 'files',
+	`resourcelocation` varchar(200) NOT NULL default '',
+	`name` varchar(120) NOT NULL default '',
+	`namespace` varchar(120) NOT NULL default 'DAV:',
+	`value` text,
+	PRIMARY KEY  (`resourcetype`,`resourcelocation`,`name`),
+	KEY KEY_lock_location (`resourcetype`,`resourcelocation`)
 ) DEFAULT CHARSET=utf8;
 
 CREATE TABLE `#__nokWebDAV_contacts` (

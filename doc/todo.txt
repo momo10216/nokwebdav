@@ -1,14 +1,14 @@
 ToDo
 ====
 Propfind - Depth = infinity
-LOCK
-UNLOCK
 PROPPATCH
 ORDERPATCH
 DAV: 1, 2, ordered-collections
 
 Done
 ====
+LOCK
+UNLOCK
 POST -> RFC4918: not mentioned -> no support
 TRACE -> RFC4918: not mentioned -> no support
 COPY
