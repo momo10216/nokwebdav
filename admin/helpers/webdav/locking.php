@@ -42,12 +42,10 @@ class WebDAVHelperPlugin {
 			default:
 				break;
 		}
-		//self::debugAddMessage('Access command:'.$command.' result:'.$hasAccess);
 		return $hasAccess;
 	}
 
 	public function handleCommand($command) {
-		WebDAVHelper::debugAddMessage('Incoming file command: '.$command);
 		switch($command) {
 			case 'LOCK':
 				return $this->_lock();
@@ -66,18 +64,17 @@ class WebDAVHelperPlugin {
 	private function _lock() {
 		global $_SERVER;
 
-		if (empty($_SERVER['CONTENT_LENGTH']) && !empty($_SERVER['HTTP_IF'])) {
-			return $this->_updateLock(substr($_SERVER['HTTP_IF'], 2, -2));
+		if (WebDAVHelper::isLocked($this->_type, $this->_fileLocation)) {
+			return array(WebDAVHelper::$HTTP_STATUS_ERROR_LOCKED,array(),'');
+		}
+		if (!empty($_SERVER['HTTP_IF'])) {
+			return $this->_updateLock(WebDAVHelper::getToken());
 		} else {
 			return $this->_newLock();
 		}
 	}
 
 	private function _newLock() {
-		WebDAVHelper::debugAddMessage('New lock');
-		if (WebDAVHelper::isLocked($this->_type, $this->_fileLocation)) {
-			return array(WebDAVHelper::$HTTP_STATUS_ERROR_CONFLICT,array(),'');
-		}
 		$depth = WebDAVHelper::getDepth();
 		if (!empty($depth) && ($depth != '0')) {
 			//no directory or reverse locking
@@ -104,36 +101,42 @@ class WebDAVHelperPlugin {
 			->columns($db->quoteName(array_keys($fields)))
 			->values(implode(',',$db->quote(array_values($fields))));
 		$db->setQuery($query);
-//		WebDAVHelper::debugAddQuery($query);
 		if ($db->execute()) {
 			$content = self::_generateLockResponse($fields);
-//			WebDAVHelper::debugAddMessage('Response: '.$content);
 			return array(WebDAVHelper::$HTTP_STATUS_OK, array('Content-Type: text/xml; charset="utf-8"', 'Lock-Token: <'.$fields['token'].'>'), $content);
 		}
-//		WebDAVHelper::debugAddMessage('SQL Error: '.$db->getErrorMsg());
-		return array(WebDAVHelper::$HTTP_STATUS_ERROR_INTERNAL_SERVER_ERROR, array(), '');
+		return array(WebDAVHelper::$HTTP_STATUS_ERROR_CONFLICT,array(),'');
 	}
 
 	private function _updateLock($token) {
-		WebDAVHelper::debugAddMessage('Lock update');
 		$date = JFactory::getDate();
 		$db = JFactory::getDBO();
 		$query = $db->getQuery(true);
+		$lockInfo = WebDAVHelper::getLockInfoByToken($token);
 		$fields = array(
-			$db->quoteName('expires').'='.$db->quote(time()+self::$_timeout),
-			$db->quoteName('modifytime').'='.time()
+			'token' => $token,
+			'resourcetype' => $lockInfo->resourcetype,
+			'resourcelocation' => $lockInfo->resourcelocation,
+			'expires' => time()+self::$_timeout,
+			'recursive' => '0',
+			'scope' => $lockInfo->scope,
+			'type' => $lockInfo->type,
+			'createtime' => $lockInfo->createtime,
+			'modifytime' => time()
 		);
-		$query->update($db->quoteName('#__nokWebDAV_locks','l'))
-			->set($fields)
+		$dbfields = array(
+			$db->quoteName('expires').'='.$db->quote($fields['expires']),
+			$db->quoteName('modifytime').'='.$fields['modifytime']
+		);
+		$query->update($db->quoteName('#__nokWebDAV_locks'))
+			->set($dbfields)
 			->where($db->quoteName('token').'='.$db->quote($token));
 		$db->setQuery($query);
 		if ($db->execute()) {
-			WebDAVHelper::debugAddMessage('Lock updated');
 			$content = self::_generateLockResponse($fields);
 			return array(WebDAVHelper::$HTTP_STATUS_OK, array('Content-Type: text/xml; charset="utf-8"', 'Lock-Token: <'.$token.'>'), $content);
 		}
-		return array('451', array(), '');
-		//return array(WebDAVHelper::$HTTP_STATUS_ERROR_INTERNAL_SERVER_ERROR, array(), '');
+		return array(WebDAVHelper::$HTTP_STATUS_ERROR_CONFLICT,array(),'');
 	}
 
 	private function _unlock() {
@@ -147,16 +150,14 @@ class WebDAVHelperPlugin {
 		$query->delete($db->quoteName('#__nokWebDAV_locks'))
 			->where($db->quoteName('token').'='.$db->quote($token));
 		$db->setQuery($query);
-//		WebDAVHelper::debugAddQuery($query);
 		if ($db->execute()) {
 			return array(WebDAVHelper::$HTTP_STATUS_NO_CONTENT, array(), '');
 		}
-		return array(WebDAVHelper::$HTTP_STATUS_ERROR_INTERNAL_SERVER_ERROR, array(), '');
+		return array(WebDAVHelper::$HTTP_STATUS_ERROR_CONFLICT,array(),'');
 	}
 
 	private static function _parseInfo() {
 		$input = file_get_contents('php://input');
-		//WebDAVHelper::debugAddMessage('Lock input: '.$input);
 		$dom = new DOMDocument();
 		if (!$dom->loadXML($input)) { return false; }
 		$elementList = $dom->getElementsByTagName('lockinfo')->item(0)->childNodes;
@@ -180,7 +181,6 @@ class WebDAVHelperPlugin {
 				}
 			}
 		}
-		//WebDAVHelper::debugAddArray($info,'Lock requested properties: ');
 		return $info;
 	}
 

@@ -94,13 +94,30 @@ class WebDAVHelper {
 
 	public static function getCommand() {
 		global $_SERVER;
-		return $_SERVER["REQUEST_METHOD"];
+		return $_SERVER['REQUEST_METHOD'];
 	}
 
 	public static function getDepth() {
 		global $_SERVER;
-		if (isset($_SERVER['HTTP_DEPTH'])) { return $_SERVER["HTTP_DEPTH"]; }
-		return "infinity";
+		if (isset($_SERVER['HTTP_DEPTH'])) { return $_SERVER['HTTP_DEPTH']; }
+		return 'infinity';
+	}
+
+	public static function getToken() {
+		global $_SERVER;
+
+		//self::debugAddArray($_SERVER,'_SERVER');
+		$resourceuri = "$_SERVER[REQUEST_SCHEME]://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";;
+		if (isset($_SERVER['HTTP_IF'])) {
+			if (preg_match('/\<'.str_replace('/','\\/',$resourceuri).'\> \(\<([^\>]*)\>/', $_SERVER['HTTP_IF'], $matches) > 0) {
+				return $matches[1];
+			} else {
+				if (preg_match('/\(\<([^\>]*)\>/', $_SERVER['HTTP_IF'], $matches) > 0) {
+					return $matches[1];
+				}
+			}
+		}
+		return '';
 	}
 
 	public function handleCommand($command) {
@@ -132,11 +149,6 @@ class WebDAVHelper {
 			$entries[] = "$key => $value";
 		}
 		self::debugAddMessage($name.' {'.join(', ',$entries).'}');
-	}
-
-	public static function debugServerEnv() {
-		global $_SERVER;
-		self::debugAddArray($_SERVER,'_SERVER');
 	}
 
 	public static function directoryWithSlash($directory) {
@@ -180,8 +192,8 @@ class WebDAVHelper {
 		self::_cleanupExpiredLocks();
 		$lockInfo = self::getLockInfoByObject($type, $location);
 		if ($lockInfo) {
-			if (!isset($_SERVER["HTTP_IF"]) || !strstr($_SERVER["HTTP_IF"], $lockInfo["token"])) {
-				if (!$exclusiveOnly || ($lockInfo["scope"] != "shared")) { return true; }
+			if (self::getToken() != $lockInfo->token) {
+				if (!$exclusiveOnly || ($lockInfo->scope != 'shared')) { return true; }
 			}
 		}
 		return false;
@@ -190,7 +202,7 @@ class WebDAVHelper {
 	public static function getLockInfoByToken($token) {
 		if ($token) {
 			$db = JFactory::getDBO();
-			return self::_getLockInfo(array($db->quoteName('l.token').' = '.$db->quote($token)));
+			return self::_getLockInfo(array($db->quoteName('token').' = '.$db->quote($token)));
 		}
 		return false;
 	}
