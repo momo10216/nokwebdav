@@ -38,6 +38,12 @@ class WebDAVHelperPluginCommand {
 				if ($this->_SERVER['HTTP_OVERWRITE'] != 'T') { return WebDAVHelper::$HTTP_STATUS_ERROR_PRECONDITION_FAILED; }
 			}
 		}
+		if (WebDAVHelper::isLocked('files', $sourceFileLocation, true)) {
+			return array(WebDAVHelper::$HTTP_STATUS_ERROR_LOCKED,array(),'');
+		}
+		if (WebDAVHelper::isLocked('files', $targetFileLocation)) {
+			return array(WebDAVHelper::$HTTP_STATUS_ERROR_LOCKED,array(),'');
+		}
 		return '';
 	}
 

@@ -24,6 +24,9 @@ class WebDAVHelperPluginCommand {
 	private static function _check($fileLocation) {
 		global $_SERVER;
 		if (is_dir($fileLocation)) { return WebDAVHelper::$HTTP_STATUS_ERROR_CONFLICT; }
+		if (WebDAVHelper::isLocked('files', $fileLocation)) {
+			return array(WebDAVHelper::$HTTP_STATUS_ERROR_LOCKED,array(),'');
+		}
 		return '';
 	}
 
