@@ -1,0 +1,3 @@
+AuthType Basic
+AuthName "WebDAV"
+Require valid-user
