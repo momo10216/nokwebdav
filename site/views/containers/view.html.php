@@ -9,7 +9,7 @@
 * @authorEmail	momo_102@bluemail.ch
 */
 defined('_JEXEC') or die;
-class NoKWebDAVViewShare extends JViewLegacy {
+class NoKWebDAVViewContainers extends JViewLegacy {
 	protected $items;
 	protected $pageHeading = 'COM_NOKWEBDAV_PAGE_TITLE_DEFAULT';
 	protected $paramsComponent;
@@ -21,8 +21,8 @@ class NoKWebDAVViewShare extends JViewLegacy {
 		$this->user = JFactory::getUser();
 		$app = JFactory::getApplication();
 		$this->items = $this->get('Items');
-		$this->state = $this->get('State');
-		$this->paramsComponent = $this->state->get('params');
+//		$this->state = $this->get('State');
+//		if ($this->state) { $this->paramsComponent = $this->state->get('params'); }
 		$currentMenu = $app->getMenu()->getActive();
 		if (is_object( $currentMenu )) {
 			$this->paramsMenuEntry = $currentMenu->params;
