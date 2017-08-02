@@ -1,6 +1,6 @@
 ToDo
 ====
-Propfind - Depth = infinity
+PROPFIND - Depth = infinity
 ORDERPATCH
 DAV: ordered-collections
 
@@ -22,4 +22,5 @@ PUT
 DELETE
 MKCOL
 PROPFIND
+PROPFIND - allprops
 

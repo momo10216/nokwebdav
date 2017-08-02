@@ -18,7 +18,26 @@ class WebDAVHelperPluginCommand {
 	public static function execute($directory, $uriLocation) {
 		$propertiesRequested = self::_parseInfo();
 		if ($propertiesRequested === false) { return array(WebDAVHelper::$HTTP_STATUS_ERROR_BAD_REQUEST, array(), ''); }
+		if ($propertiesRequested == 'all') { $propertiesRequested = self::_getAllProperties($directory); }
 		return self::_generateAnswer($directory, $uriLocation, $propertiesRequested);
+	}
+
+	private static function _getAllProperties($directory) {
+		$allProperties = array('displayname', 'getcontentlength', 'getcontenttype', 'resourcetype', 'executable',
+			'creationdate', 'getlastmodified', 'getetag', 'supportedlock');
+		$db = JFactory::getDBO();
+		$query = $db->getQuery(true);
+		$query->select($db->quoteName(array('name')))
+			->from('#__nokWebDAV_properties')
+			->where($db->quoteName('resourcetype').'='.$db->quote('files').' AND '.$db->quoteName('resourcelocation').'='.$db->quote($directory));
+		$db->setQuery($query);
+		$properties = $db->loadObjectList();
+		if ($properties) {
+			foreach ($properties as $property) {
+				$allProperties[] = $property->name;
+			}
+		}
+		return $allProperties;
 	}
 
 	private static function _parseInfo() {
@@ -146,11 +165,11 @@ class WebDAVHelperPluginCommand {
 					$content .= $prefix.'		<d:supportedlock>'.self::$EOL;
 					$content .= $prefix.'			<d:lockentry>'.self::$EOL;
 					$content .= $prefix.'				<d:lockscope><d:exclusive /></d:lockscope>'.self::$EOL;
-					$content .= $prefix.'				<d:locktype><d:write /></D:locktype>'.self::$EOL;
+					$content .= $prefix.'				<d:locktype><d:write /></d:locktype>'.self::$EOL;
 					$content .= $prefix.'			</d:lockentry>'.self::$EOL;
 					$content .= $prefix.'			<d:lockentry>'.self::$EOL;
 					$content .= $prefix.'				<d:lockscope><d:shared /></d:lockscope>'.self::$EOL;
-					$content .= $prefix.'				<d:locktype><d:write /></D:locktype>'.self::$EOL;
+					$content .= $prefix.'				<d:locktype><d:write /></d:locktype>'.self::$EOL;
 					$content .= $prefix.'			</d:lockentry>'.self::$EOL;
 					$content .= $prefix.'		</d:supportedlock>'.self::$EOL;
 					break;
@@ -162,7 +181,7 @@ class WebDAVHelperPluginCommand {
 						$unknowns[] = $propertyRequested;
 					} else {
 						if (!empty($ns && $ns != 'DAV:')) {
-							$content .= $prefix.'		<b:'.$propertyRequested.' b:xmlns="'.$propData['ns'].'">'.$value.'</b:'.$propertyRequested.'>'.self::$EOL;
+							$content .= $prefix.'		<b:'.$propertyRequested.' xmlns:b="'.$ns.'">'.$value.'</b:'.$propertyRequested.'>'.self::$EOL;
 						} else {
 							$content .= $prefix.'		<d:'.$propertyRequested.'>'.$value.'</d:'.$propertyRequested.'>'.self::$EOL;
 						}
