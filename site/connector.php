@@ -94,7 +94,7 @@ JLoader::register('WebDAVHelper', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav
 $uriLocation = $_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
 list ($containerName, $location) = getInfosFromUrl($_SERVER['PATH_INFO']);
 $item = $container->getItemByName($containerName);
-if ($item === false) {
+if ($item === false || !$item->published) {
 	JLog::add('Container "'.$containerName.'" not found.', JLog::ERROR);
 	WebDAVHelper::sendHttpStatusAndHeaders(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND);
 } else {
