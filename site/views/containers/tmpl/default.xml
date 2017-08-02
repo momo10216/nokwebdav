@@ -5,5 +5,25 @@
 	</layout>
 	<fields name="params">
 		<!-- Basic options. -->
+		<fieldset name="basic" label="COM_NOKWEBDAV_BASIC_OPTIONS_FIELDSET_LABEL">
+			<field name="show_access" type="radio" default="1" size="1" class="btn-group btn-group-yesno"
+				label="COM_NOKWEBDAV_SHOW_ACCESS_LABEL"
+				description="COM_NOKWEBDAV_SHOW_ACCESS_DESC">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="filter_access" type="radio" default="1" size="1" class="btn-group btn-group-yesno"
+				label="COM_NOKWEBDAV_FILTER_ACCESS_LABEL"
+				description="COM_NOKWEBDAV_FILTER_ACCESS_DESC">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="pretext" type="editor"
+				label="COM_NOKWEBDAV_CONTAINER_LIST_PRETEXT_LABEL"
+				description="COM_NOKWEBDAV_CONTAINER_LIST_PRETEXT_DESC" filter="safehtml" />
+			<field name="posttext" type="editor"
+				label="COM_NOKWEBDAV_CONTAINER_LIST_POSTTEXT_LABEL"
+				description="COM_NOKWEBDAV_CONTAINER_LIST_POSTTEXT_DESC" filter="safehtml" />
+		</fieldset>
 	</fields>
 </metadata>
