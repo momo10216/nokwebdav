@@ -91,7 +91,7 @@ $controller = JControllerLegacy::getInstance('NoKWebDAV');
 $container = $controller->getModel('container');
 
 JLoader::register('WebDAVHelper', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav.php', true);
-$uriLocation = $_SERVER['PHP_SELF'];
+$uriLocation = $_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
 list ($containerName, $location) = getInfosFromUrl($_SERVER['PATH_INFO']);
 $item = $container->getItemByName($containerName);
 if ($item === false) {

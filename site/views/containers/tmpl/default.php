@@ -24,8 +24,9 @@ if ($this->items) {
 		echo $TAB.'<tr>';
 		echo '<td>'.$item->name.'</td>';
 		echo '<td>'.$item->type.'</td>';
-		$url = 'com_nokwebdav/connector/'.$item->name.'/';
-		echo '<td>'.$url.'</td>';
+		$url = explode('index.php',$_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'])[0];
+		$url .= 'components/com_nokwebdav/connector.php/'.$item->name.'/';
+		echo '<td><a href="'.$url.'">'.$url.'</a></td>';
 		echo '</tr>'.$EOL;
 	}
 }

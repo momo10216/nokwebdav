@@ -15,23 +15,21 @@ defined('_JEXEC') or die('Restricted access');
 class WebDAVHelperPluginCommand {
 	private static $EOL = "\n";
 
-	public static function execute($fileLocation,$command) {
-		WebDAVHelper::debugAddMessage('GET: '.$fileLocation);
-		WebDAVHelper::debugAddMessage('GET: '.WebDAVHelperPlugin::getFileType($fileLocation));
+	public static function execute($fileLocation, $uriLocation, $command) {
 		switch(WebDAVHelperPlugin::getFileType($fileLocation)) {
 			case 'file':
 				return self::_getFile($fileLocation,$command);
 			case 'directory':
-				return self::_getDirectory($fileLocation,$command);
+				return self::_getDirectory($fileLocation, $uriLocation, $command);
 			default:
 				return array(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND, array(), '');
 		}
 		return array(WebDAVHelper::$HTTP_STATUS_OK, array(), '');
 	}
 
-	private function _getDirectory($directory,$command) {
+	private function _getDirectory($directory, $uriLocation, $command) {
 		if ($command == 'HEAD') { return array(WebDAVHelper::$HTTP_STATUS_OK, array(), ''); }
-		$dirEntries = WebDAVHelperPlugin::getDirectoryList($directory);
+		$dirEntries = WebDAVHelperPlugin::getDirectoryList($directory, $uriLocation);
 		if ($dirEntries === false) { return array(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND, array(), ''); }
 		$title = 'Index of '.htmlspecialchars($directory);
 		$displayFormat = "%15s  %-19s  %-s".self::$EOL;
