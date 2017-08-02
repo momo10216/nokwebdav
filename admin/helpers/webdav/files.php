@@ -57,6 +57,7 @@ class WebDAVHelperPlugin {
 					if ($this->_access['read'] && $this->_targetAccess['create'] && $this->_access['delete']) { $hasAccess =  '1'; }
 				}
 				break;
+			case 'PROPPATCH':
 			case 'PUT':
 				if (file_exists($this->_fileLocation) === true) {
 					if ($this->_access['change']) { $hasAccess =  '1'; }
@@ -67,7 +68,6 @@ class WebDAVHelperPlugin {
 			default:
 				break;
 		}
-		//self::debugAddMessage('Access command:'.$command.' result:'.$hasAccess);
 		return $hasAccess;
 	}
 
@@ -98,8 +98,8 @@ class WebDAVHelperPlugin {
 				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files_copymove.php', true);
 				return WebDAVHelperPluginCommand::execute($this->_fileLocation, $this->_targetFileLocation, $command);
 			case 'PROPPATCH':
-				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files_propatch.php', true);
-				return WebDAVHelperPluginCommand::execute($this->_fileLocation, $this->_targetFileLocation, $command);
+				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files_proppatch.php', true);
+				return WebDAVHelperPluginCommand::execute($this->_fileLocation, $this->_uriLocation);
 			default:
 				// Unsupported command
 				WebDAVHelper::debugAddMessage('Unsupported file command: '.$command);

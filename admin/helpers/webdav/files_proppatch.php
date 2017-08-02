@@ -27,7 +27,7 @@ class WebDAVHelperPluginCommand {
 
 	private static function _parseInfo() {
 		$input = file_get_contents('php://input');
-		WebDAVHelper::debugAddMessage('Proppatch input: '.$input);
+		//WebDAVHelper::debugAddMessage('Proppatch input: '.$input);
 		$dom = new DOMDocument();
 		if (!$dom->loadXML($input)) { return false; }
 		$info = array();
@@ -51,35 +51,36 @@ class WebDAVHelperPluginCommand {
 			}
 		}
 		if (count($info) < 1) { return false; }
-		WebDAVHelper::debugAddArray($info,'Proppatch properties: ');
+		//WebDAVHelper::debugAddArray($info,'Proppatch properties: ');
 		return $info;
 	}
 
 	private static function _saveProperties($resourceLocation, $properties) {
 		foreach($properties as $propName => $propData) {
-			if (!self::_changeProperty($resourceLocation, $propName, $propData['value'], $propData['ns']) {
+			if (!self::_changeProperty($resourceLocation, $propName, $propData['value'], $propData['ns'])) {
 				return false;
 			}
 		}
+		return true;
 	}
 
 	private static function _changeProperty($resourceLocation, $name, $value, $ns) {
 		$db = JFactory::getDBO();
 		$query = $db->getQuery(true);
 		if (!empty($value)) {
-			$date	= JFactory::getDate();
-			$user	= JFactory::getUser();
+			$date = JFactory::getDate();
+			$user = JFactory::getUser();
 			$dbfields = array(
 				$db->quoteName('namespace').'='.$db->quote($ns),
 				$db->quoteName('value').'='.$db->quote($value),
-				$db->quoteName('modifiedby').'='.$user->get('name'),
-				$db->quoteName('modifieddate').'='.$date->toSql()
+				$db->quoteName('modifiedby').'='.$db->quote($user->get('name')),
+				$db->quoteName('modifieddate').'='.$db->quote($date->toSql())
 			);
 			$query->update($db->quoteName('#__nokWebDAV_properties'))
 				->set($dbfields)
-				->where($db->quoteName('resourcetype').'='.$db->quote('files').' AND '.$db->quoteName('resourcelocation').'='.$db->quote($resourceLocation).' AND '$db->quoteName('name').'='.$db->quote($name));
+				->where($db->quoteName('resourcetype').'='.$db->quote('files').' AND '.$db->quoteName('resourcelocation').'='.$db->quote($resourceLocation).' AND '.$db->quoteName('name').'='.$db->quote($name));
 			$db->setQuery($query);
-			if (!$db->execute()) {
+			if (!$db->execute() || ($db->getAffectedRows() < 1)) {
 				$query = $db->getQuery(true);
 				$fields = array(
 					'resourcetype' => 'files',
@@ -92,7 +93,7 @@ class WebDAVHelperPluginCommand {
 					'modifiedby' => $user->get('name'),
 					'modifieddate' => $date->toSql()
 				);
-				$query->insert($db->quoteName('#__nokWebDAV_locks'))
+				$query->insert($db->quoteName('#__nokWebDAV_properties'))
 					->columns($db->quoteName(array_keys($fields)))
 					->values(implode(',',$db->quote(array_values($fields))));
 				$db->setQuery($query);
@@ -102,48 +103,49 @@ class WebDAVHelperPluginCommand {
 			}
 		} else {
 			$query->delete($db->quoteName('#__nokWebDAV_properties'))
-				->where($db->quoteName('resourcetype').'='.$db->quote('files').' AND '.$db->quoteName('resourcelocation').'='.$db->quote($resourceLocation).' AND '$db->quoteName('name').'='.$db->quote($name));
+				->where($db->quoteName('resourcetype').'='.$db->quote('files').' AND '.$db->quoteName('resourcelocation').'='.$db->quote($resourceLocation).' AND '.$db->quoteName('name').'='.$db->quote($name));
 			$db->setQuery($query);
+			WebDAVHelper::debugAddQuery($query);
 			if (!$db->execute()) {
 				return false;
 			}
 		}
 		return true;
 	}
-	
-	private static function _generateAnswer($uriLocation, $properties, $status) {
+
+	private static function _generateAnswer($uriLocation, $properties, $propstatus) {
 		$status = WebDAVHelper::$HTTP_STATUS_OK_MULTI_STATUS;
 		$header = array('Content-Type: text/xml; charset="utf-8');
 		$content = '<?xml version="1.0" encoding="utf-8"?>'.self::$EOL;
 		$content .= '<d:multistatus xmlns:d="DAV:">'.self::$EOL;
-		$content .= self::_getResponse($uriLocation, $properties, $status);
+		$content .= self::_getResponse($uriLocation, $properties, $propstatus);
 		$content .= '</d:multistatus>'.self::$EOL;
-		//WebDAVHelper::debugAddMessage('Propfind output: '.$content);
+		WebDAVHelper::debugAddMessage('Proppatch output: '.$content);
 		return array($status, $header, $content);
 	}
 
-	private static function _getResponse($uriLocation, $properties, $status) {
+	private static function _getResponse($uriLocation, $properties, $propstatus) {
 		$content = '';
 		$content .= '	<d:response>'.self::$EOL;
 		$content .= '		<d:href>'.$uriLocation.'</d:href>'.self::$EOL;
-		$content .= self::_getProperties($properties, $status, "\t\t");
+		$content .= self::_getProperties($properties, $propstatus, "\t\t");
 		$content .= '	</d:response>'.self::$EOL;
 		return $content;
 	}
 
-	private static function _getProperties($properties, $status, $prefix) {
+	private static function _getProperties($properties, $propstatus, $prefix) {
 		$content = $prefix.'<d:propstat>'.self::$EOL;
 		$content .= $prefix.'	<d:prop>'.self::$EOL;
 		$unknowns = array();
 		foreach ($properties as $propName => $propData) {
-			if (isset($propData['ns']) && !empty($propData['ns'] && $propData['ns'] != 'DAV:') {
-				$content .= $prefix.'		<b:'.$propName.' b:xmlns="'.$propData['ns'].'" />'.self::$EOL;
+			if (isset($propData['ns']) && !empty($propData['ns'] && $propData['ns'] != 'DAV:')) {
+				$content .= $prefix.'		<b:'.$propName.' xmlns:b="'.$propData['ns'].'" />'.self::$EOL;
 			} else {
 				$content .= $prefix.'		<d:'.$propName.' />'.self::$EOL;
 			}
 		}
 		$content .= $prefix.'	</d:prop>'.self::$EOL;
-		$content .= $prefix.'	<d:status>HTTP/1.1 '.$status.'</d:status>'.self::$EOL;
+		$content .= $prefix.'	<d:status>HTTP/1.1 '.$propstatus.'</d:status>'.self::$EOL;
 		$content .= $prefix.'</d:propstat>'.self::$EOL;
 		return $content;
 	}

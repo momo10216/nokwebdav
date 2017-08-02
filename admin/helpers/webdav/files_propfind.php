@@ -161,7 +161,7 @@ class WebDAVHelperPluginCommand {
 						// Unsupported property
 						$unknowns[] = $propertyRequested;
 					} else {
-						if (!empty($ns && $ns != 'DAV:') {
+						if (!empty($ns && $ns != 'DAV:')) {
 							$content .= $prefix.'		<b:'.$propertyRequested.' b:xmlns="'.$propData['ns'].'">'.$value.'</b:'.$propertyRequested.'>'.self::$EOL;
 						} else {
 							$content .= $prefix.'		<d:'.$propertyRequested.'>'.$value.'</d:'.$propertyRequested.'>'.self::$EOL;
@@ -192,9 +192,8 @@ class WebDAVHelperPluginCommand {
 		$query = $db->getQuery(true);
 		$query->select($db->quoteName(array('namespace','value')))
 			->from('#__nokWebDAV_properties')
-			->where($db->quoteName('resourcetype').'='.$db->quote('files').' AND '.$db->quoteName('resourcelocation').'='.$db->quote($filename).' AND '$db->quoteName('name').'='.$db->quote($propName));
+			->where($db->quoteName('resourcetype').'='.$db->quote('files').' AND '.$db->quoteName('resourcelocation').'='.$db->quote($filename).' AND '.$db->quoteName('name').'='.$db->quote($propName));
 		$db->setQuery($query);
-//		self::debugAddQuery($query);
 		$property = $db->loadObject();
 		if (!$property) { return array(false,'',''); }
 		return array(true, $property->value, $property->namespace);
