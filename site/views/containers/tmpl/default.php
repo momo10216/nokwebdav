@@ -53,7 +53,7 @@ if ($this->items) {
 			echo $TAB.'<tr>';
 			echo '<td>'.$item->name.'</td>';
 			echo '<td>'.decodeType($item->type).'</td>';
-			$url = explode('index.php',$_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'])[0];
+			$url = explode('index.php',(isset($_SERVER['HTTPS']) ? "https" : "http").'://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'])[0];
 			$url .= 'components/com_nokwebdav/connector.php/'.$item->name.'/';
 			echo '<td><a href="'.$url.'">'.$url.'</a></td>';
 			if ($this->paramsMenuEntry->get('show_access') == '1') {

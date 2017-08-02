@@ -38,6 +38,7 @@ CREATE TABLE `#__nokWebDAV_locks` (
 ) DEFAULT CHARSET=utf8;
 
 CREATE TABLE `#__nokWebDAV_properties` (
+	`id` integer NOT NULL auto_increment,
 	`resourcetype` varchar(30) NOT NULL default 'files',
 	`resourcelocation` varchar(200) NOT NULL default '',
 	`name` varchar(120) NOT NULL default '',
@@ -47,8 +48,8 @@ CREATE TABLE `#__nokWebDAV_properties` (
 	`createddate` datetime NULL default NULL,
 	`modifiedby` varchar(50) NOT NULL default '',
 	`modifieddate` datetime NOT NULL default '0000-00-00 00:00:00',
-	PRIMARY KEY  (`resourcetype`,`resourcelocation`,`name`),
-	KEY KEY_lock_location (`resourcetype`,`resourcelocation`)
+	PRIMARY KEY  (`id`),
+	KEY KEY_property_location (`resourcetype`,`resourcelocation`)
 ) DEFAULT CHARSET=utf8;
 
 CREATE TABLE `#__nokWebDAV_contacts` (
