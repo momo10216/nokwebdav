@@ -1,12 +1,13 @@
 ToDo
 ====
 Propfind - Depth = infinity
-PROPPATCH
 ORDERPATCH
-DAV: 1, 2, ordered-collections
+DAV: ordered-collections
 
 Done
 ====
+DAV: 1, 2
+PROPPATCH
 LOCK
 UNLOCK
 POST -> RFC4918: not mentioned -> no support
