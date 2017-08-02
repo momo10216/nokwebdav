@@ -85,27 +85,27 @@ class WebDAVHelperPluginCommand {
 	}
 
 	private static function _getSingleInfo($directory, $uriLocation, $propertiesRequested) {
-		return self::_getResponse(WebDAVHelperPlugin::getObjectInfo($directory, $uriLocation), $propertiesRequested);
+		return self::_getResponse($directory, WebDAVHelperPlugin::getObjectInfo($directory, $uriLocation), $propertiesRequested);
 	}
 
 	private static function _getDirectoryInfo($directory, $uriLocation, $propertiesRequested, $dirEntries) {
 		$content = '';
 		foreach ($dirEntries as $dirEntry) {
-			$content .= self::_getResponse($dirEntry, $propertiesRequested);
+			$content .= self::_getResponse(WebDAVHelper::joinDirAndFile($directory, $dirEntry['name']), $dirEntry, $propertiesRequested);
 		}
 		return $content;
 	}
 
-	private static function _getResponse($dirEntry, $propertiesRequested) {
+	private static function _getResponse($filename, $dirEntry, $propertiesRequested) {
 		$content = '';
 		$content .= '	<d:response>'.self::$EOL;
 		$content .= '		<d:href>'.$dirEntry['html_ref'].'</d:href>'.self::$EOL;
-		$content .= self::_getProperties($dirEntry, $propertiesRequested, "\t\t");
+		$content .= self::_getProperties($filename, $dirEntry, $propertiesRequested, "\t\t");
 		$content .= '	</d:response>'.self::$EOL;
 		return $content;
 	}
 
-	private static function _getProperties($dirEntry, $propertiesRequested, $prefix) {
+	private static function _getProperties($filename, $dirEntry, $propertiesRequested, $prefix) {
 		$datens =  'xmlns:b="urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882" b:dt="dateTime.rfc1123"';
 		$content = $prefix.'<d:propstat>'.self::$EOL;
 		$content .= $prefix.'	<d:prop>'.self::$EOL;
@@ -155,8 +155,18 @@ class WebDAVHelperPluginCommand {
 					$content .= $prefix.'		</d:supportedlock>'.self::$EOL;
 					break;
 				default:
-					// Unsupported property
-					$unknowns[] = $propertyRequested;
+					// Search in DB
+					list($found, $value, $ns) = self::_getPropertyFromDatabase($filename, $propertyRequested);
+					if (!$found) {
+						// Unsupported property
+						$unknowns[] = $propertyRequested;
+					} else {
+						if (!empty($ns && $ns != 'DAV:') {
+							$content .= $prefix.'		<b:'.$propertyRequested.' b:xmlns="'.$propData['ns'].'">'.$value.'</b:'.$propertyRequested.'>'.self::$EOL;
+						} else {
+							$content .= $prefix.'		<d:'.$propertyRequested.'>'.$value.'</d:'.$propertyRequested.'>'.self::$EOL;
+						}
+					}
 					break;
 			}
 		}
@@ -175,6 +185,19 @@ class WebDAVHelperPluginCommand {
 			$content .= $prefix.'</d:propstat>'.self::$EOL;
 		}
 		return $content;
+	}
+
+	private static function _getPropertyFromDatabase($filename, $propName) {
+		$db = JFactory::getDBO();
+		$query = $db->getQuery(true);
+		$query->select($db->quoteName(array('namespace','value')))
+			->from('#__nokWebDAV_properties')
+			->where($db->quoteName('resourcetype').'='.$db->quote('files').' AND '.$db->quoteName('resourcelocation').'='.$db->quote($filename).' AND '$db->quoteName('name').'='.$db->quote($propName));
+		$db->setQuery($query);
+//		self::debugAddQuery($query);
+		$property = $db->loadObject();
+		if (!$property) { return array(false,'',''); }
+		return array(true, $property->value, $property->namespace);
 	}
 }
 ?>

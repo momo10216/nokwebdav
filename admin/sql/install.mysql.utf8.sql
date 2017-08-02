@@ -43,6 +43,10 @@ CREATE TABLE `#__nokWebDAV_properties` (
 	`name` varchar(120) NOT NULL default '',
 	`namespace` varchar(120) NOT NULL default 'DAV:',
 	`value` text,
+	`createdby` varchar(50) NULL default NULL,
+	`createddate` datetime NULL default NULL,
+	`modifiedby` varchar(50) NOT NULL default '',
+	`modifieddate` datetime NOT NULL default '0000-00-00 00:00:00',
 	PRIMARY KEY  (`resourcetype`,`resourcelocation`,`name`),
 	KEY KEY_lock_location (`resourcetype`,`resourcelocation`)
 ) DEFAULT CHARSET=utf8;

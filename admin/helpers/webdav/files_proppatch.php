@@ -15,21 +15,24 @@ defined('_JEXEC') or die('Restricted access');
 class WebDAVHelperPluginCommand {
 	private static $EOL = "\n";
 
-	public static function execute($directory, $uriLocation) {
-		$propertiesRequested = self::_parseInfo();
-		if ($propertiesRequested === false) { return array(WebDAVHelper::$HTTP_STATUS_ERROR_BAD_REQUEST, array(), ''); }
-		return self::_generateAnswer($directory, $uriLocation, $propertiesRequested);
+	public static function execute($resourceLocation, $uriLocation) {
+		$properties = self::_parseInfo();
+		if ($properties === false) { return array(WebDAVHelper::$HTTP_STATUS_ERROR_BAD_REQUEST, array(), ''); }
+		$status = WebDAVHelper::getStatus(WebDAVHelper::$HTTP_STATUS_OK);
+		if (!self::_saveProperties($resourceLocation, $properties)) {
+			$status = WebDAVHelper::getStatus(WebDAVHelper::$HTTP_STATUS_ERROR_FORBIDDEN);
+		}
+		return self::_generateAnswer($uriLocation, $properties, $status);
 	}
 
 	private static function _parseInfo() {
 		$input = file_get_contents('php://input');
-		//WebDAVHelper::debugAddMessage('Propfind input: '.$input);
+		WebDAVHelper::debugAddMessage('Proppatch input: '.$input);
 		$dom = new DOMDocument();
 		if (!$dom->loadXML($input)) { return false; }
-		$elementList = $dom->getElementsByTagName('allprop');
-		if ($elementList->length > 0) { return 'all'; }
-		$elementList = $dom->getElementsByTagName('prop');
 		$info = array();
+		$mode = $dom->tagName;
+		$elementList = $dom->getElementsByTagName('prop');
 		if ($elementList->length > 0) {
 			for($i=0 ; $i<$elementList->length ; $i++) {
 				$element = $elementList->item($i);
@@ -38,142 +41,110 @@ class WebDAVHelperPluginCommand {
 					for($j=0 ; $j<$elementChildList->length ; $j++) {
 						$elementChild = $elementChildList->item($j);
 						if ($elementChild->nodeName != '#text') {
-							if (strpos($elementChild->nodeName, ':')) {
-								$info[] = explode(':',$elementChild->nodeName,2)[1];
-							} else {
-								$info[] = $elementChild->nodeName;
-							}
+							$info[$elementChild->nodeName] = array(
+								'ns' => $elementChild->namespaceURI,
+								'value' => $elementChild->textContent
+							);
 						}
 					}
 				}
 			}
 		}
-		if (count($info) < 1) { return 'all'; }
-		//WebDAVHelper::debugAddArray($info,'Requested properties: ');
+		if (count($info) < 1) { return false; }
+		WebDAVHelper::debugAddArray($info,'Proppatch properties: ');
 		return $info;
 	}
 
-	private static function _generateAnswer($directory, $uriLocation, $propertiesRequested) {
+	private static function _saveProperties($resourceLocation, $properties) {
+		foreach($properties as $propName => $propData) {
+			if (!self::_changeProperty($resourceLocation, $propName, $propData['value'], $propData['ns']) {
+				return false;
+			}
+		}
+	}
+
+	private static function _changeProperty($resourceLocation, $name, $value, $ns) {
+		$db = JFactory::getDBO();
+		$query = $db->getQuery(true);
+		if (!empty($value)) {
+			$date	= JFactory::getDate();
+			$user	= JFactory::getUser();
+			$dbfields = array(
+				$db->quoteName('namespace').'='.$db->quote($ns),
+				$db->quoteName('value').'='.$db->quote($value),
+				$db->quoteName('modifiedby').'='.$user->get('name'),
+				$db->quoteName('modifieddate').'='.$date->toSql()
+			);
+			$query->update($db->quoteName('#__nokWebDAV_properties'))
+				->set($dbfields)
+				->where($db->quoteName('resourcetype').'='.$db->quote('files').' AND '.$db->quoteName('resourcelocation').'='.$db->quote($resourceLocation).' AND '$db->quoteName('name').'='.$db->quote($name));
+			$db->setQuery($query);
+			if (!$db->execute()) {
+				$query = $db->getQuery(true);
+				$fields = array(
+					'resourcetype' => 'files',
+					'resourcelocation' => $resourceLocation,
+					'name' => $name,
+					'namespace' => $ns,
+					'value' => $value,
+					'createdby' => $user->get('name'),
+					'createddate' => $date->toSql(),
+					'modifiedby' => $user->get('name'),
+					'modifieddate' => $date->toSql()
+				);
+				$query->insert($db->quoteName('#__nokWebDAV_locks'))
+					->columns($db->quoteName(array_keys($fields)))
+					->values(implode(',',$db->quote(array_values($fields))));
+				$db->setQuery($query);
+				if (!$db->execute()) {
+					return false;
+				}
+			}
+		} else {
+			$query->delete($db->quoteName('#__nokWebDAV_properties'))
+				->where($db->quoteName('resourcetype').'='.$db->quote('files').' AND '.$db->quoteName('resourcelocation').'='.$db->quote($resourceLocation).' AND '$db->quoteName('name').'='.$db->quote($name));
+			$db->setQuery($query);
+			if (!$db->execute()) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	private static function _generateAnswer($uriLocation, $properties, $status) {
 		$status = WebDAVHelper::$HTTP_STATUS_OK_MULTI_STATUS;
 		$header = array('Content-Type: text/xml; charset="utf-8');
 		$content = '<?xml version="1.0" encoding="utf-8"?>'.self::$EOL;
-		$depth = WebDAVHelperPlugin::getDepth();
-		//WebDAVHelper::debugAddMessage('Depth: '.$depth);
-		//WebDAVHelper::debugAddMessage('Directory: '.$directory);
 		$content .= '<d:multistatus xmlns:d="DAV:">'.self::$EOL;
-		if (WebDAVHelperPlugin::getFileType($directory) == 'file') { $depth = '0'; }
-		switch ($depth) {
-			case '0': // Single object info
-				if (!file_exists($directory)) { return array(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND, array(), ''); }
-				$content .= self::_getSingleInfo($directory, $uriLocation, $propertiesRequested);
-				break;
-			case '1': // Directory info
-				$dirEntries = WebDAVHelperPlugin::getDirectoryList($directory, $uriLocation, array('.','..'), false);
-				if (count($dirEntries) < 1) { return array(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND, array(), ''); }
-				$content .= self::_getDirectoryInfo($directory, $uriLocation, $propertiesRequested, $dirEntries);
-				break;
-			case 'infinity': // Recursive directory info
-			default:
-				$dirEntries = WebDAVHelperPlugin::getDirectoryList($directory, $uriLocation, array('.','..'), true);
-				if (count($dirEntries) < 1) { return array(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND, array(), ''); }
-				$content .= self::_getDirectoryInfo($directory, $uriLocation, $propertiesRequested, $dirEntries);
-				break;
-		}
+		$content .= self::_getResponse($uriLocation, $properties, $status);
 		$content .= '</d:multistatus>'.self::$EOL;
 		//WebDAVHelper::debugAddMessage('Propfind output: '.$content);
 		return array($status, $header, $content);
 	}
 
-	private static function _getSingleInfo($directory, $uriLocation, $propertiesRequested) {
-		return self::_getResponse(WebDAVHelperPlugin::getObjectInfo($directory, $uriLocation), $propertiesRequested);
-	}
-
-	private static function _getDirectoryInfo($directory, $uriLocation, $propertiesRequested, $dirEntries) {
-		$content = '';
-		foreach ($dirEntries as $dirEntry) {
-			$content .= self::_getResponse($dirEntry, $propertiesRequested);
-		}
-		return $content;
-	}
-
-	private static function _getResponse($dirEntry, $propertiesRequested) {
+	private static function _getResponse($uriLocation, $properties, $status) {
 		$content = '';
 		$content .= '	<d:response>'.self::$EOL;
-		$content .= '		<d:href>'.$dirEntry['html_ref'].'</d:href>'.self::$EOL;
-		$content .= self::_getProperties($dirEntry, $propertiesRequested, "\t\t");
+		$content .= '		<d:href>'.$uriLocation.'</d:href>'.self::$EOL;
+		$content .= self::_getProperties($properties, $status, "\t\t");
 		$content .= '	</d:response>'.self::$EOL;
 		return $content;
 	}
 
-	private static function _getProperties($dirEntry, $propertiesRequested, $prefix) {
-		$datens =  'xmlns:b="urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882" b:dt="dateTime.rfc1123"';
+	private static function _getProperties($properties, $status, $prefix) {
 		$content = $prefix.'<d:propstat>'.self::$EOL;
 		$content .= $prefix.'	<d:prop>'.self::$EOL;
 		$unknowns = array();
-		foreach ($propertiesRequested as $propertyRequested) {
-			switch($propertyRequested) {
-				case 'displayname':
-					$content .= $prefix.'		<d:displayname>'.$dirEntry['name'].'</d:displayname>'.self::$EOL;
-					break;
-				case 'getcontentlength':
-					$content .= $prefix.'		<d:getcontentlength>'.$dirEntry['size'].'</d:getcontentlength>'.self::$EOL;
-					break;
-				case 'getcontenttype':
-					$content .= $prefix.'		<d:getcontenttype>'.$dirEntry['mime_type'].'</d:getcontenttype>'.self::$EOL;
-					break;
-				case 'resourcetype':
-					if ($dirEntry['mime_type'] == 'directory') {
-						$content .= $prefix.'		<d:resourcetype><d:collection /></d:resourcetype>';
-					} else {
-						$content .= $prefix.'		<d:resourcetype />'.self::$EOL;
-					}
-					break;
-				case 'executable':
-					if ($dirEntry['executable'] == '1') {
-						$content .= $prefix.'		<d:executable />'.self::$EOL;
-					}
-					break;
-				case 'creationdate':
-					$content .= $prefix.'		<d:creationdate '.$datens.'>'.gmdate('D, d M Y H:i:s', $dirEntry['ctime']).' GMT</d:creationdate>'.self::$EOL;
-					break;
-				case 'getlastmodified':
-					$content .= $prefix.'		<d:getlastmodified '.$datens.'>'.gmdate('D, d M Y H:i:s', $dirEntry['mtime']).' GMT</d:getlastmodified>'.self::$EOL;
-					break;
-				case 'getetag':
-					$content .= $prefix.'		<d:getetag>'.$dirEntry['etag'].'</d:getetag>'.self::$EOL;
-					break;
-				case 'supportedlock':
-					$content .= $prefix.'		<d:supportedlock>'.self::$EOL;
-					$content .= $prefix.'			<d:lockentry>'.self::$EOL;
-					$content .= $prefix.'				<d:lockscope><d:exclusive /></d:lockscope>'.self::$EOL;
-					$content .= $prefix.'				<d:locktype><d:write /></D:locktype>'.self::$EOL;
-					$content .= $prefix.'			</d:lockentry>'.self::$EOL;
-					$content .= $prefix.'			<d:lockentry>'.self::$EOL;
-					$content .= $prefix.'				<d:lockscope><d:shared /></d:lockscope>'.self::$EOL;
-					$content .= $prefix.'				<d:locktype><d:write /></D:locktype>'.self::$EOL;
-					$content .= $prefix.'			</d:lockentry>'.self::$EOL;
-					$content .= $prefix.'		</d:supportedlock>'.self::$EOL;
-					break;
-				default:
-					// Unsupported property
-					$unknowns[] = $propertyRequested;
-					break;
+		foreach ($properties as $propName => $propData) {
+			if (isset($propData['ns']) && !empty($propData['ns'] && $propData['ns'] != 'DAV:') {
+				$content .= $prefix.'		<b:'.$propName.' b:xmlns="'.$propData['ns'].'" />'.self::$EOL;
+			} else {
+				$content .= $prefix.'		<d:'.$propName.' />'.self::$EOL;
 			}
 		}
 		$content .= $prefix.'	</d:prop>'.self::$EOL;
-		$content .= $prefix.'	<d:status>HTTP/1.1 200 OK</d:status>'.self::$EOL;
+		$content .= $prefix.'	<d:status>HTTP/1.1 '.$status.'</d:status>'.self::$EOL;
 		$content .= $prefix.'</d:propstat>'.self::$EOL;
-		if (count($unknowns) > 0) {
-			$content .= $prefix.'<d:propstat>'.self::$EOL;
-			$content .= $prefix.'	<d:prop>'.self::$EOL;
-			$content .= $prefix.'		<d:executable xmlns="http://apache.org/dav/props/" />'.self::$EOL;
-			foreach ($unknowns as $unknown) {
-				$content .= $prefix.'		<d:'.$unknown.' />'.self::$EOL;
-			}
-			$content .= $prefix.'	</d:prop>'.self::$EOL;
-			$content .= $prefix.'	<d:status>HTTP/1.1 404 Not Found</d:status>'.self::$EOL;
-			$content .= $prefix.'</d:propstat>'.self::$EOL;
-		}
 		return $content;
 	}
 }

@@ -135,6 +135,13 @@ class WebDAVHelper {
 		}
 	}
 
+	public static function getStatus($code) {
+		if (isset(self::$_http_status_text[$code])) {
+			return $code.' '.self::$_http_status_text[$code];
+		}
+		return $code;
+	}
+
 	public static function debugAddMessage($message) {
 		JLog::add($message, JLog::DEBUG);
 	}
