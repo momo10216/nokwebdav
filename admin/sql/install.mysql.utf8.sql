@@ -54,7 +54,6 @@ CREATE TABLE `#__nokWebDAV_properties` (
 
 CREATE TABLE `#__nokWebDAV_contacts` (
 	`id` integer NOT NULL auto_increment,
-	`asset_id` INT(255) UNSIGNED NOT NULL DEFAULT '0',
 	`container_id` integer NOT NULL,
 	`published` int(1) NOT NULL default 0,
 	`createdby` varchar(50) NULL default NULL,
@@ -66,7 +65,6 @@ CREATE TABLE `#__nokWebDAV_contacts` (
 
 CREATE TABLE `#__nokWebDAV_events` (
 	`id` integer NOT NULL auto_increment,
-	`asset_id` INT(255) UNSIGNED NOT NULL DEFAULT '0',
 	`container_id` integer NOT NULL,
 	`published` int(1) NOT NULL default 0,
 	`createdby` varchar(50) NULL default NULL,

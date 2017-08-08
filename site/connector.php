@@ -33,6 +33,18 @@ function getAccess($id) {
 function handleAuthentication() {
 	global $_SERVER;
 
+	if (!isset($_SERVER['PHP_AUTH_USER']) || empty($_SERVER['PHP_AUTH_USER'])) {
+		if (isset($_SERVER['HTTP_AUTHORIZATION']) && !empty($_SERVER['HTTP_AUTHORIZATION'])) {
+			list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':' , base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));
+		} else {
+			if (isset($_GET['Authorization']) && preg_match('/Basic\s+(.*)$/i', $_GET['Authorization'], $matches)) {
+				list($name, $password) = explode(':', base64_decode($matches[1]));
+				$_SERVER['PHP_AUTH_USER'] = strip_tags($name);
+				$_SERVER['PHP_AUTH_PW'] = strip_tags($password);
+			}
+		}
+	}
+//	JLog::add('SERVER: '.json_encode($_SERVER), JLog::DEBUG);
 	if (isset($_SERVER['PHP_AUTH_USER']) && !empty($_SERVER['PHP_AUTH_USER'])) {
 		$user = JFactory::getUser();
 		if ($user->username != $_SERVER['PHP_AUTH_USER']) {
@@ -41,16 +53,16 @@ function handleAuthentication() {
 			if (isset($_SERVER['PHP_AUTH_USER'])) { $user = $_SERVER['PHP_AUTH_USER']; }
 			if (isset($_SERVER['PHP_AUTH_PW'])) { $password = $_SERVER['PHP_AUTH_PW']; }
 			$app = JFactory::getApplication();
-			//JLog::add('User: '.$user, JLog::DEBUG);
-			//JLog::add('Password: '.$password, JLog::DEBUG);
+//			JLog::add('User: '.$user, JLog::DEBUG);
+//			JLog::add('Password: '.$password, JLog::DEBUG);
 			$credentials = array('username' => $user,'password' => $password);
 			$options = array();
 			$app->login($credentials, $options);
 		} else {
-			//JLog::add('User "'.$user->username.'" already logged in.', JLog::DEBUG);
+//			JLog::add('User "'.$user->username.'" already logged in.', JLog::DEBUG);
 		}
 	} else {
-		//JLog::add('No username provided.', JLog::DEBUG);
+//		JLog::add('No username provided.', JLog::DEBUG);
 	}
 	return true;
 }
@@ -76,7 +88,7 @@ jimport('joomla.log.log');
 JLog::addLogger(
 	array(
 		'text_file' => 'nokwebdav.log',
-		'text_file_path' => '/tmp/',
+		'text_file_path' => '../../tmp/',
 		'text_entry_format' => '{DATETIME} {PRIORITY} {MESSAGE}'
 	),
 	JLog::ERROR | JLog::DEBUG
