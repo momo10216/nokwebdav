@@ -27,7 +27,7 @@ class WebDAVHelperPluginCommand {
 
 	private static function _parseInfo() {
 		$input = file_get_contents('php://input');
-		//WebDAVHelper::debugAddMessage('Proppatch input: '.$input);
+//		WebDAVHelper::debugAddMessage('Proppatch input: '.$input);
 		$dom = new DOMDocument();
 		if (!$dom->loadXML($input)) { return false; }
 		$info = array();
@@ -51,7 +51,7 @@ class WebDAVHelperPluginCommand {
 			}
 		}
 		if (count($info) < 1) { return false; }
-		//WebDAVHelper::debugAddArray($info,'Proppatch properties: ');
+//		WebDAVHelper::debugAddArray($info,'Proppatch properties: ');
 		return $info;
 	}
 
@@ -105,7 +105,7 @@ class WebDAVHelperPluginCommand {
 			$query->delete($db->quoteName('#__nokWebDAV_properties'))
 				->where($db->quoteName('resourcetype').'='.$db->quote('files').' AND '.$db->quoteName('resourcelocation').'='.$db->quote($resourceLocation).' AND '.$db->quoteName('name').'='.$db->quote($name));
 			$db->setQuery($query);
-			WebDAVHelper::debugAddQuery($query);
+//			WebDAVHelper::debugAddQuery($query);
 			if (!$db->execute()) {
 				return false;
 			}
@@ -120,7 +120,7 @@ class WebDAVHelperPluginCommand {
 		$content .= '<d:multistatus xmlns:d="DAV:">'.self::$EOL;
 		$content .= self::_getResponse($uriLocation, $properties, $propstatus);
 		$content .= '</d:multistatus>'.self::$EOL;
-		WebDAVHelper::debugAddMessage('Proppatch output: '.$content);
+//		WebDAVHelper::debugAddMessage('Proppatch output: '.$content);
 		return array($status, $header, $content);
 	}
 

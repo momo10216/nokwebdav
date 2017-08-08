@@ -15,8 +15,8 @@ defined('_JEXEC') or die('Restricted access');
 class WebDAVHelperPluginCommand {
 	public static function execute($fileLocation) {
 		list ($path, $directory) = WebDAVHelperPlugin::getPathAndFilename($fileLocation);
-		WebDAVHelper::debugAddMessage('directory: '.$directory);
-		WebDAVHelper::debugAddMessage('file: '.$file);
+//		WebDAVHelper::debugAddMessage('directory: '.$directory);
+//		WebDAVHelper::debugAddMessage('file: '.$file);
 		$status = self::_check($path, $directory);
 		$header = array();
 		$content = '';

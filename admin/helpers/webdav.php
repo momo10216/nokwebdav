@@ -105,8 +105,6 @@ class WebDAVHelper {
 
 	public static function getToken() {
 		global $_SERVER;
-
-		//self::debugAddArray($_SERVER,'_SERVER');
 		$resourceuri = "$_SERVER[REQUEST_SCHEME]://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";;
 		if (isset($_SERVER['HTTP_IF'])) {
 			if (preg_match('/\<'.str_replace('/','\\/',$resourceuri).'\> \(\<([^\>]*)\>/', $_SERVER['HTTP_IF'], $matches) > 0) {
