@@ -67,6 +67,19 @@ function handleAuthentication() {
 	return true;
 }
 
+function getUriLoaction() {
+	global $_SERVER;
+	if (isset($_SERVER["HTTPS"]) && !empty($_SERVER["HTTPS"])) {
+		$uri = 'https';
+	} else {
+		$uri = 'http';
+	}
+	$uri .= '://'.$_SERVER["SERVER_NAME"];
+	if ($_SERVER["SERVER_PORT"] != 80 ) { $uri .= ':'.$_SERVER["SERVER_PORT"]; }
+	$uri .= $_SERVER["REQUEST_URI"];
+	return $uri;
+}
+
 $component = 'com_nokwebdav';
 
 define('_JEXEC', 1);
@@ -103,7 +116,7 @@ $controller = JControllerLegacy::getInstance('NoKWebDAV');
 $container = $controller->getModel('container');
 
 JLoader::register('WebDAVHelper', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav.php', true);
-$uriLocation = $_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
+$uriLocation = getUriLoaction();
 list ($containerName, $location) = getInfosFromUrl($_SERVER['PATH_INFO']);
 $item = $container->getItemByName($containerName);
 if ($item === false || !$item->published) {
