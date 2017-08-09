@@ -15,6 +15,7 @@ defined('_JEXEC') or die('Restricted access');
 class WebDAVHelperPlugin {
 	private static $EOL = "\n";
 	private static $_allowedCommands = array('GET', 'OPTIONS', 'PROPFIND', 'MKCOL', 'DELETE', 'PUT', 'COPY', 'MOVE', 'LOCK', 'UNLOCK', 'PROPPATCH');
+	private static $_illegalFileChars = array('..', '\\', ':', '|', '<', '>');
 	private $_access;
 	private $_fileLocation;
 	private $_targetAccess;
@@ -27,6 +28,14 @@ class WebDAVHelperPlugin {
 		$this->_targetAccess = $targetAccess;
 		$this->_targetFileLocation = $targetFileLocation;
 		$this->_uriLocation = $uriLocation;
+	}
+
+	public function inputsValid() {
+		foreach (self::$_illegalFileChars as $illegalFileChar) {
+			if (strpos($this->_fileLocation,$illegalFileChar)) { return false; }
+			if (strpos($this->_targetFileLocation,$illegalFileChar)) { return false; }
+		}
+		return true;
 	}
 
 	public function hasAccess($command) {
@@ -72,7 +81,6 @@ class WebDAVHelperPlugin {
 	}
 
 	public function handleCommand($command) {
-//		WebDAVHelper::debugAddMessage('Incoming file command: '.$command);
 		switch($command) {
 			case 'GET':
 			case 'HEAD':

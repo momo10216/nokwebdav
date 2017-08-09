@@ -42,7 +42,8 @@ class WebDAVHelperPluginCommand {
 
 	private static function _parseInfo() {
 		$input = file_get_contents('php://input');
-//		WebDAVHelper::debugAddMessage('Propfind input: '.$input);
+		WebDAVHelper::debugAddMessage('Propfind input: '.$input);
+		if (empty($input)) { return 'all'; }
 		$dom = new DOMDocument();
 		if (!$dom->loadXML($input)) { return false; }
 		$elementList = $dom->getElementsByTagName('allprop');
@@ -68,7 +69,7 @@ class WebDAVHelperPluginCommand {
 			}
 		}
 		if (count($info) < 1) { return 'all'; }
-//		WebDAVHelper::debugAddArray($info,'Requested properties: ');
+		WebDAVHelper::debugAddArray($info,'Requested properties: ');
 		return $info;
 	}
 
@@ -77,8 +78,8 @@ class WebDAVHelperPluginCommand {
 		$header = array('Content-Type: text/xml; charset="utf-8');
 		$content = '<?xml version="1.0" encoding="utf-8"?>'.self::$EOL;
 		$depth = WebDAVHelperPlugin::getDepth();
-//		WebDAVHelper::debugAddMessage('Depth: '.$depth);
-//		WebDAVHelper::debugAddMessage('Directory: '.$directory);
+		WebDAVHelper::debugAddMessage('Depth: '.$depth);
+		WebDAVHelper::debugAddMessage('Directory: '.$directory);
 		$content .= '<d:multistatus xmlns:d="DAV:">'.self::$EOL;
 		if (WebDAVHelperPlugin::getFileType($directory) == 'file') { $depth = '0'; }
 		switch ($depth) {
@@ -142,7 +143,7 @@ class WebDAVHelperPluginCommand {
 					break;
 				case 'resourcetype':
 					if ($dirEntry['mime_type'] == 'directory') {
-						$content .= $prefix.'		<d:resourcetype><d:collection /></d:resourcetype>';
+						$content .= $prefix.'		<d:resourcetype><d:collection /></d:resourcetype>'.self::$EOL;
 					} else {
 						$content .= $prefix.'		<d:resourcetype />'.self::$EOL;
 					}

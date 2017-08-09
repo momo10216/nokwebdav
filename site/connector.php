@@ -1,13 +1,15 @@
 <?php
-function getInfosFromUrl($url) {
+function getInfosFromPath() {
 	global $_SERVER;
-
-	$location = str_replace($_SERVER['SCRIPT_NAME'],'',$url);
-	$locElements = explode('/',$location);
+	JLog::add('getInfosFromPath Path: '.$_SERVER['PATH_INFO'], JLog::DEBUG);
+	$locElements = explode('/',$_SERVER['PATH_INFO']);
 	if (count($locElements) < 2) { return array('',''); }
 	$containerName = $locElements[1];
 	unset($locElements[1]);
 	$location = implode('/',$locElements);
+	if (empty($location)) { $location = '/'; }
+	JLog::add('getInfosFromPath containerName: '.$containerName, JLog::DEBUG);
+	JLog::add('getInfosFromPath location: '.$location, JLog::DEBUG);
 	return array($containerName, $location);
 }
 
@@ -117,7 +119,7 @@ $container = $controller->getModel('container');
 
 JLoader::register('WebDAVHelper', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav.php', true);
 $uriLocation = getUriLoaction();
-list ($containerName, $location) = getInfosFromUrl($_SERVER['PATH_INFO']);
+list ($containerName, $location) = getInfosFromPath();
 $item = $container->getItemByName($containerName);
 if ($item === false || !$item->published) {
 	JLog::add('Container "'.$containerName.'" not found.', JLog::ERROR);

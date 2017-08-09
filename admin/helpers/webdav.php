@@ -119,9 +119,19 @@ class WebDAVHelper {
 	}
 
 	public function handleCommand($command) {
+		self::debugAddMessage('Type: '.$this->_type);
+		self::debugAddMessage('Command: '.$command);
 		if ($this->_plugin->hasAccess($command)) {
-			list($code, $headers, $content) = $this->_plugin->handleCommand($command);
+			if ($this->_plugin->inputsValid()) {
+				list($code, $headers, $content) = $this->_plugin->handleCommand($command);
+			} else{
+				self::debugAddMessage('Inputs invalid');
+				$code = self::$HTTP_STATUS_ERROR_BAD_REQUEST;
+				$headers = array();
+				$content = '';
+			}
 		} else {
+			self::debugAddMessage('No access');
 			$code = self::$HTTP_STATUS_ERROR_UNAUTHORIZED;
 			$headers = array('WWW-Authenticate: Basic realm="Joomla (NoK-WebDAV)"');
 			$content = '';
@@ -129,6 +139,7 @@ class WebDAVHelper {
 		if (is_string($content)) { $headers[] = 'Content-length: '.strlen($content); }
 		self::sendHttpStatusAndHeaders($code, $headers);
 		if (!empty($content)) {
+			self::debugAddMessage('Content: '.$content);
 			echo $content;
 		}
 	}
@@ -185,7 +196,7 @@ class WebDAVHelper {
 		}
 		$statusheaders = array("HTTP/1.1 $status", "X-WebDAV-Status: $status", 'X-Dav-Powered-By: NoK-WebDAV');
 		$headers = array_merge($statusheaders, $additionalheaders);
-//		$this->debugAddArray($headers, 'headers');
+		self::debugAddArray($headers, 'headers');
 		foreach($headers as $header) {
 			header($header,true);
 		}
@@ -285,7 +296,6 @@ class WebDAVHelper {
 			->from('#__nokWebDAV_locks')
 			->where($where);
 		$db->setQuery($query);
-//		self::debugAddQuery($query);
 		return $db->loadObject();
 	}
 
@@ -295,7 +305,6 @@ class WebDAVHelper {
 		$query->delete($db->quoteName('#__nokWebDAV_locks'))
 			->where($db->quoteName('expires').'<'.time());
 		$db->setQuery($query);
-//		WebDAVHelper::debugAddQuery($query);
 		if (!$db->execute()) {
 			JLog::add('Error while cleanup expired locks', JLog::ERROR);
 		}
