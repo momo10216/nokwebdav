@@ -179,5 +179,20 @@ class WebDAVHelperPlugin {
 		$directory = implode(DIRECTORY_SEPARATOR, $dirEntries);
 		return array($directory, $file);
 	}
+
+	public static function getSize($path) {
+		if (is_dir(rtrim($path,DIRECTORY_SEPARATOR))) {
+			$total_size = 0;
+			$files = scandir($path);
+			foreach($files as $file) {
+				if (($file != '.') && ($file != '..')) {
+					$total_size += self::getSize(rtrim($path,DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$file);
+				}
+			}
+			return $total_size+filesize($path);
+		} else {
+			return filesize($path);
+		}
+	}
 }
 ?>

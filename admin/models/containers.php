@@ -26,6 +26,7 @@ class NoKWebDAVModelContainers extends JModelList {
 				'name', 'c.name',
 				'type', 'c.type',
 				'filepath', 'c.filepath',
+				'published', 'c.published',
 				'createddate', 'c.createddate',
 				'createdby', 'c.createdby'
 			);
@@ -57,7 +58,7 @@ class NoKWebDAVModelContainers extends JModelList {
 		$query = $db->getQuery(true);
 		// Select some fields from the hello table
 		$query
-			->select($db->quoteName(array('c.id', 'c.name', 'c.type', 'c.filepath')))
+			->select($db->quoteName(array('c.id', 'c.name', 'c.type', 'c.filepath', 'c.published')))
 			->from($db->quoteName('#__nokWebDAV_containers','c'));
 		// special filtering (houshold, excludeid).
 		$whereExtList = array();
@@ -103,6 +104,7 @@ class NoKWebDAVModelContainers extends JModelList {
 			'name'=>'c.name',
 			'type'=>'c.type',
 			'filepath'=>'c.filepath',
+			'published'=>'c.published',
 			'createdby'=>'c.createdby',
 			'createddate'=>'c.createddate'
 		);

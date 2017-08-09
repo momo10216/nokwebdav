@@ -16,6 +16,7 @@ class WebDAVHelperPluginCommand {
 	private static $EOL = "\n";
 
 	public static function execute($directory, $uriLocation) {
+		$directory = rtrim($directory,"/");
 		$propertiesRequested = self::_parseInfo();
 		if ($propertiesRequested === false) { return array(WebDAVHelper::$HTTP_STATUS_ERROR_BAD_REQUEST, array(), ''); }
 		if ($propertiesRequested == 'all') { $propertiesRequested = self::_getAllProperties($directory); }
@@ -84,8 +85,11 @@ class WebDAVHelperPluginCommand {
 		if (WebDAVHelperPlugin::getFileType($directory) == 'file') { $depth = '0'; }
 		switch ($depth) {
 			case '0': // Single object info
-				if (!file_exists($directory)) { return array(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND, array(), ''); }
-				$content .= self::_getSingleInfo($directory, $uriLocation, $propertiesRequested);
+				if (!file_exists($directory)) { 
+					return array(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND, array(), '');
+				} else {
+					$content .= self::_getSingleInfo($directory, $uriLocation, $propertiesRequested);
+				}
 				break;
 			case '1': // Directory info
 				$dirEntries = WebDAVHelperPlugin::getDirectoryList($directory, $uriLocation, array('.','..'), false);
@@ -100,32 +104,31 @@ class WebDAVHelperPluginCommand {
 				break;
 		}
 		$content .= '</d:multistatus>'.self::$EOL;
-//		WebDAVHelper::debugAddMessage('Propfind output: '.$content);
 		return array($status, $header, $content);
 	}
 
 	private static function _getSingleInfo($directory, $uriLocation, $propertiesRequested) {
-		return self::_getResponse($directory, WebDAVHelperPlugin::getObjectInfo($directory, $uriLocation), $propertiesRequested);
+		return self::_getResponse($directory, WebDAVHelperPlugin::getObjectInfo($directory, $uriLocation), $propertiesRequested, WebDAVHelper::$HTTP_STATUS_OK);
 	}
 
 	private static function _getDirectoryInfo($directory, $uriLocation, $propertiesRequested, $dirEntries) {
 		$content = '';
 		foreach ($dirEntries as $dirEntry) {
-			$content .= self::_getResponse(WebDAVHelper::joinDirAndFile($directory, $dirEntry['name']), $dirEntry, $propertiesRequested);
+			$content .= self::_getResponse(WebDAVHelper::joinDirAndFile($directory, $dirEntry['name']), $dirEntry, $propertiesRequested, WebDAVHelper::$HTTP_STATUS_OK);
 		}
 		return $content;
 	}
 
-	private static function _getResponse($filename, $dirEntry, $propertiesRequested) {
+	private static function _getResponse($filename, $dirEntry, $propertiesRequested, $status) {
 		$content = '';
 		$content .= '	<d:response>'.self::$EOL;
 		$content .= '		<d:href>'.$dirEntry['html_ref'].'</d:href>'.self::$EOL;
-		$content .= self::_getProperties($filename, $dirEntry, $propertiesRequested, "\t\t");
+		$content .= self::_getProperties($filename, $dirEntry, $propertiesRequested, "\t\t", $status);
 		$content .= '	</d:response>'.self::$EOL;
 		return $content;
 	}
 
-	private static function _getProperties($filename, $dirEntry, $propertiesRequested, $prefix) {
+	private static function _getProperties($filename, $dirEntry, $propertiesRequested, $prefix, $status) {
 		$datens =  'xmlns:b="urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882" b:dt="dateTime.rfc1123"';
 		$content = $prefix.'<d:propstat>'.self::$EOL;
 		$content .= $prefix.'	<d:prop>'.self::$EOL;
@@ -174,6 +177,9 @@ class WebDAVHelperPluginCommand {
 					$content .= $prefix.'			</d:lockentry>'.self::$EOL;
 					$content .= $prefix.'		</d:supportedlock>'.self::$EOL;
 					break;
+				case 'quota-used-bytes':
+					$content .= $prefix.'		<d:quota-used-bytes>'.WebDAVHelperPlugin::getSize($filename).'</d:quota-used-bytes>'.self::$EOL;
+					break;
 				default:
 					// Search in DB
 					list($found, $value, $ns) = self::_getPropertyFromDatabase($filename, $propertyRequested);
@@ -191,12 +197,12 @@ class WebDAVHelperPluginCommand {
 			}
 		}
 		$content .= $prefix.'	</d:prop>'.self::$EOL;
-		$content .= $prefix.'	<d:status>HTTP/1.1 200 OK</d:status>'.self::$EOL;
+		$content .= $prefix.'	<d:status>HTTP/1.1 '.WebDAVHelper::getStatus($status).'</d:status>'.self::$EOL;
 		$content .= $prefix.'</d:propstat>'.self::$EOL;
 		if (count($unknowns) > 0) {
 			$content .= $prefix.'<d:propstat>'.self::$EOL;
 			$content .= $prefix.'	<d:prop>'.self::$EOL;
-			$content .= $prefix.'		<d:executable xmlns="http://apache.org/dav/props/" />'.self::$EOL;
+			$content .= $prefix.'		<executable xmlns="http://apache.org/dav/props/" />'.self::$EOL;
 			foreach ($unknowns as $unknown) {
 				$content .= $prefix.'		<d:'.$unknown.' />'.self::$EOL;
 			}

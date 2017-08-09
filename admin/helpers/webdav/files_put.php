@@ -32,11 +32,22 @@ class WebDAVHelperPluginCommand {
 
 	private static function _save($fileLocation) {
 		$fileIsNew = !file_exists($fileLocation);
-		$status = file_put_contents($fileLocation, file_get_contents('php://input'));
-		if (!$status) {
+		if (!$fileIsNew && !is_writable ($fileLocation)) {
 			WebDAVHelper::debugAddMessage('Cannot write to file: '.$fileLocation);
 			return WebDAVHelper::$HTTP_STATUS_ERROR_FORBIDDEN;
 		}
+		$content = file_get_contents('php://input');
+		$fh = fopen($fileLocation, 'wb');
+		if (!$fileIsNew && !is_writable ($fileLocation)) {
+			WebDAVHelper::debugAddMessage('Cannot open file for writing: '.$fileLocation);
+			return WebDAVHelper::$HTTP_STATUS_ERROR_FORBIDDEN;
+		}
+		if (!fwrite($fh, $content)) {
+			fclose($fh);
+			WebDAVHelper::debugAddMessage('Cannot write content to file: '.$fileLocation);
+			return WebDAVHelper::$HTTP_STATUS_ERROR_FORBIDDEN;
+		}
+		fclose($fh);
 		return $fileIsNew ? WebDAVHelper::$HTTP_STATUS_CREATED : WebDAVHelper::$HTTP_STATUS_NO_CONTENT;
 	}
 }
