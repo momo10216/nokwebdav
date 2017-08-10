@@ -36,7 +36,7 @@ class WebDAVHelperPlugin {
 
 	public function inputsValid() {
 		foreach (self::$_illegalFileChars as $illegalFileChar) {
-			if (strpos($this->_fileLocation,$illegalFileChar)) { return false; }
+			if (strpos($this->_sourceFileLocation,$illegalFileChar)) { return false; }
 			if (strpos($this->_targetFileLocation,$illegalFileChar)) { return false; }
 		}
 		return true;
@@ -128,21 +128,20 @@ class WebDAVHelperPlugin {
 		return 'file';
 	}
 
-	public static function getDirectoryList($directory, $uriLocation, $filterFiles = array(), $recursive = false) {
+	public static function getDirectoryList($directory, $uriLocation, $recursive = false) {
 		global $_SERVER;
 //		WebDAVHelper::debugAddMessage('directory: '.$directory);
-        	$dirHandle = opendir($directory);
 		$dirList = array();
-		if (!$dirHandle) { return false; }
-		while ($filename = readdir($dirHandle)) {
-			if (!array_search($filename, $filterFiles)) {
-//				WebDAVHelper::debugAddMessage('Filename: '.$filename);
-				$filenameWithPath = WebDAVHelper::joinDirAndFile($directory,$filename);
-				$link = WebDAVHelper::joinDirAndFile($uriLocation,$filename);
+		$files = scandir($directory);
+		foreach($files as $file) {
+			$file = trim($file,DIRECTORY_SEPARATOR);
+			if (($file != '.') && ($file != '..')) {
+//				WebDAVHelper::debugAddMessage('Filename: '.$file);
+				$filenameWithPath = WebDAVHelper::joinDirAndFile($directory,$file);
+				$link = WebDAVHelper::joinDirAndFile($uriLocation,$file);
 				$dirList[] = self::getObjectInfo($filenameWithPath, $link);
 			}
 		}
-		closedir($dirHandle);
 		return $dirList;
 	}
 

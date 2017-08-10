@@ -174,5 +174,6 @@ if ($item === false || !$item->published) {
 }
 
 // Exit
+flush();
 $app->close();
 ?>

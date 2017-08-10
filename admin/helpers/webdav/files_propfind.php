@@ -83,7 +83,9 @@ class WebDAVHelperPluginCommand {
 		WebDAVHelper::debugAddMessage('Directory: '.$directory);
 		WebDAVHelper::debugAddMessage('Quota: '.$quota);
 		$content .= '<d:multistatus xmlns:d="DAV:">'.self::$EOL;
-		if (WebDAVHelperPlugin::getFileType($directory) == 'file') { $depth = '0'; }
+		$filetype = WebDAVHelperPlugin::getFileType($directory);
+		if ($filetype == 'file') { $depth = '0'; }
+		if ($filetype == 'unknown') { return array(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND, array(), ''); }
 		switch ($depth) {
 			case '0': // Single object info
 				if (!file_exists($directory)) { 
@@ -93,14 +95,12 @@ class WebDAVHelperPluginCommand {
 				}
 				break;
 			case '1': // Directory info
-				$dirEntries = WebDAVHelperPlugin::getDirectoryList($directory, $uriLocation, array('.','..'), false);
-				if (count($dirEntries) < 1) { return array(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND, array(), ''); }
+				$dirEntries = WebDAVHelperPlugin::getDirectoryList($directory, $uriLocation, false);
 				$content .= self::_getDirectoryInfo($directory, $uriLocation, $propertiesRequested, $dirEntries, $quota);
 				break;
 			case 'infinity': // Recursive directory info
 			default:
-				$dirEntries = WebDAVHelperPlugin::getDirectoryList($directory, $uriLocation, array('.','..'), true);
-				if (count($dirEntries) < 1) { return array(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND, array(), ''); }
+				$dirEntries = WebDAVHelperPlugin::getDirectoryList($directory, $uriLocation, true);
 				$content .= self::_getDirectoryInfo($directory, $uriLocation, $propertiesRequested, $dirEntries, $quota);
 				break;
 		}

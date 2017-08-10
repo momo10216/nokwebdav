@@ -27,7 +27,7 @@ class WebDAVHelperPluginCommand {
 		return array(WebDAVHelper::$HTTP_STATUS_OK, array(), '');
 	}
 
-	private function _getDirectory($directory, $uriLocation, $command) {
+	private static function _getDirectory($directory, $uriLocation, $command) {
 		if ($command == 'HEAD') { return array(WebDAVHelper::$HTTP_STATUS_OK, array(), ''); }
 		$dirEntries = WebDAVHelperPlugin::getDirectoryList($directory, $uriLocation);
 		if ($dirEntries === false) { return array(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND, array(), ''); }
@@ -52,7 +52,7 @@ class WebDAVHelperPluginCommand {
 		return array(WebDAVHelper::$HTTP_STATUS_OK, array(), $content);
 	}
 
-	private function _getFile($filename,$command) {
+	private static function _getFile($filename,$command) {
 		$header = array();
 		$header[] = 'Content-type: '.mime_content_type($filename);
 		$header[] = 'Content-length: '.filesize($filename);
