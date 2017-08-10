@@ -1,7 +1,7 @@
 ToDo
 ====
 Export / Import
-PROPFIND - Depth = infinity
+Test PROPFIND - Depth = infinity
 ORDERPATCH
 DAV: ordered-collections
 
