@@ -81,6 +81,7 @@ class WebDAVHelperPluginCommand {
 		$depth = WebDAVHelperPlugin::getDepth();
 		WebDAVHelper::debugAddMessage('Depth: '.$depth);
 		WebDAVHelper::debugAddMessage('Directory: '.$directory);
+		WebDAVHelper::debugAddMessage('Quota: '.$quota);
 		$content .= '<d:multistatus xmlns:d="DAV:">'.self::$EOL;
 		if (WebDAVHelperPlugin::getFileType($directory) == 'file') { $depth = '0'; }
 		switch ($depth) {
@@ -123,12 +124,12 @@ class WebDAVHelperPluginCommand {
 		$content = '';
 		$content .= '	<d:response>'.self::$EOL;
 		$content .= '		<d:href>'.$dirEntry['html_ref'].'</d:href>'.self::$EOL;
-		$content .= self::_getProperties($filename, $dirEntry, $propertiesRequested, "\t\t", $status);
+		$content .= self::_getProperties($filename, $dirEntry, $propertiesRequested, "\t\t", $status, $quota);
 		$content .= '	</d:response>'.self::$EOL;
 		return $content;
 	}
 
-	private static function _getProperties($filename, $dirEntry, $propertiesRequested, $prefix, $status) {
+	private static function _getProperties($filename, $dirEntry, $propertiesRequested, $prefix, $status, $quota) {
 		$datens =  'xmlns:b="urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882" b:dt="dateTime.rfc1123"';
 		$content = $prefix.'<d:propstat>'.self::$EOL;
 		$content .= $prefix.'	<d:prop>'.self::$EOL;

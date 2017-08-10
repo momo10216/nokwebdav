@@ -1,9 +1,5 @@
 ToDo
 ====
-Quota handling:
-	- Container has quota
-	- Extend PROPFIND with quota-available-bytes
-	- Extend PUT with check for enough available space
 Export / Import
 PROPFIND - Depth = infinity
 ORDERPATCH
@@ -11,6 +7,10 @@ DAV: ordered-collections
 
 Done
 ====
+Quota handling:
+	- Container has quota
+	- Extend PROPFIND with quota-available-bytes
+	- Extend PUT with check for enough available space
 PROPFIND quota-used-bytes
 List Containers
 DAV: 1, 2
