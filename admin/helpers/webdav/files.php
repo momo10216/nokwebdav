@@ -95,7 +95,7 @@ class WebDAVHelperPlugin {
 				return WebDAVHelperPluginCommand::execute(self::$_allowedCommands);
 			case 'PROPFIND':
 				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files_propfind.php', true);
-				return WebDAVHelperPluginCommand::execute($this->_sourceFileLocation, $this->_uriLocation);
+				return WebDAVHelperPluginCommand::execute($this->_sourceFileLocation, $this->_uriLocation, $this->_quota);
 			case 'MKCOL':
 				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files_mkcol.php', true);
 				return WebDAVHelperPluginCommand::execute($this->_fileLocation);
