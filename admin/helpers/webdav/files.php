@@ -64,7 +64,7 @@ class WebDAVHelperPlugin {
 				}
 				break;
 			case 'MOVE':
-				if (file_exists($this->_fileLocation) === true) {
+				if (file_exists($this->_sourceFileLocation) === true) {
 					if ($this->_sourceAccess['read'] && $this->_targetAccess['change'] && $this->_sourceAccess['delete']) { $hasAccess =  '1'; }
 				} else {
 					if ($this->_sourceAccess['read'] && $this->_targetAccess['create'] && $this->_sourceAccess['delete']) { $hasAccess =  '1'; }
@@ -72,7 +72,7 @@ class WebDAVHelperPlugin {
 				break;
 			case 'PROPPATCH':
 			case 'PUT':
-				if (file_exists($this->_fileLocation) === true) {
+				if (file_exists($this->_sourceFileLocation) === true) {
 					if ($this->_sourceAccess['change']) { $hasAccess =  '1'; }
 				} else {
 					if ($this->_sourceAccess['create']) { $hasAccess =  '1'; }
@@ -98,7 +98,7 @@ class WebDAVHelperPlugin {
 				return WebDAVHelperPluginCommand::execute($this->_sourceFileLocation, $this->_uriLocation, $this->_quota);
 			case 'MKCOL':
 				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files_mkcol.php', true);
-				return WebDAVHelperPluginCommand::execute($this->_fileLocation);
+				return WebDAVHelperPluginCommand::execute($this->_sourceFileLocation);
 			case 'DELETE':
 				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files_delete.php', true);
 				return WebDAVHelperPluginCommand::execute($this->_sourceFileLocation);

@@ -47,10 +47,12 @@ class WebDAVHelperPluginCommand {
 			WebDAVHelper::debugAddMessage('Cannot open file for writing: '.$fileLocation);
 			return WebDAVHelper::$HTTP_STATUS_ERROR_FORBIDDEN;
 		}
-		if (!fwrite($fh, $content)) {
-			fclose($fh);
-			WebDAVHelper::debugAddMessage('Cannot write content to file: '.$fileLocation);
-			return WebDAVHelper::$HTTP_STATUS_ERROR_FORBIDDEN;
+		if (strlen($content) > 0) {
+			if (!fwrite($fh, $content)) {
+				fclose($fh);
+				WebDAVHelper::debugAddMessage('Cannot write content to file: '.$fileLocation);
+				return WebDAVHelper::$HTTP_STATUS_ERROR_FORBIDDEN;
+			}
 		}
 		fclose($fh);
 		return $fileIsNew ? WebDAVHelper::$HTTP_STATUS_CREATED : WebDAVHelper::$HTTP_STATUS_NO_CONTENT;

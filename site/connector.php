@@ -82,6 +82,7 @@ function getUriLoaction() {
 	return $uri;
 }
 
+error_reporting(E_ERROR | E_PARSE);
 $component = 'com_nokwebdav';
 
 define('_JEXEC', 1);
@@ -108,6 +109,8 @@ JLog::addLogger(
 	),
 	JLog::ERROR | JLog::DEBUG
 );
+ini_set("log_errors", 1);
+ini_set("error_log", JPATH_BASE.'/tmp/nokwebdav.log');
 
 // Auth
 handleAuthentication();
