@@ -33,10 +33,12 @@ JHtml::_('formbehavior.chosen', 'select');
 				<div class="row-fluid form-horizontal-desktop">
 					<div class="span6">
 						<?php echo $this->form->renderField('type'); ?>
+						<?php echo $this->form->renderField('filepath'); ?>
 						<?php echo $this->form->renderField('published'); ?>
 					</div>
 					<div class="span6">
-						<?php echo $this->form->renderField('filepath'); ?>
+						<?php echo $this->form->renderField('quotaValue'); ?>
+						<?php echo $this->form->renderField('quotaExp'); ?>
 						<?php echo $this->form->renderField('query'); ?>
 					</div>
 				</div>

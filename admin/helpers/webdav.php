@@ -31,6 +31,7 @@ class WebDAVHelper {
 	public static $HTTP_STATUS_ERROR_LOCKED = '423';
 	public static $HTTP_STATUS_ERROR_INTERNAL_SERVER_ERROR = '500';
 	public static $HTTP_STATUS_ERROR_NOT_IMPLEMENTED = '501';
+	public static $HTTP_STATUS_ERROR_INSUFFICIENT_STORAGE = '507';
 	public static $DAV_SUPPORTED_PROTOCOLS = array('1','2');
 	private static $_http_status_text = array('200' => 'OK',
 		'201' => 'Created',
@@ -74,18 +75,25 @@ class WebDAVHelper {
 		'449' => 'The request should be retried after doing the appropriate action',
 		'451' => 'Unavailable For Legal Reasons',
 		'500' => 'Internal Server Error',
-		'501' => 'Not Implemented'
+		'501' => 'Not Implemented',
+		'507' => 'Insufficient Storage'
 	);
 	private $_type;
 	private $_plugin;
 
-	public function __construct($type='files', $access, $fileLocation='/', $targetAccess=array(), $targetFileLocation='', $uriLocation='/', $contactData=array(), $eventData=array()) {
+	public function __construct($type, $uriLocation, $sourceAccess, $targetAccess, $fileData, $contactData, $eventData) {
 		$this->_type = $type;
-		$this->_initializePlugin($type, $access, $fileLocation, $targetAccess, $targetFileLocation, $uriLocation, $contactData, $eventData);
+		$this->_initializePlugin($type, $uriLocation, $sourceAccess, $targetAccess, $fileData, $contactData, $eventData);
 	}
 
-	public static function getFilesInstance($access, $fileLocation, $targetAccess, $targetFileLocation='/', $uriLocation='/') {
-		return new self('files', $access, $fileLocation, $targetAccess, $targetFileLocation, $uriLocation, array(), array());
+	public static function getFilesInstance($sourceAccess, $rootLocation, $sourceLocation, $targetAccess=array(), $targetLocation='/', $uriLocation='/', $quota=0) {
+		$fileData = array(
+			'rootLocation' => $rootLocation,
+			'sourceLocation' => $sourceLocation,
+			'targetLocation' => $targetLocation,
+			'quota' => $quota
+		);
+		return new self('files', $uriLocation, $sourceAccess, $targetAccess, $fileData, array(), array());
 	}
 
 	public function run() {
@@ -252,21 +260,21 @@ class WebDAVHelper {
 		}
 	}
 
-	private function _initializePlugin($type, $access, $fileLocation, $targetAccess, $targetFileLocation, $uriLocation, $contactData, $eventData) {
+	private function _initializePlugin($type, $uriLocation, $sourceAccess, $targetAccess, $fileData, $contactData, $eventData) {
 		$command = self::getCommand();
 		if (self::_useCommandPlugin($command)) {
-			return $this->_initializeCommandPlugin($command, $type, $access, $fileLocation, $targetAccess, $targetFileLocation, $uriLocation, $contactData, $eventData);
+			return $this->_initializeCommandPlugin($command, $type, $uriLocation, $sourceAccess, $targetAccess, $fileData, $contactData, $eventData);
 		} else {
-			return $this->_initializeTypePlugin($type, $access, $fileLocation, $targetAccess, $targetFileLocation, $uriLocation, $contactData, $eventData);
+			return $this->_initializeTypePlugin($type, $uriLocation, $sourceAccess, $targetAccess, $fileData, $contactData, $eventData);
 		}
 	}
 
-	private function _initializeCommandPlugin($command, $type, $access, $fileLocation, $targetAccess, $targetFileLocation, $uriLocation, $contactData, $eventData) {
+	private function _initializeCommandPlugin($command, $type, $uriLocation, $sourceAccess, $targetAccess, $fileData, $contactData, $eventData) {
 		switch($command) {
 			case 'LOCK':
 			case 'UNLOCK':
 				JLoader::register('WebDAVHelperPlugin', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/locking.php', true);
-				$this->_plugin = new WebDAVHelperPlugin($type, $access, $fileLocation, $targetAccess, $targetFileLocation, $uriLocation);
+				$this->_plugin = new WebDAVHelperPlugin($type, $uriLocation, $sourceAccess, $fileData, $contactData, $eventData);
 				break;
 			default:
 				JLog::add('Unknown command: "'.$command.'"', JLog::ERROR);
@@ -275,11 +283,11 @@ class WebDAVHelper {
 		}
 	}
 
-	private function _initializeTypePlugin($type, $access, $fileLocation, $targetAccess, $targetFileLocation, $uriLocation, $contactData, $eventData) {
+	private function _initializeTypePlugin($type, $uriLocation, $sourceAccess, $targetAccess, $fileData, $contactData, $eventData) {
 		switch(strtolower($type)) {
 			case 'files':
 				JLoader::register('WebDAVHelperPlugin', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files.php', true);
-				$this->_plugin = new WebDAVHelperPlugin($access, $fileLocation, $targetAccess, $targetFileLocation, $uriLocation);
+				$this->_plugin = new WebDAVHelperPlugin($uriLocation, $sourceAccess, $targetAccess, $fileData);
 				break;
 			default:
 				JLog::add('Unknown type: '.$type, JLog::ERROR);

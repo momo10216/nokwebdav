@@ -12,6 +12,8 @@ CREATE TABLE `#__nokWebDAV_containers` (
 	`filepath` varchar(50) NULL default NULL,
 	`query` text NULL default NULL,
 	`published` int(1) NOT NULL default 0,
+	`quotaValue` float(12,8) NOT NULL default 0,
+	`quotaExp` int(2) NOT NULL default 0,
 	`createdby` varchar(50) NULL default NULL,
 	`createddate` datetime NULL default NULL,
 	`modifiedby` varchar(50) NOT NULL default '',

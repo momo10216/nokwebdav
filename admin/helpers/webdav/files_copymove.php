@@ -13,19 +13,19 @@
 defined('_JEXEC') or die('Restricted access');
  
 class WebDAVHelperPluginCommand {
-	public static function execute($sourceFileLocation, $targetFileLocation, $command) {
+	public static function execute($sourceFileLocation, $targetFileLocation, $rootLocation, $maxSize, $command) {
 		if (is_dir($targetFileLocation)) {
 			list($srcDir, $srcFile) = WebDAVHelperPlugin::getPathAndFilename($sourceFileLocation);
 			$targetFileLocation = WebDAVHelper::joinDirAndFile($targetFileLocation, $srcFile);
 		}
-		$status = self::_check($sourceFileLocation, $targetFileLocation);
+		$status = self::_check($sourceFileLocation, $targetFileLocation, $rootLocation, $maxSize, $command);
 		$header = array();
 		$content = '';
 		if (!$status) { $status = self::_copymove($sourceFileLocation, $targetFileLocation, $command); }
 		return array($status, $header, $content);
 	}
 
-	private static function _check($sourceFileLocation, $targetFileLocation) {
+	private static function _check($sourceFileLocation, $targetFileLocation, $rootLocation, $maxSize, $command) {
 		global $_SERVER;
 
 		list($targetDir, $targetFile) = WebDAVHelperPlugin::getPathAndFilename($targetFileLocation);
@@ -39,10 +39,17 @@ class WebDAVHelperPluginCommand {
 			}
 		}
 		if (WebDAVHelper::isLocked('files', $sourceFileLocation, true)) {
-			return array(WebDAVHelper::$HTTP_STATUS_ERROR_LOCKED,array(),'');
+			WebDAVHelper::debugAddMessage('File locked: '.$sourceFileLocation);
+			return WebDAVHelper::$HTTP_STATUS_ERROR_LOCKED;
 		}
 		if (WebDAVHelper::isLocked('files', $targetFileLocation)) {
-			return array(WebDAVHelper::$HTTP_STATUS_ERROR_LOCKED,array(),'');
+			WebDAVHelper::debugAddMessage('File locked: '.$targetFileLocation);
+			return WebDAVHelper::$HTTP_STATUS_ERROR_LOCKED;
+		}
+		if ($command == 'COPY') {
+			if (!WebDAVHelperPlugin::hasEnoughSpace($rootLocation,filesize($sourceFileLocation),$maxSize)) {
+				return WebDAVHelper::$HTTP_STATUS_ERROR_INSUFFICIENT_STORAGE;
+			}
 		}
 		return '';
 	}

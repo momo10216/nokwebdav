@@ -16,18 +16,22 @@ class WebDAVHelperPlugin {
 	private static $EOL = "\n";
 	private static $_allowedCommands = array('GET', 'OPTIONS', 'PROPFIND', 'MKCOL', 'DELETE', 'PUT', 'COPY', 'MOVE', 'LOCK', 'UNLOCK', 'PROPPATCH');
 	private static $_illegalFileChars = array('..', '\\', ':', '|', '<', '>');
-	private $_access;
-	private $_fileLocation;
+	private $_uriLocation;
+	private $_rootLocation;
+	private $_sourceAccess;
+	private $_sourceFileLocation;
 	private $_targetAccess;
 	private $_targetFileLocation;
-	private $_uriLocation;
+	private $_quota;
 
-	public function __construct($access, $fileLocation, $targetAccess, $targetFileLocation, $uriLocation) {
-		$this->_access = $access;
-		$this->_fileLocation = $fileLocation;
+	public function __construct($uriLocation, $sourceAccess, $targetAccess, $fileData) {
+		$this->_sourceAccess = $sourceAccess;
 		$this->_targetAccess = $targetAccess;
-		$this->_targetFileLocation = $targetFileLocation;
 		$this->_uriLocation = $uriLocation;
+		$this->_sourceFileLocation = $fileData['sourceLocation'];
+		$this->_targetFileLocation = $fileData['targetLocation'];
+		$this->_rootLocation = $fileData['rootLocation'];
+		$this->_quota = $fileData['quota'];
 	}
 
 	public function inputsValid() {
@@ -44,34 +48,34 @@ class WebDAVHelperPlugin {
 			case 'GET':
 			case 'OPTIONS':
 			case 'PROPFIND':
-				if ($this->_access['read']) { $hasAccess =  '1'; }
+				if ($this->_sourceAccess['read']) { $hasAccess =  '1'; }
 				break;
 			case 'MKCOL':
-				if ($this->_access['create']) { $hasAccess =  '1'; }
+				if ($this->_sourceAccess['create']) { $hasAccess =  '1'; }
 				break;
 			case 'DELETE':
-				if ($this->_access['delete']) { $hasAccess =  '1'; }
+				if ($this->_sourceAccess['delete']) { $hasAccess =  '1'; }
 				break;
 			case 'COPY':
 				if (file_exists($this->_targetFileLocation) === true) {
-					if ($this->_access['read'] && $this->_targetAccess['change']) { $hasAccess =  '1'; }
+					if ($this->_sourceAccess['read'] && $this->_targetAccess['change']) { $hasAccess =  '1'; }
 				} else {
-					if ($this->_access['read'] && $this->_targetAccess['create']) { $hasAccess =  '1'; }
+					if ($this->_sourceAccess['read'] && $this->_targetAccess['create']) { $hasAccess =  '1'; }
 				}
 				break;
 			case 'MOVE':
 				if (file_exists($this->_fileLocation) === true) {
-					if ($this->_access['read'] && $this->_targetAccess['change'] && $this->_access['delete']) { $hasAccess =  '1'; }
+					if ($this->_sourceAccess['read'] && $this->_targetAccess['change'] && $this->_sourceAccess['delete']) { $hasAccess =  '1'; }
 				} else {
-					if ($this->_access['read'] && $this->_targetAccess['create'] && $this->_access['delete']) { $hasAccess =  '1'; }
+					if ($this->_sourceAccess['read'] && $this->_targetAccess['create'] && $this->_sourceAccess['delete']) { $hasAccess =  '1'; }
 				}
 				break;
 			case 'PROPPATCH':
 			case 'PUT':
 				if (file_exists($this->_fileLocation) === true) {
-					if ($this->_access['change']) { $hasAccess =  '1'; }
+					if ($this->_sourceAccess['change']) { $hasAccess =  '1'; }
 				} else {
-					if ($this->_access['create']) { $hasAccess =  '1'; }
+					if ($this->_sourceAccess['create']) { $hasAccess =  '1'; }
 				}
 				break;
 			default:
@@ -85,29 +89,29 @@ class WebDAVHelperPlugin {
 			case 'GET':
 			case 'HEAD':
 				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files_get.php', true);
-				return WebDAVHelperPluginCommand::execute($this->_fileLocation, $this->_uriLocation, $command);
+				return WebDAVHelperPluginCommand::execute($this->_sourceFileLocation, $this->_uriLocation, $command);
 			case 'OPTIONS':
 				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files_options.php', true);
 				return WebDAVHelperPluginCommand::execute(self::$_allowedCommands);
 			case 'PROPFIND':
 				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files_propfind.php', true);
-				return WebDAVHelperPluginCommand::execute($this->_fileLocation, $this->_uriLocation);
+				return WebDAVHelperPluginCommand::execute($this->_sourceFileLocation, $this->_uriLocation);
 			case 'MKCOL':
 				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files_mkcol.php', true);
 				return WebDAVHelperPluginCommand::execute($this->_fileLocation);
 			case 'DELETE':
 				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files_delete.php', true);
-				return WebDAVHelperPluginCommand::execute($this->_fileLocation);
+				return WebDAVHelperPluginCommand::execute($this->_sourceFileLocation);
 			case 'PUT':
 				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files_put.php', true);
-				return WebDAVHelperPluginCommand::execute($this->_fileLocation);
+				return WebDAVHelperPluginCommand::execute($this->_sourceFileLocation, $this->_rootLocation, $this->_quota);
 			case 'COPY':
 			case 'MOVE':
 				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files_copymove.php', true);
-				return WebDAVHelperPluginCommand::execute($this->_fileLocation, $this->_targetFileLocation, $command);
+				return WebDAVHelperPluginCommand::execute($this->_sourceFileLocation, $this->_targetFileLocation, $this->_rootLocation, $this->_quota, $command);
 			case 'PROPPATCH':
 				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files_proppatch.php', true);
-				return WebDAVHelperPluginCommand::execute($this->_fileLocation, $this->_uriLocation);
+				return WebDAVHelperPluginCommand::execute($this->_sourceFileLocation, $this->_uriLocation);
 			default:
 				// Unsupported command
 				WebDAVHelper::debugAddMessage('Unsupported file command: '.$command);
@@ -193,6 +197,15 @@ class WebDAVHelperPlugin {
 		} else {
 			return filesize($path);
 		}
+	}
+
+	public static function hasEnoughSpace($directory, $size, $maxSize) {
+		WebDAVHelper::debugAddMessage('hasEnoughSpace: directory='.$directory);
+		WebDAVHelper::debugAddMessage('hasEnoughSpace: size='.$size);
+		WebDAVHelper::debugAddMessage('hasEnoughSpace: maxSize='.$maxSize);
+		if (empty($maxSize) || $maxSize <= 0) { return true; }
+		if ((self::getSize($directory)+$size) <= $maxSize) { return true; }
+		return false;
 	}
 }
 ?>

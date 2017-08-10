@@ -28,6 +28,22 @@
 			<option value="0">JNO</option>
 		</field>
 
+		<field name="quotaValue" type="text" label="COM_NOKWEBDAV_CONTAINER_FIELD_QUOTA_VALUE_LABEL"
+			description="COM_NOKWEBDAV_CONTAINER_FIELD_QUOTA_VALUE_DESC" size="13" />
+
+		<field name="quotaExp" type="list" label="COM_NOKWEBDAV_CONTAINER_FIELD_QUOTA_EXP_LABEL"
+			description="COM_NOKWEBDAV_CONTAINER_FIELD_QUOTA_EXP_DESC"
+			class="btn-group"
+			default="1">
+			<option value="0">COM_NOKWEBDAV_CONTAINER_FIELD_QUOTA_EXP_BYTES</option>
+			<option value="1">COM_NOKWEBDAV_CONTAINER_FIELD_QUOTA_EXP_KBYTES</option>
+			<option value="2">COM_NOKWEBDAV_CONTAINER_FIELD_QUOTA_EXP_MBYTES</option>
+			<option value="3">COM_NOKWEBDAV_CONTAINER_FIELD_QUOTA_EXP_GBYTES</option>
+			<option value="4">COM_NOKWEBDAV_CONTAINER_FIELD_QUOTA_EXP_TBYTES</option>
+			<option value="5">COM_NOKWEBDAV_CONTAINER_FIELD_QUOTA_EXP_PBYTES</option>
+			<option value="6">COM_NOKWEBDAV_CONTAINER_FIELD_QUOTA_EXP_EBYTES</option>
+		</field>
+
 		<field name="asset_id" type="hidden" filter="unset" />
 
 		<field name="createdby" type="text" label="COM_NOKWEBDAV_COMMON_FIELD_CREATEDBY_LABEL"

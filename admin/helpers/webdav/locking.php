@@ -16,19 +16,16 @@ class WebDAVHelperPlugin {
 	private static $EOL = "\n";
 	private static $_allowedCommands = array('LOCK','UNLOCK');
 	private static $_timeout = 300;
-	private $_type;
 	private $_access;
-	private $_fileLocation;
-	private $_targetAccess;
-	private $_targetFileLocation;
-	private $_uriLocation;
+	private $_key;
 
-	public function __construct($type, $access, $fileLocation, $targetAccess, $targetFileLocation, $uriLocation) {
-		$this->_type = $type;
+	public function __construct($type, $uriLocation, $access, $fileData, $contactData, $eventData) {
 		$this->_access = $access;
-		$this->_fileLocation = $fileLocation;
-		$this->_targetAccess = $targetAccess;
-		$this->_targetFileLocation = $targetFileLocation;
+		switch(strtolower($type)) {
+			case 'files':
+				$this->_key = $fileData['sourceLocation'];
+				break;
+		}
 		$this->_uriLocation = $uriLocation;
 	}
 
@@ -64,7 +61,7 @@ class WebDAVHelperPlugin {
 	private function _lock() {
 		global $_SERVER;
 
-		if (WebDAVHelper::isLocked($this->_type, $this->_fileLocation)) {
+		if (WebDAVHelper::isLocked($this->_type, $this->_key)) {
 			return array(WebDAVHelper::$HTTP_STATUS_ERROR_LOCKED,array(),'');
 		}
 		if (!empty($_SERVER['HTTP_IF'])) {
@@ -87,7 +84,7 @@ class WebDAVHelperPlugin {
 		$fields = array(
 			'token' => 'opaquelocktoken:'.WebDAVHelper::uuid(),
 			'resourcetype' => $this->_type,
-			'resourcelocation' => $this->_fileLocation,
+			'resourcelocation' => $this->_key,
 			'expires' => time()+self::$_timeout,
 			'recursive' => '0',
 			'scope' => $info['scope'],

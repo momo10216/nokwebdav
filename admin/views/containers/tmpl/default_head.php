@@ -29,6 +29,12 @@ $listOrder	= $this->escape($this->state->get('list.ordering'));
 		<?php echo JHtml::_('grid.sort', 'COM_NOKWEBDAV_CONTAINER_FIELD_FILEPATH_LABEL', 'c.filepath', $listDirn, $listOrder); ?>
 	</th>
 	<th class="hidden-phone">
+		<?php echo JHtml::_('grid.sort', 'COM_NOKWEBDAV_CONTAINER_FIELD_QUOTA_LABEL', 'c.quotaExp,c.quotaValue', $listDirn, $listOrder); ?>
+	</th>
+	<th class="hidden-phone">
+		<?php echo JHtml::_('grid.sort', 'COM_NOKWEBDAV_CONTAINER_FIELD_USED_LABEL', '', $listDirn, $listOrder); ?>
+	</th>
+	<th class="hidden-phone">
 		<?php echo JHtml::_('grid.sort', 'COM_NOKWEBDAV_CONTAINER_FIELD_PUBLISHED_LABEL', 'c.published', $listDirn, $listOrder); ?>
 	</th>
 </tr>

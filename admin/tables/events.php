@@ -39,11 +39,6 @@ class NoKWebDAVTableEvents extends JTable {
 	 */
 	public function store($updateNulls = false) {
 		// Transform the params field
-		if (is_array($this->params)) {
-			$registry = new JRegistry;
-			$registry->loadArray($this->params);
-			$this->params = (string) $registry;
-		}
 		JLoader::register('TableHelper', __DIR__.'/../helpers/table.php', true);
 		TableHelper::updateCommonFieldsOnSave($this);
 		return parent::store($updateNulls);

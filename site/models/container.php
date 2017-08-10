@@ -39,6 +39,8 @@ class NoKWebDAVModelContainer extends JModelForm {
 			'type' => array(JText::_('COM_NOKWEBDAV_CONTAINER_FIELD_TYPE_LABEL',true),'`c`.`type`'),
 			'filepath' => array(JText::_('COM_NOKWEBDAV_CONTAINER_FIELD_FILEPATH_LABEL',true),'`c`.`filepath`'),
 			'published' => array(JText::_('COM_NOKWEBDAV_COMMON_FIELD_PUBLISHED_LABEL',true),'`c`.`published`'),
+			'quotaValue' => array(JText::_('COM_NOKWEBDAV_COMMON_FIELD_QUOTA_VALUE_LABEL',true),'`c`.`quotaValue`'),
+			'quotaExp' => array(JText::_('COM_NOKWEBDAV_COMMON_FIELD_QUOTA_EXP_LABEL',true),'`c`.`quotaExp`'),
 			'createdby' => array(JText::_('COM_NOKWEBDAV_COMMON_FIELD_CREATEDBY_LABEL',true),'`c`.`createdby`'),
 			'createddate' => array(JText::_('COM_NOKWEBDAV_COMMON_FIELD_CREATEDDATE_LABEL',true),'`c`.`createddate`'),
 			'modifiedby' => array(JText::_('COM_NOKWEBDAV_COMMON_FIELD_MODIFIEDBY_LABEL',true),'`c`.`modifiedby`'),
