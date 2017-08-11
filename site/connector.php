@@ -82,6 +82,13 @@ function getUriLoaction() {
 	return $uri;
 }
 
+register_shutdown_function(function(){
+    $err = error_get_last();
+    if(is_array($err) && isset($err['type']) && ($err['type'] == E_ERROR || $err['type'] == E_PARSE)) {
+        error_log("Fatal error: ".var_export($err, true), 1);
+    }
+});
+
 error_reporting(E_ERROR | E_PARSE);
 $component = 'com_nokwebdav';
 

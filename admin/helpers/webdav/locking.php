@@ -19,14 +19,17 @@ class WebDAVHelperPlugin {
 	private $_access;
 	private $_key;
 
-	public function __construct($type, $uriLocation, $access, $fileData, $contactData, $eventData) {
+	public function __construct($type, $access, $fileData, $contactData, $eventData) {
 		$this->_access = $access;
+/*
 		switch(strtolower($type)) {
 			case 'files':
 				$this->_key = $fileData['sourceLocation'];
 				break;
+			default:
+				break;
 		}
-		$this->_uriLocation = $uriLocation;
+*/
 	}
 
 	public function hasAccess($command) {
@@ -40,6 +43,10 @@ class WebDAVHelperPlugin {
 				break;
 		}
 		return $hasAccess;
+	}
+
+	public function inputsValid() {
+		return true;
 	}
 
 	public function handleCommand($command) {

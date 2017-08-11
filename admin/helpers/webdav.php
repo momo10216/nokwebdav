@@ -127,19 +127,20 @@ class WebDAVHelper {
 	}
 
 	public function handleCommand($command) {
-		self::debugAddMessage('Type: '.$this->_type);
-		self::debugAddMessage('Command: '.$command);
+		self::debugAddMessage('handleCommand: start command "'.$command.'"');
 		if ($this->_plugin->hasAccess($command)) {
+			self::debugAddMessage('handleCommand: Access OK');
 			if ($this->_plugin->inputsValid()) {
+				self::debugAddMessage('handleCommand: Hand over to plugin');
 				list($code, $headers, $content) = $this->_plugin->handleCommand($command);
 			} else{
-				self::debugAddMessage('Inputs invalid');
+				self::debugAddMessage('handleCommand: Inputs invalid');
 				$code = self::$HTTP_STATUS_ERROR_BAD_REQUEST;
 				$headers = array();
 				$content = '';
 			}
 		} else {
-			self::debugAddMessage('No access');
+			self::debugAddMessage('handleCommand: No access');
 			$code = self::$HTTP_STATUS_ERROR_UNAUTHORIZED;
 			$headers = array('WWW-Authenticate: Basic realm="Joomla (NoK-WebDAV)"');
 			$content = '';
@@ -147,9 +148,10 @@ class WebDAVHelper {
 		if (is_string($content)) { $headers[] = 'Content-length: '.strlen($content); }
 		self::sendHttpStatusAndHeaders($code, $headers);
 		if (!empty($content)) {
-			self::debugAddMessage('Content: '.$content);
+			self::debugAddMessage('handleCommand: Content='.$content);
 			echo $content;
 		}
+		self::debugAddMessage('handleCommand: end command "'.$command.'"');
 	}
 
 	public static function getStatus($code) {
@@ -204,7 +206,7 @@ class WebDAVHelper {
 		}
 		$statusheaders = array("HTTP/1.1 $status", "X-WebDAV-Status: $status", 'X-Dav-Powered-By: NoK-WebDAV');
 		$headers = array_merge($statusheaders, $additionalheaders);
-		self::debugAddArray($headers, 'headers');
+		self::debugAddArray($headers, 'handleCommand: headers');
 		foreach($headers as $header) {
 			header($header,true);
 		}
@@ -274,7 +276,7 @@ class WebDAVHelper {
 			case 'LOCK':
 			case 'UNLOCK':
 				JLoader::register('WebDAVHelperPlugin', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/locking.php', true);
-				$this->_plugin = new WebDAVHelperPlugin($type, $uriLocation, $sourceAccess, $fileData, $contactData, $eventData);
+				$this->_plugin = new WebDAVHelperPlugin($type, $sourceAccess, $fileData, $contactData, $eventData);
 				break;
 			default:
 				JLog::add('Unknown command: "'.$command.'"', JLog::ERROR);
