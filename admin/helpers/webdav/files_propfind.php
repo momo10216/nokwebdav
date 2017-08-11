@@ -46,7 +46,7 @@ class WebDAVHelperPluginCommand {
 		WebDAVHelper::debugAddMessage('Propfind input: '.$input);
 		if (empty($input)) { return 'all'; }
 		$dom = new DOMDocument();
-		if (!$dom->loadXML($input)) { return false; }
+		if (!$dom->loadXML($input, LIBXML_NOWARNING)) { return false; }
 		$elementList = $dom->getElementsByTagName('allprop');
 		if ($elementList->length > 0) { return 'all'; }
 		$elementList = $dom->getElementsByTagName('prop');
@@ -59,11 +59,7 @@ class WebDAVHelperPluginCommand {
 					for($j=0 ; $j<$elementChildList->length ; $j++) {
 						$elementChild = $elementChildList->item($j);
 						if ($elementChild->nodeName != '#text') {
-							if (strpos($elementChild->nodeName, ':')) {
-								$info[] = explode(':',$elementChild->nodeName,2)[1];
-							} else {
-								$info[] = $elementChild->nodeName;
-							}
+							$info[] = $elementChild->localName;
 						}
 					}
 				}
@@ -146,7 +142,7 @@ class WebDAVHelperPluginCommand {
 					$content .= $prefix.'		<d:getcontenttype>'.$dirEntry['mime_type'].'</d:getcontenttype>'.self::$EOL;
 					break;
 				case 'resourcetype':
-					if ($dirEntry['mime_type'] == 'directory') {
+					if ($dirEntry['type'] == 'directory') {
 						$content .= $prefix.'		<d:resourcetype><d:collection /></d:resourcetype>'.self::$EOL;
 					} else {
 						$content .= $prefix.'		<d:resourcetype />'.self::$EOL;

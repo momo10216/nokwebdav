@@ -157,6 +157,7 @@ class WebDAVHelperPlugin {
 		$fileinfo['html_ref'] = $link;
 		$fileinfo['type'] = self::getFileType($filenameWithPath);
 		$fileinfo['mime_type'] = mime_content_type($filenameWithPath);
+		if ($fileinfo['mime_type'] == 'directory') { $fileinfo['mime_type'] = 'application/octet-stream'; }
 		$fileinfo['etag'] = md5_file($filenameWithPath);
 		$fileinfo['ctime'] = filectime($filenameWithPath);
 		$fileinfo['mtime'] = filemtime($filenameWithPath);

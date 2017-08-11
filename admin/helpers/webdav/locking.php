@@ -18,10 +18,11 @@ class WebDAVHelperPlugin {
 	private static $_timeout = 300;
 	private $_access;
 	private $_key;
+	private $_type;
 
 	public function __construct($type, $access, $fileData, $contactData, $eventData) {
+		$this->_type = $type;
 		$this->_access = $access;
-/*
 		switch(strtolower($type)) {
 			case 'files':
 				$this->_key = $fileData['sourceLocation'];
@@ -29,7 +30,6 @@ class WebDAVHelperPlugin {
 			default:
 				break;
 		}
-*/
 	}
 
 	public function hasAccess($command) {
@@ -79,11 +79,6 @@ class WebDAVHelperPlugin {
 	}
 
 	private function _newLock() {
-		$depth = WebDAVHelper::getDepth();
-		if (!empty($depth) && ($depth != '0')) {
-			//no directory or reverse locking
-			return array(WebDAVHelper::$HTTP_STATUS_ERROR_METHOD_NOT_ALLOWED,array(),'');
-		}
 		$info = $this->_parseInfo();
 		$date = JFactory::getDate();
 		$db = JFactory::getDBO();
@@ -162,25 +157,26 @@ class WebDAVHelperPlugin {
 
 	private static function _parseInfo() {
 		$input = file_get_contents('php://input');
+		WebDAVHelper::debugAddMessage('Locking input: '.$input);
 		$dom = new DOMDocument();
-		if (!$dom->loadXML($input)) { return false; }
+		if (!$dom->loadXML($input, LIBXML_NOWARNING)) { return false; }
 		$elementList = $dom->getElementsByTagName('lockinfo')->item(0)->childNodes;
 		$info = array();
 		if ($elementList->length > 0) {
 			for($i=0 ; $i<$elementList->length ; $i++) {
 				$element = $elementList->item($i);
-				switch($element->nodeName) {
+				switch($element->localName) {
 					case 'lockscope':
-						$info['scope'] = $element->childNodes->item(0)->nodeName;
+						$info['scope'] = $element->childNodes->item(0)->localName;
 						break;
 					case 'locktype':
-						$info['type'] = $element->childNodes->item(0)->nodeName;
+						$info['type'] = $element->childNodes->item(0)->localName;
 						break;
 					case 'owner':
 						$info['owner'] = $element->childNodes->item(0)->textContent;
 						break;
 					default:
-						WebDAVHelper::debugAddMessage('Lock unknown input: '.$element->nodeName);
+						WebDAVHelper::debugAddMessage('Lock unknown input: '.$element->localName);
 						break;
 				}
 			}
@@ -195,9 +191,9 @@ class WebDAVHelperPlugin {
 		$content .= '		<d:activelock>'.self::$EOL;
 		$content .= '			<d:lockscope><d:'.$fields['scope'].' /></d:lockscope>'.self::$EOL;
 		$content .= '			<d:locktype><d:'.$fields['type'].' /></d:locktype>'.self::$EOL;
-		$content .= '			<d:depth>'.WebDAVHelper::getDepth().'</d:depth>'.self::$EOL;
+		$content .= '			<d:depth>0</d:depth>'.self::$EOL;
 		if (isset($fields['owner'])) {
-			$content .= '			<d:owner><d:href>'.$fields['owner'].' </d:href></d:owner>'.self::$EOL;
+			$content .= '			<d:owner><d:href>'.$fields['owner'].'</d:href></d:owner>'.self::$EOL;
 		}
 		$content .= '			<d:timeout>Second-'.self::$_timeout.'</d:timeout>'.self::$EOL;
 		$content .= '			<d:locktoken><d:href>'.$fields['token'].'</d:href></d:locktoken>'.self::$EOL;
