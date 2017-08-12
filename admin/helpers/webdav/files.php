@@ -16,6 +16,7 @@ class WebDAVHelperPlugin {
 	private static $EOL = "\n";
 	private static $_allowedCommands = array('GET', 'OPTIONS', 'PROPFIND', 'MKCOL', 'DELETE', 'PUT', 'COPY', 'MOVE', 'LOCK', 'UNLOCK', 'PROPPATCH');
 	private static $_illegalFileChars = array('..', '\\', ':', '|', '<', '>');
+	private static $_convertFileChars = array('%', ' ');
 	private $_uriLocation;
 	private $_rootLocation;
 	private $_sourceAccess;
@@ -46,6 +47,7 @@ class WebDAVHelperPlugin {
 		$hasAccess = '';
 		switch(strtoupper($command)) {
 			case 'GET':
+			case 'HEAD':
 			case 'OPTIONS':
 			case 'PROPFIND':
 				if ($this->_sourceAccess['read']) { $hasAccess =  '1'; }
@@ -138,7 +140,7 @@ class WebDAVHelperPlugin {
 			if (($file != '.') && ($file != '..')) {
 //				WebDAVHelper::debugAddMessage('Filename: '.$file);
 				$filenameWithPath = WebDAVHelper::joinDirAndFile($directory,$file);
-				$link = WebDAVHelper::joinDirAndFile($uriLocation,$file);
+				$link = WebDAVHelper::joinDirAndFile($uriLocation,self::_hrefEncodeFile($file));
 				$dirList[] = self::getObjectInfo($filenameWithPath, $link);
 			}
 		}
@@ -206,6 +208,15 @@ class WebDAVHelperPlugin {
 		if (empty($maxSize) || $maxSize <= 0) { return true; }
 		if ((self::getSize($directory)+$size) <= $maxSize) { return true; }
 		return false;
+	}
+
+	private static function _hrefEncodeFile($filename) {
+		$result = $filename;
+		foreach(self::$_convertFileChars as $char) {
+			$replace = '%'.substr('00'.dechex(ord($char)),-2);
+			$result = str_replace($char, $replace, $result);
+		}
+		return $result;
 	}
 }
 ?>
