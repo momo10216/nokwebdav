@@ -140,7 +140,7 @@ class WebDAVHelperPlugin {
 			if (($file != '.') && ($file != '..')) {
 //				WebDAVHelper::debugAddMessage('Filename: '.$file);
 				$filenameWithPath = WebDAVHelper::joinDirAndFile($directory,$file);
-				$link = WebDAVHelper::joinDirAndFile($uriLocation,self::_hrefEncodeFile($file));
+				$link = WebDAVHelper::joinDirAndFile($uriLocation,self::hrefEncodeFile($file));
 				$dirList[] = self::getObjectInfo($filenameWithPath, $link);
 			}
 		}
@@ -210,7 +210,7 @@ class WebDAVHelperPlugin {
 		return false;
 	}
 
-	private static function _hrefEncodeFile($filename) {
+	public static function hrefEncodeFile($filename) {
 		$result = $filename;
 		foreach(self::$_convertFileChars as $char) {
 			$replace = '%'.substr('00'.dechex(ord($char)),-2);

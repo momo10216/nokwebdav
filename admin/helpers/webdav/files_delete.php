@@ -36,11 +36,53 @@ class WebDAVHelperPluginCommand {
 			$return_var = 0;
 			exec(sprintf("rm -rf %s", escapeshellarg($fileLocation)), $output, $return_var);
 			$status = ($return_var == 0);
+			if ($status) {
+				self::_deleteLockAndProperty($fileLocation, true);
+			}
 		} else {
 			$status = unlink($fileLocation);
+			if ($status) {
+				self::_deleteLockAndProperty($fileLocation, false);
+			}
 		}
 		if (!$status) { return WebDAVHelper::$HTTP_STATUS_ERROR_FORBIDDEN; }
 		return WebDAVHelper::$HTTP_STATUS_OK;
+	}
+
+	private static function _deleteLockAndProperty($resourceLocation, $recursiv=false) {
+		$db = JFactory::getDBO();
+		$whereLocarion = $db->quoteName('resourcelocation').'='.$db->quote(rtrim($resourceLocation,DIRECTORY_SEPARATOR));
+		// delete lock
+		$query = $db->getQuery(true);
+		$query->delete($db->quoteName('#__nokWebDAV_locks'))
+			->where($db->quoteName('resourcetype').'='.$db->quote('files').' AND '.$whereLocarion);
+		$db->setQuery($query);
+		WebDAVHelper::debugAddQuery($query);
+		$db->execute();
+		// delete properties
+		$query = $db->getQuery(true);
+		$query->delete($db->quoteName('#__nokWebDAV_properties'))
+			->where($db->quoteName('resourcetype').'='.$db->quote('files').' AND '.$whereLocarion);
+		$db->setQuery($query);
+		WebDAVHelper::debugAddQuery($query);
+		$db->execute();
+		if ($recursiv) {
+			$whereLocarion = $db->quoteName('resourcelocation').' LIKE '.$db->quote(rtrim($resourceLocation,DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.'%');
+			// delete recursive locks
+			$query = $db->getQuery(true);
+			$query->delete($db->quoteName('#__nokWebDAV_locks'))
+				->where($db->quoteName('resourcetype').'='.$db->quote('files').' AND '.$whereLocarion);
+			$db->setQuery($query);
+			WebDAVHelper::debugAddQuery($query);
+			$db->execute();
+			// delete recursive properties
+			$query = $db->getQuery(true);
+			$query->delete($db->quoteName('#__nokWebDAV_properties'))
+				->where($db->quoteName('resourcetype').'='.$db->quote('files').' AND '.$whereLocarion);
+			$db->setQuery($query);
+			WebDAVHelper::debugAddQuery($query);
+			$db->execute();
+		}
 	}
 }
 ?>

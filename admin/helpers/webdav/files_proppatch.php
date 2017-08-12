@@ -27,11 +27,10 @@ class WebDAVHelperPluginCommand {
 
 	private static function _parseInfo() {
 		$input = file_get_contents('php://input');
-//		WebDAVHelper::debugAddMessage('Proppatch input: '.$input);
+		WebDAVHelper::debugAddMessage('Proppatch input: '.$input);
 		$dom = new DOMDocument();
-		if (!$dom->loadXML($input)) { return false; }
+		if (!$dom->loadXML($input, LIBXML_NOWARNING)) { return false; }
 		$info = array();
-		$mode = $dom->tagName;
 		$elementList = $dom->getElementsByTagName('prop');
 		if ($elementList->length > 0) {
 			for($i=0 ; $i<$elementList->length ; $i++) {
@@ -41,17 +40,19 @@ class WebDAVHelperPluginCommand {
 					for($j=0 ; $j<$elementChildList->length ; $j++) {
 						$elementChild = $elementChildList->item($j);
 						if ($elementChild->nodeName != '#text') {
-							$info[$elementChild->nodeName] = array(
+							$name = $elementChild->localName;
+							if (strpos($name,':')) { $name = explode(':',$name,2)[1]; }
+							$info[$name] = array(
 								'ns' => $elementChild->namespaceURI,
 								'value' => $elementChild->textContent
 							);
+							WebDAVHelper::debugAddArray($info[$name],'Proppatch properties: '.$name.' ');
 						}
 					}
 				}
 			}
 		}
 		if (count($info) < 1) { return false; }
-//		WebDAVHelper::debugAddArray($info,'Proppatch properties: ');
 		return $info;
 	}
 
@@ -76,11 +77,13 @@ class WebDAVHelperPluginCommand {
 				$db->quoteName('modifiedby').'='.$db->quote($user->get('name')),
 				$db->quoteName('modifieddate').'='.$db->quote($date->toSql())
 			);
+			WebDAVHelper::debugAddMessage('Proppatch input: try update "'.$name.'"');
 			$query->update($db->quoteName('#__nokWebDAV_properties'))
 				->set($dbfields)
 				->where($db->quoteName('resourcetype').'='.$db->quote('files').' AND '.$db->quoteName('resourcelocation').'='.$db->quote($resourceLocation).' AND '.$db->quoteName('name').'='.$db->quote($name));
 			$db->setQuery($query);
 			if (!$db->execute() || ($db->getAffectedRows() < 1)) {
+				WebDAVHelper::debugAddMessage('Proppatch input: update failed try insert "'.$name.'"');
 				$query = $db->getQuery(true);
 				$fields = array(
 					'resourcetype' => 'files',
@@ -102,10 +105,10 @@ class WebDAVHelperPluginCommand {
 				}
 			}
 		} else {
+			WebDAVHelper::debugAddMessage('Proppatch input: try delete "'.$name.'"');
 			$query->delete($db->quoteName('#__nokWebDAV_properties'))
 				->where($db->quoteName('resourcetype').'='.$db->quote('files').' AND '.$db->quoteName('resourcelocation').'='.$db->quote($resourceLocation).' AND '.$db->quoteName('name').'='.$db->quote($name));
 			$db->setQuery($query);
-//			WebDAVHelper::debugAddQuery($query);
 			if (!$db->execute()) {
 				return false;
 			}
@@ -120,7 +123,6 @@ class WebDAVHelperPluginCommand {
 		$content .= '<d:multistatus xmlns:d="DAV:">'.self::$EOL;
 		$content .= self::_getResponse($uriLocation, $properties, $propstatus);
 		$content .= '</d:multistatus>'.self::$EOL;
-//		WebDAVHelper::debugAddMessage('Proppatch output: '.$content);
 		return array($status, $header, $content);
 	}
 

@@ -228,6 +228,7 @@ class WebDAVHelperPluginCommand {
 			->from('#__nokWebDAV_properties')
 			->where($db->quoteName('resourcetype').'='.$db->quote('files').' AND '.$db->quoteName('resourcelocation').'='.$db->quote($filename).' AND '.$db->quoteName('name').'='.$db->quote($propName));
 		$db->setQuery($query);
+		WebDAVHelper::debugAddQuery($query);
 		$property = $db->loadObject();
 		if (!$property) { return array(false,'',''); }
 		return array(true, $property->value, $property->namespace);
