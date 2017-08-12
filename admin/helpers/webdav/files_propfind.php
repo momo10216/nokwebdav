@@ -163,16 +163,20 @@ class WebDAVHelperPluginCommand {
 					$content .= $prefix.'		<d:getetag>'.$dirEntry['etag'].'</d:getetag>'.self::$EOL;
 					break;
 				case 'supportedlock':
-					$content .= $prefix.'		<d:supportedlock>'.self::$EOL;
-					$content .= $prefix.'			<d:lockentry>'.self::$EOL;
-					$content .= $prefix.'				<d:lockscope><d:exclusive /></d:lockscope>'.self::$EOL;
-					$content .= $prefix.'				<d:locktype><d:write /></d:locktype>'.self::$EOL;
-					$content .= $prefix.'			</d:lockentry>'.self::$EOL;
-					$content .= $prefix.'			<d:lockentry>'.self::$EOL;
-					$content .= $prefix.'				<d:lockscope><d:shared /></d:lockscope>'.self::$EOL;
-					$content .= $prefix.'				<d:locktype><d:write /></d:locktype>'.self::$EOL;
-					$content .= $prefix.'			</d:lockentry>'.self::$EOL;
-					$content .= $prefix.'		</d:supportedlock>'.self::$EOL;
+					if ($dirEntry['type'] == 'directory') {
+						$content .= $prefix.'		<d:supportedlock />'.self::$EOL;
+					} else {
+						$content .= $prefix.'		<d:supportedlock>'.self::$EOL;
+						$content .= $prefix.'			<d:lockentry>'.self::$EOL;
+						$content .= $prefix.'				<d:lockscope><d:exclusive /></d:lockscope>'.self::$EOL;
+						$content .= $prefix.'				<d:locktype><d:write /></d:locktype>'.self::$EOL;
+						$content .= $prefix.'			</d:lockentry>'.self::$EOL;
+						$content .= $prefix.'			<d:lockentry>'.self::$EOL;
+						$content .= $prefix.'				<d:lockscope><d:shared /></d:lockscope>'.self::$EOL;
+						$content .= $prefix.'				<d:locktype><d:write /></d:locktype>'.self::$EOL;
+						$content .= $prefix.'			</d:lockentry>'.self::$EOL;
+						$content .= $prefix.'		</d:supportedlock>'.self::$EOL;
+					}
 					break;
 				case 'quota-used-bytes':
 					$content .= $prefix.'		<d:quota-used-bytes>'.WebDAVHelperPlugin::getSize($filename).'</d:quota-used-bytes>'.self::$EOL;
