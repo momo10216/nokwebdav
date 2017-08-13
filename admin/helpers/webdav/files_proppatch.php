@@ -118,7 +118,7 @@ class WebDAVHelperPluginCommand {
 
 	private static function _generateAnswer($uriLocation, $properties, $propstatus) {
 		$status = WebDAVHelper::$HTTP_STATUS_OK_MULTI_STATUS;
-		$header = array('Content-Type: text/xml; charset="utf-8');
+		$header = array('Content-Type: text/xml; charset="utf-8"');
 		$content = '<?xml version="1.0" encoding="utf-8"?>'.self::$EOL;
 		$content .= '<d:multistatus xmlns:d="DAV:">'.self::$EOL;
 		$content .= self::_getResponse($uriLocation, $properties, $propstatus);

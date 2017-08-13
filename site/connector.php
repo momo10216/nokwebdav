@@ -1,15 +1,19 @@
 <?php
 function getInfosFromPath() {
 	global $_SERVER;
-	JLog::add('getInfosFromPath Path: '.$_SERVER['PATH_INFO'], JLog::DEBUG);
+	if (!isset($_SERVER['PATH_INFO'])) {
+		WebDAVHelper::debugAddArray($_SERVER, '_SERVER');
+		return array('','');
+	}
+//	JLog::add('getInfosFromPath Path: '.$_SERVER['PATH_INFO'], JLog::DEBUG);
 	$locElements = explode('/',$_SERVER['PATH_INFO']);
 	if (count($locElements) < 2) { return array('',''); }
 	$containerName = $locElements[1];
 	unset($locElements[1]);
 	$location = implode('/',$locElements);
 	if (empty($location)) { $location = '/'; }
-	JLog::add('getInfosFromPath containerName: '.$containerName, JLog::DEBUG);
-	JLog::add('getInfosFromPath location: '.$location, JLog::DEBUG);
+//	JLog::add('getInfosFromPath containerName: '.$containerName, JLog::DEBUG);
+//	JLog::add('getInfosFromPath location: '.$location, JLog::DEBUG);
 	return array($containerName, $location);
 }
 
@@ -135,24 +139,24 @@ if ($item === false || !$item->published) {
 	JLog::add('Container "'.$containerName.'" not found.', JLog::ERROR);
 	WebDAVHelper::sendHttpStatusAndHeaders(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND);
 } else {
-	JLog::add('Container "'.$containerName.'" found.', JLog::DEBUG);
+//	JLog::add('Container "'.$containerName.'" found.', JLog::DEBUG);
 	$webdavHelper = '';
 	switch($item->type) {
 		case 'files':
-			JLog::add('Container contains files.', JLog::DEBUG);
+//			JLog::add('Container contains files.', JLog::DEBUG);
 			$baseDir = $item->filepath;
-			JLog::add('File path: '.$baseDir, JLog::DEBUG);
+//			JLog::add('File path: '.$baseDir, JLog::DEBUG);
 			if ((strlen($baseDir) < 1) || (substr($baseDir,0,1) != '/')) {
 				// relative path
 				$baseDir = WebDAVHelper::joinDirAndFile(JPATH_BASE,$item->filepath);
 			}
-			JLog::add('Root dir: '.$baseDir, JLog::DEBUG);
+//			JLog::add('Root dir: '.$baseDir, JLog::DEBUG);
 			$fileLocation = WebDAVHelper::joinDirAndFile($baseDir, $location);
 			$access = getAccess($item->id);
 			$targetFileLocation = '';
 			$targetAccess = array();
 			$quota = round($item->quotaValue*pow(1024, $item->quotaExp),0);
-			JLog::add('quota: '.$quota, JLog::DEBUG);
+//			JLog::add('quota: '.$quota, JLog::DEBUG);
 			if (isset($_SERVER["HTTP_DESTINATION"]) && !empty($_SERVER["HTTP_DESTINATION"])) {
 				list ($targetContainerName, $targetLocation) = getTargetInfosFromUrl($_SERVER['HTTP_DESTINATION'], $containerName);
 				JLog::add($_SERVER["HTTP_DESTINATION"].' => ('.$targetContainerName.', '.$targetLocation.')', JLog::DEBUG);
@@ -175,11 +179,6 @@ if ($item === false || !$item->published) {
 		default:
 			break;
 	}
-
-//print_r(getAccess($item->id));
-//echo "$currentDir $uriLocation\n";
-//flush();
-
 	$webdavHelper->run();
 }
 

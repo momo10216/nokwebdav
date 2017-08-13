@@ -43,7 +43,7 @@ class WebDAVHelperPluginCommand {
 
 	private static function _parseInfo() {
 		$input = file_get_contents('php://input');
-		WebDAVHelper::debugAddMessage('Propfind input: '.$input);
+//		WebDAVHelper::debugAddMessage('Propfind input: '.$input);
 		if (empty($input)) { return 'all'; }
 		$dom = new DOMDocument();
 		if (!$dom->loadXML($input, LIBXML_NOWARNING)) { return false; }
@@ -72,15 +72,15 @@ class WebDAVHelperPluginCommand {
 
 	private static function _generateAnswer($directory, $uriLocation, $propertiesRequested, $quota) {
 		$status = WebDAVHelper::$HTTP_STATUS_OK_MULTI_STATUS;
-		$header = array('Content-Type: text/xml; charset="utf-8');
+		$header = array('Content-Type: text/xml; charset="utf-8"');
 		$content = '<?xml version="1.0" encoding="utf-8"?>'.self::$EOL;
 		$depth = WebDAVHelperPlugin::getDepth();
-		WebDAVHelper::debugAddMessage('Depth: '.$depth);
-		WebDAVHelper::debugAddMessage('Directory: '.$directory);
-		WebDAVHelper::debugAddMessage('Quota: '.$quota);
+		WebDAVHelper::debugAddMessage('Location: '.$directory);
+//		WebDAVHelper::debugAddMessage('Quota: '.$quota);
 		$content .= '<d:multistatus xmlns:d="DAV:">'.self::$EOL;
 		$filetype = WebDAVHelperPlugin::getFileType($directory);
 		if ($filetype == 'file') { $depth = '0'; }
+		WebDAVHelper::debugAddMessage('Depth: '.$depth);
 		if ($filetype == 'unknown') { return array(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND, array(), ''); }
 		switch ($depth) {
 			case '0': // Single object info
@@ -92,11 +92,13 @@ class WebDAVHelperPluginCommand {
 				break;
 			case '1': // Directory info
 				$dirEntries = WebDAVHelperPlugin::getDirectoryList($directory, $uriLocation, false);
+				$content .= self::_getSingleInfo($directory, $uriLocation, $propertiesRequested, $quota);
 				$content .= self::_getDirectoryInfo($directory, $uriLocation, $propertiesRequested, $dirEntries, $quota);
 				break;
 			case 'infinity': // Recursive directory info
 			default:
 				$dirEntries = WebDAVHelperPlugin::getDirectoryList($directory, $uriLocation, true);
+				$content .= self::_getSingleInfo($directory, $uriLocation, $propertiesRequested, $quota);
 				$content .= self::_getDirectoryInfo($directory, $uriLocation, $propertiesRequested, $dirEntries, $quota);
 				break;
 		}
@@ -113,6 +115,7 @@ class WebDAVHelperPluginCommand {
 		foreach ($dirEntries as $dirEntry) {
 			$content .= self::_getResponse(WebDAVHelper::joinDirAndFile($directory, $dirEntry['name']), $dirEntry, $propertiesRequested, WebDAVHelper::$HTTP_STATUS_OK, $quota);
 		}
+		if (empty($content)) { $content .= '	<d:response />'.self::$EOL; }
 		return $content;
 	}
 
@@ -228,7 +231,7 @@ class WebDAVHelperPluginCommand {
 			->from('#__nokWebDAV_properties')
 			->where($db->quoteName('resourcetype').'='.$db->quote('files').' AND '.$db->quoteName('resourcelocation').'='.$db->quote($filename).' AND '.$db->quoteName('name').'='.$db->quote($propName));
 		$db->setQuery($query);
-		WebDAVHelper::debugAddQuery($query);
+//		WebDAVHelper::debugAddQuery($query);
 		$property = $db->loadObject();
 		if (!$property) { return array(false,'',''); }
 		return array(true, $property->value, $property->namespace);
