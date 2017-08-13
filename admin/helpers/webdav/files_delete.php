@@ -34,7 +34,9 @@ class WebDAVHelperPluginCommand {
 		if (is_dir($fileLocation)) {
 			$output = array();
 			$return_var = 0;
-			exec(sprintf("rm -rf %s", escapeshellarg($fileLocation)), $output, $return_var);
+			$command = sprintf("rm -rf '%s'", str_replace('\'','',$fileLocation));
+//			WebDAVHelper::debugAddMessage('Delete: shell command = '.$command);
+			exec($command, $output, $return_var);
 			$status = ($return_var == 0);
 			if ($status) {
 				self::_deleteLockAndProperty($fileLocation, true);
@@ -57,14 +59,14 @@ class WebDAVHelperPluginCommand {
 		$query->delete($db->quoteName('#__nokWebDAV_locks'))
 			->where($db->quoteName('resourcetype').'='.$db->quote('files').' AND '.$whereLocarion);
 		$db->setQuery($query);
-		WebDAVHelper::debugAddQuery($query);
+//		WebDAVHelper::debugAddQuery($query);
 		$db->execute();
 		// delete properties
 		$query = $db->getQuery(true);
 		$query->delete($db->quoteName('#__nokWebDAV_properties'))
 			->where($db->quoteName('resourcetype').'='.$db->quote('files').' AND '.$whereLocarion);
 		$db->setQuery($query);
-		WebDAVHelper::debugAddQuery($query);
+//		WebDAVHelper::debugAddQuery($query);
 		$db->execute();
 		if ($recursiv) {
 			$whereLocarion = $db->quoteName('resourcelocation').' LIKE '.$db->quote(rtrim($resourceLocation,DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.'%');
@@ -73,14 +75,14 @@ class WebDAVHelperPluginCommand {
 			$query->delete($db->quoteName('#__nokWebDAV_locks'))
 				->where($db->quoteName('resourcetype').'='.$db->quote('files').' AND '.$whereLocarion);
 			$db->setQuery($query);
-			WebDAVHelper::debugAddQuery($query);
+//			WebDAVHelper::debugAddQuery($query);
 			$db->execute();
 			// delete recursive properties
 			$query = $db->getQuery(true);
 			$query->delete($db->quoteName('#__nokWebDAV_properties'))
 				->where($db->quoteName('resourcetype').'='.$db->quote('files').' AND '.$whereLocarion);
 			$db->setQuery($query);
-			WebDAVHelper::debugAddQuery($query);
+//			WebDAVHelper::debugAddQuery($query);
 			$db->execute();
 		}
 	}

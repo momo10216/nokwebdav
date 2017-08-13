@@ -16,7 +16,7 @@ class WebDAVHelperPlugin {
 	private static $EOL = "\n";
 	private static $_allowedCommands = array('GET', 'OPTIONS', 'PROPFIND', 'MKCOL', 'DELETE', 'PUT', 'COPY', 'MOVE', 'LOCK', 'UNLOCK', 'PROPPATCH');
 	private static $_illegalFileChars = array('..', '\\', ':', '|', '<', '>');
-	private static $_convertFileChars = array('%', ' ');
+//	private static $_convertFileChars = array('%', ' ', '!', '*', '\'', '(', ')', ';', ':', '@', '&', '=', '+', '$', ',', '/', '?', '#', '[', ']');
 	private $_uriLocation;
 	private $_rootLocation;
 	private $_sourceAccess;
@@ -211,12 +211,15 @@ class WebDAVHelperPlugin {
 	}
 
 	public static function hrefEncodeFile($filename) {
+/*
 		$result = $filename;
 		foreach(self::$_convertFileChars as $char) {
 			$replace = '%'.substr('00'.dechex(ord($char)),-2);
 			$result = str_replace($char, $replace, $result);
 		}
 		return $result;
+*/
+		return rawurlencode($filename);
 	}
 }
 ?>
