@@ -1,12 +1,16 @@
 ToDo
 ====
+PROPFIND: make depth flexible (0,1,2,3...infinity)
 Export / Import
-Test PROPFIND - Depth = infinity
-ORDERPATCH
+PROPFIND: Test Depth = infinity
+ORDERPATCH: Implementation
 DAV: ordered-collections
+CardDAV
+CalDAV
 
 Done
 ====
+Use UTF-8 for file/directory
 Quota handling:
 	- Container has quota
 	- Extend PROPFIND with quota-available-bytes
