@@ -1,5 +1,6 @@
 ToDo
 ====
+Create .htaccess from admin view
 ORDERPATCH: Implementation
 DAV: ordered-collections
 CardDAV
