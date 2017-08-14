@@ -46,6 +46,8 @@ class WebDAVHelperPlugin {
 	}
 
 	public function inputsValid() {
+		global $_SERVER;
+		if (isset($_SERVER['HTTP_DEPTH']) && ($_SERVER['HTTP_DEPTH'] > 0)) { return false; }
 		return true;
 	}
 
@@ -67,7 +69,6 @@ class WebDAVHelperPlugin {
 
 	private function _lock() {
 		global $_SERVER;
-
 		if (WebDAVHelper::isLocked($this->_type, $this->_key)) {
 			return array(WebDAVHelper::$HTTP_STATUS_ERROR_LOCKED,array(),'');
 		}
