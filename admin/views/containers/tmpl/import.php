@@ -43,7 +43,7 @@ JFactory::getDocument()->addScriptDeclaration($script);
 			</div>
 		</div>
 		<div class="form-actions">
-			<input class="btn btn-primary" type="button" value="<?php echo JText::_('COM_NOKWEBDAV_IMPORT_BUTTON'); ?>" onclick="Joomla.submitbutton('shares.import_do')" />
+			<input class="btn btn-primary" type="button" value="<?php echo JText::_('COM_NOKWEBDAV_IMPORT_BUTTON'); ?>" onclick="Joomla.submitbutton('containers.import_do')" />
 		</div>
 	</fieldset>
 	<input type="hidden" name="task" value="" />

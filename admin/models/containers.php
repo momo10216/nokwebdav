@@ -194,6 +194,20 @@ class NoKWebDAVModelContainers extends JModelList {
 		return $rows;
 	}
 
+	public function importPreSave($row) {
+		$this->_assetRules = $row['asset_rules'];
+		unset($row['asset_rules']);
+		return $row;
+	}
+
+	public function importPostSave($row, $id) {
+		if (empty($this->_componentAssetId)) {
+			$assetRow = $this->_getAssetRowByName('com_nokwebdav');
+			$this->_componentAssetId = $assetRow['id'];
+		}
+		$this->_setAssetRulesById($row['asset_id'],$this->_componentAssetId,'com_nokwebdav.container.'.$id, $row['name'], $this->_mapGroupTitle2Id($this->_assetRules));
+	}
+
 	private function _getAssetRowByName($name) {
 			$db = JFactory::getDBO();
 			$query = $db->getQuery(true);
