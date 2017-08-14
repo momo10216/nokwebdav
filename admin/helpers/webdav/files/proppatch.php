@@ -123,7 +123,7 @@ class WebDAVHelperPluginCommand {
 		$content .= '<d:multistatus xmlns:d="DAV:">'.self::$EOL;
 		$content .= self::_getResponse($uriLocation, $properties, $propstatus);
 		$content .= '</d:multistatus>'.self::$EOL;
-		return array($status, $header, $content);
+		return array($status, $header, $content, '');
 	}
 
 	private static function _getResponse($uriLocation, $properties, $propstatus) {

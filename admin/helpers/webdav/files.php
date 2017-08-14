@@ -119,7 +119,8 @@ class WebDAVHelperPlugin {
 				$code = WebDAVHelper::$HTTP_STATUS_ERROR_METHOD_NOT_ALLOWED;
                 		$headers = array('Allow: '.join(", ", self::$_allowedCommands));
 				$content = '';
-				return array($code, $headers, $content);
+				$outFile = '';
+				return array($code, $headers, $content, $outFile);
 		}
 	}
 

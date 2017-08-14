@@ -21,8 +21,9 @@ class WebDAVHelperPluginCommand {
 		$status = self::_check($sourceFileLocation, $targetFileLocation, $rootLocation, $maxSize, $command);
 		$header = array();
 		$content = '';
+		$outFile = '';
 		if (!$status) { $status = self::_copymove($sourceFileLocation, $targetFileLocation, $command); }
-		return array($status, $header, $content);
+		return array($status, $header, $content, $outFile);
 	}
 
 	private static function _check($sourceFileLocation, $targetFileLocation, $rootLocation, $maxSize, $command) {

@@ -20,8 +20,9 @@ class WebDAVHelperPluginCommand {
 		$status = self::_check($path, $directory);
 		$header = array();
 		$content = '';
+		$outFile = '';
 		if (!$status) { $status = self::_createDir($path, $directory); }
-		return array($status, $header, $content);
+		return array($status, $header, $content, $outFile);
 	}
 
 	private static function _check($path, $directory) {

@@ -1,6 +1,5 @@
 ToDo
 ====
-GET: Do not read content in one shot and return it - do it block by block
 ORDERPATCH: Implementation
 DAV: ordered-collections
 CardDAV
@@ -8,6 +7,7 @@ CalDAV
 
 Done
 ====
+GET: Do not read content in one shot and return it - do it block by block
 PUT: Do not read content in one shot and save it - do it block by block
 Import
 Export

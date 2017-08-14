@@ -22,7 +22,8 @@ class WebDAVHelperPluginCommand {
 			'MS-Author-Via: DAV'
 		);
 		$content = '';
-		return array($status, $header, $content);
+		$outFile = '';
+		return array($status, $header, $content, $outFile);
 	}
 }
 ?>

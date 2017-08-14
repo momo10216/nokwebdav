@@ -63,14 +63,15 @@ class WebDAVHelperPlugin {
 				$code = WebDAVHelper::$HTTP_STATUS_ERROR_METHOD_NOT_ALLOWED;
                 		$headers = array('Allow: '.join(", ", self::$_allowedCommands));
 				$content = '';
-				return array($code, $headers, $content);
+				$outFile = '';
+				return array($code, $headers, $content, $outFile);
 		}
 	}
 
 	private function _lock() {
 		global $_SERVER;
 		if (WebDAVHelper::isLocked($this->_type, $this->_key)) {
-			return array(WebDAVHelper::$HTTP_STATUS_ERROR_LOCKED,array(),'');
+			return array(WebDAVHelper::$HTTP_STATUS_ERROR_LOCKED, array(), '', '');
 		}
 		if (!empty($_SERVER['HTTP_IF'])) {
 			return $this->_updateLock(WebDAVHelper::getToken());
@@ -103,9 +104,9 @@ class WebDAVHelperPlugin {
 		$db->setQuery($query);
 		if ($db->execute()) {
 			$content = self::_generateLockResponse($fields);
-			return array(WebDAVHelper::$HTTP_STATUS_OK, array('Content-Type: text/xml; charset="utf-8"', 'Lock-Token: <'.$fields['token'].'>'), $content);
+			return array(WebDAVHelper::$HTTP_STATUS_OK, array('Content-Type: text/xml; charset="utf-8"', 'Lock-Token: <'.$fields['token'].'>'), $content, '');
 		}
-		return array(WebDAVHelper::$HTTP_STATUS_ERROR_CONFLICT,array(),'');
+		return array(WebDAVHelper::$HTTP_STATUS_ERROR_CONFLICT, array(), '', '');
 	}
 
 	private function _updateLock($token) {
@@ -134,9 +135,9 @@ class WebDAVHelperPlugin {
 		$db->setQuery($query);
 		if ($db->execute()) {
 			$content = self::_generateLockResponse($fields);
-			return array(WebDAVHelper::$HTTP_STATUS_OK, array('Content-Type: text/xml; charset="utf-8"', 'Lock-Token: <'.$token.'>'), $content);
+			return array(WebDAVHelper::$HTTP_STATUS_OK, array('Content-Type: text/xml; charset="utf-8"', 'Lock-Token: <'.$token.'>'), $content, '');
 		}
-		return array(WebDAVHelper::$HTTP_STATUS_ERROR_CONFLICT,array(),'');
+		return array(WebDAVHelper::$HTTP_STATUS_ERROR_CONFLICT, array(), '', '');
 	}
 
 	private function _unlock() {

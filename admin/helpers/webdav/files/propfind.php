@@ -85,7 +85,7 @@ class WebDAVHelperPluginCommand {
 		$dirEntries = WebDAVHelperPlugin::getDirectoryList($directory, $uriLocation, $depth, 0);
 		$content .= self::_getDirectoryInfo($directory, $uriLocation, $propertiesRequested, $dirEntries, $quota);
 		$content .= '</d:multistatus>'.self::$EOL;
-		return array($status, $header, $content);
+		return array($status, $header, $content, '');
 	}
 
 	private static function _getDirectoryInfo($directory, $uriLocation, $propertiesRequested, $dirEntries, $quota) {

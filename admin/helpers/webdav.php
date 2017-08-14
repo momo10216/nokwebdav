@@ -132,24 +132,37 @@ class WebDAVHelper {
 			self::debugAddMessage('handleCommand: Access OK');
 			if ($this->_plugin->inputsValid()) {
 				self::debugAddMessage('handleCommand: Hand over to plugin');
-				list($code, $headers, $content) = $this->_plugin->handleCommand($command);
+				list($code, $headers, $content, $outFile) = $this->_plugin->handleCommand($command);
 			} else{
 				self::debugAddMessage('handleCommand: Inputs invalid');
 				$code = self::$HTTP_STATUS_ERROR_BAD_REQUEST;
 				$headers = array();
 				$content = '';
+				$outFile = '';
 			}
 		} else {
 			self::debugAddMessage('handleCommand: No access');
 			$code = self::$HTTP_STATUS_ERROR_UNAUTHORIZED;
 			$headers = array('WWW-Authenticate: Basic realm="Joomla (NoK-WebDAV)"');
 			$content = '';
+			$outFile = '';
 		}
-		if (is_string($content)) { $headers[] = 'Content-length: '.strlen($content); }
-		self::sendHttpStatusAndHeaders($code, $headers);
-		if (!empty($content)) {
-			self::debugAddMessage('handleCommand: Content='.$content);
-			echo $content;
+		if (!empty($outFile)) {
+			$headers[] = 'Content-length: '.filesize($outFile);
+			self::sendHttpStatusAndHeaders($code, $headers);
+			self::debugAddMessage('handleCommand: Content File='.$outFile);
+			$fhRead = fopen($outFile, 'rb');
+			$fhWrite = fopen('php://output', 'wb');
+			stream_copy_to_stream($fhRead, $fhWrite);
+			fclose($fhRead);
+			fclose($fhWrite);
+		} else {
+			if (is_string($content)) { $headers[] = 'Content-length: '.strlen($content); }
+			self::sendHttpStatusAndHeaders($code, $headers);
+			if (!empty($content)) {
+				self::debugAddMessage('handleCommand: Content='.$content);
+				echo $content;
+			}
 		}
 		self::debugAddMessage('handleCommand: end command "'.$command.'"');
 	}
