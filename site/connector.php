@@ -33,8 +33,6 @@ function getAccess($id) {
 	foreach($commands as $command) {
 		$access[$command] = $user->authorise('content.'.$command, $assetName);
 	}
-	WebDAVHelper::debugAddMessage('getAccess: id='.$id);
-	WebDAVHelper::debugAddArray($access, 'getAccess: access');
 	return $access;
 }
 
