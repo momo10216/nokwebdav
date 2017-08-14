@@ -1,6 +1,6 @@
 ToDo
 ====
-Export / Import
+Import
 ORDERPATCH: Implementation
 DAV: ordered-collections
 CardDAV
@@ -8,6 +8,7 @@ CalDAV
 
 Done
 ====
+Export
 PROPFIND: Test Depth = infinity
 PROPFIND: make depth flexible (0,1,2,3...infinity)
 Use UTF-8 for file/directory

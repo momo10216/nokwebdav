@@ -18,13 +18,7 @@ defined('_JEXEC') or die('Restricted access');
  
 class ExImportHelper {
 	private static $_modelStructure = array(
-		'Shares' => array('Shares', 'Share', 'Share', '', array()),
-		'ContactLists' => array('ContactLists', 'ContactList', 'ContactList', '', array(
-			'Contacts' => array('Contacts', 'Contact', 'Contact', 'list_id', array())
-		),
-		'Calendars' => array('Calendars', 'Calendar', 'Calendar', '', array(
-			'Events' => array('Events', 'Event', 'Event', 'calendar_id', array())
-		)
+		'Containers' => array('Containers', 'Container', 'Container', '', array())
 	);
 	private static $_component = 'NoKWebDAV';
 

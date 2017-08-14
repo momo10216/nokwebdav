@@ -66,9 +66,9 @@ class NoKWebDAVViewContainers extends JViewLegacy {
 			JToolbarHelper::trash('containers.delete');
 		}
 		// Add a export button
-		JToolBarHelper::custom('container.export', 'export.png', 'export_f2.png', JText::_('JTOOLBAR_EXPORT'), false);
+		JToolBarHelper::custom('containers.export', 'export.png', 'export_f2.png', JText::_('JTOOLBAR_EXPORT'), false);
 		// Add a import button
-		if ($user->authorise('core.create', 'COM_NOKWEBDAV')) {
+		if ($user->authorise('core.create', 'com_nokwebdav')) {
 			JToolBarHelper::custom('containers.import', 'import.png', 'import_f2.png', JText::_('JTOOLBAR_IMPORT'), false);
 		}
 		if ($user->authorise('core.admin', 'com_nokwebdav')) {
