@@ -1,8 +1,6 @@
 ToDo
 ====
-PROPFIND: make depth flexible (0,1,2,3...infinity)
 Export / Import
-PROPFIND: Test Depth = infinity
 ORDERPATCH: Implementation
 DAV: ordered-collections
 CardDAV
@@ -10,6 +8,8 @@ CalDAV
 
 Done
 ====
+PROPFIND: Test Depth = infinity
+PROPFIND: make depth flexible (0,1,2,3...infinity)
 Use UTF-8 for file/directory
 Quota handling:
 	- Container has quota

@@ -129,18 +129,21 @@ class WebDAVHelperPlugin {
 		return 'file';
 	}
 
-	public static function getDirectoryList($directory, $uriLocation, $recursive = false) {
+	public static function getDirectoryList($filename, $link, $targetDepth, $currentDepth=0) {
 		global $_SERVER;
-//		WebDAVHelper::debugAddMessage('directory: '.$directory);
+//		WebDAVHelper::debugAddMessage('filename: '.$filename);
 		$dirList = array();
-		$files = scandir($directory);
-		foreach($files as $file) {
-			$file = trim($file,DIRECTORY_SEPARATOR);
-			if (($file != '.') && ($file != '..')) {
-//				WebDAVHelper::debugAddMessage('Filename: '.$file);
-				$filenameWithPath = WebDAVHelper::joinDirAndFile($directory,$file);
-				$link = WebDAVHelper::joinDirAndFile($uriLocation,self::hrefEncodeFile($file));
-				$dirList[] = self::getObjectInfo($filenameWithPath, $link);
+		$dirList[] = self::getObjectInfo($filename, $link);
+		if (is_dir($filename) && (($targetDepth == 'infinity') || ($currentDepth < $targetDepth))) {
+			$files = scandir($filename);
+			foreach($files as $file) {
+				$file = trim($file,DIRECTORY_SEPARATOR);
+				if (($file != '.') && ($file != '..')) {
+					$newFilename = rtrim($filename,DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$file;
+					$newLink = rtrim($link,'/').'/'.self::hrefEncodeFile($file);
+					$subDirList = self::getDirectoryList($newFilename, $newLink, $targetDepth, ($currentDepth+1));
+					$dirList = array_merge($dirList, $subDirList);
+				}
 			}
 		}
 		return $dirList;
@@ -201,9 +204,9 @@ class WebDAVHelperPlugin {
 	}
 
 	public static function hasEnoughSpace($directory, $size, $maxSize) {
-		WebDAVHelper::debugAddMessage('hasEnoughSpace: directory='.$directory);
-		WebDAVHelper::debugAddMessage('hasEnoughSpace: size='.$size);
-		WebDAVHelper::debugAddMessage('hasEnoughSpace: maxSize='.$maxSize);
+//		WebDAVHelper::debugAddMessage('hasEnoughSpace: directory='.$directory);
+//		WebDAVHelper::debugAddMessage('hasEnoughSpace: size='.$size);
+//		WebDAVHelper::debugAddMessage('hasEnoughSpace: maxSize='.$maxSize);
 		if (empty($maxSize) || $maxSize <= 0) { return true; }
 		if ((self::getSize($directory)+$size) <= $maxSize) { return true; }
 		return false;

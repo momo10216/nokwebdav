@@ -43,7 +43,7 @@ class WebDAVHelperPluginCommand {
 
 	private static function _parseInfo() {
 		$input = file_get_contents('php://input');
-//		WebDAVHelper::debugAddMessage('Propfind input: '.$input);
+		WebDAVHelper::debugAddMessage('Propfind input: '.$input);
 		if (empty($input)) { return 'all'; }
 		$dom = new DOMDocument();
 		if (!$dom->loadXML($input, LIBXML_NOWARNING)) { return false; }
@@ -82,32 +82,10 @@ class WebDAVHelperPluginCommand {
 		if ($filetype == 'file') { $depth = '0'; }
 		WebDAVHelper::debugAddMessage('Depth: '.$depth);
 		if ($filetype == 'unknown') { return array(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND, array(), ''); }
-		switch ($depth) {
-			case '0': // Single object info
-				if (!file_exists($directory)) { 
-					return array(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND, array(), '');
-				} else {
-					$content .= self::_getSingleInfo($directory, $uriLocation, $propertiesRequested, $quota);
-				}
-				break;
-			case '1': // Directory info
-				$dirEntries = WebDAVHelperPlugin::getDirectoryList($directory, $uriLocation, false);
-				$content .= self::_getSingleInfo($directory, $uriLocation, $propertiesRequested, $quota);
-				$content .= self::_getDirectoryInfo($directory, $uriLocation, $propertiesRequested, $dirEntries, $quota);
-				break;
-			case 'infinity': // Recursive directory info
-			default:
-				$dirEntries = WebDAVHelperPlugin::getDirectoryList($directory, $uriLocation, true);
-				$content .= self::_getSingleInfo($directory, $uriLocation, $propertiesRequested, $quota);
-				$content .= self::_getDirectoryInfo($directory, $uriLocation, $propertiesRequested, $dirEntries, $quota);
-				break;
-		}
+		$dirEntries = WebDAVHelperPlugin::getDirectoryList($directory, $uriLocation, $depth, 0);
+		$content .= self::_getDirectoryInfo($directory, $uriLocation, $propertiesRequested, $dirEntries, $quota);
 		$content .= '</d:multistatus>'.self::$EOL;
 		return array($status, $header, $content);
-	}
-
-	private static function _getSingleInfo($directory, $uriLocation, $propertiesRequested, $quota) {
-		return self::_getResponse($directory, WebDAVHelperPlugin::getObjectInfo($directory, $uriLocation), $propertiesRequested, WebDAVHelper::$HTTP_STATUS_OK, $quota);
 	}
 
 	private static function _getDirectoryInfo($directory, $uriLocation, $propertiesRequested, $dirEntries, $quota) {
