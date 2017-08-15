@@ -114,7 +114,7 @@ class WebDAVHelperPluginCommand {
 		foreach ($propertiesRequested as $propertyRequested) {
 			switch($propertyRequested) {
 				case 'displayname':
-					$content .= $prefix.'		<d:displayname>'.$dirEntry['name'].'</d:displayname>'.self::$EOL;
+					$content .= $prefix.'		<d:displayname>'.$dirEntry['html_name'].'</d:displayname>'.self::$EOL;
 					break;
 				case 'getcontentlength':
 					$content .= $prefix.'		<d:getcontentlength>'.$dirEntry['size'].'</d:getcontentlength>'.self::$EOL;
