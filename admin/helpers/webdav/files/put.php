@@ -18,7 +18,7 @@ class WebDAVHelperPluginCommand {
 		$header = array();
 		$answer = '';
 		$outFile = '';
-		if (!$status) { $status = self::_save($fileLocation, $content); }
+		if (!$status) { $status = self::_save($fileLocation); }
 		return array($status, $header, $answer, $outFile);
 	}
 
