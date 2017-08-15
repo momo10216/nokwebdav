@@ -48,10 +48,12 @@ class WebDAVHelperPluginCommand {
 		}
 		$fhWrite = fopen($fileLocation, 'wb');
 		$fhRead = fopen('php://input', 'rb');
-		if (!stream_copy_to_stream($fhRead, $fhWrite)) {
+		if (stream_copy_to_stream($fhRead, $fhWrite) === false) {
 			fclose($fhRead);
 			fclose($fhWrite);
+			if ($fileIsNew) { unlink($fileLocation); }
 			WebDAVHelper::debugAddMessage('Cannot write content to file: '.$fileLocation);
+			WebDAVHelper::debugAddArray(error_get_last,'LastError');
 			return WebDAVHelper::$HTTP_STATUS_ERROR_FORBIDDEN;
 		}
 		fclose($fhRead);

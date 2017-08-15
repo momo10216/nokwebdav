@@ -113,7 +113,7 @@ class WebDAVHelper {
 
 	public static function getToken() {
 		global $_SERVER;
-		$resourceuri = "$_SERVER[REQUEST_SCHEME]://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";;
+		$resourceuri = self::_getUriLoaction();
 		if (isset($_SERVER['HTTP_IF'])) {
 			if (preg_match('/\<'.str_replace('/','\\/',$resourceuri).'\> \(\<([^\>]*)\>/', $_SERVER['HTTP_IF'], $matches) > 0) {
 				return $matches[1];
@@ -332,5 +332,19 @@ class WebDAVHelper {
 			JLog::add('Error while cleanup expired locks', JLog::ERROR);
 		}
 	}
+
+	private static function _getUriLoaction() {
+		global $_SERVER;
+		if (isset($_SERVER["HTTPS"]) && !empty($_SERVER["HTTPS"])) {
+			$uri = 'https';
+		} else {
+			$uri = 'http';
+		}
+		$uri .= '://'.$_SERVER["SERVER_NAME"];
+		if ($_SERVER["SERVER_PORT"] != 80 ) { $uri .= ':'.$_SERVER["SERVER_PORT"]; }
+		$uri .= $_SERVER["REQUEST_URI"];
+		return $uri;
+	}
+
 }
 ?>
