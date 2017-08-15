@@ -69,6 +69,6 @@
 		</languages>
 	</administration>
 	<updateservers>
-		<server type="extension" priority="2" name="NoK WebDAV Updates">http://kuem.in/joomlaupdate/com_nokwebdav.xml</server>
+		<server type="extension" priority="2" name="COM_NOKWEBDAV_UPDATE_NAME">http://kuem.in/joomlaupdate/com_nokwebdav.xml</server>
 	</updateservers>
 </extension>
