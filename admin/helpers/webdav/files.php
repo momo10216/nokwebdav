@@ -45,9 +45,11 @@ class WebDAVHelperPlugin {
 	public function hasAccess($command) {
 		$hasAccess = '';
 		switch(strtoupper($command)) {
+			case 'OPTIONS':
+				$hasAccess =  '1';
+				break;
 			case 'GET':
 			case 'HEAD':
-			case 'OPTIONS':
 			case 'PROPFIND':
 				if ($this->_sourceAccess['read']) { $hasAccess =  '1'; }
 				break;
