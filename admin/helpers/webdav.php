@@ -127,6 +127,7 @@ class WebDAVHelper {
 	}
 
 	public function handleCommand($command) {
+		global $_SERVER;
 		self::debugAddMessage('handleCommand: start command "'.$command.'"');
 		if ($this->_plugin->hasAccess($command)) {
 			self::debugAddMessage('handleCommand: Access OK');
@@ -143,7 +144,7 @@ class WebDAVHelper {
 		} else {
 			self::debugAddMessage('handleCommand: No access');
 			$code = self::$HTTP_STATUS_ERROR_UNAUTHORIZED;
-			$headers = array('WWW-Authenticate: Basic realm="Joomla (NoK-WebDAV)"');
+			$headers = array('WWW-Authenticate: Basic realm="Joomla (NoK-WebDAV) on '.$_SERVER["SERVER_NAME"].'"');
 			$content = '';
 			$outFile = '';
 		}
