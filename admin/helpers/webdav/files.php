@@ -29,7 +29,9 @@ class WebDAVHelperPlugin {
 		$this->_targetAccess = $targetAccess;
 		$this->_uriLocation = $uriLocation;
 		$this->_sourceFileLocation = $fileData['sourceLocation'];
+		if (strpos($this->_sourceFileLocation,'%')) { $this->_sourceFileLocation = rawurldecode($this->_sourceFileLocation); }
 		$this->_targetFileLocation = $fileData['targetLocation'];
+		if (strpos($this->_targetFileLocation,'%')) { $this->_targetFileLocation = rawurldecode($this->_targetFileLocation); }
 		$this->_rootLocation = $fileData['rootLocation'];
 		$this->_quota = $fileData['quota'];
 	}
