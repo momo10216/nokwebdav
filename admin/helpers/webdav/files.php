@@ -15,7 +15,7 @@ defined('_JEXEC') or die('Restricted access');
 class WebDAVHelperPlugin {
 	private static $EOL = "\n";
 	private static $_allowedCommands = array('GET', 'OPTIONS', 'PROPFIND', 'MKCOL', 'DELETE', 'PUT', 'COPY', 'MOVE', 'LOCK', 'UNLOCK', 'PROPPATCH');
-	private static $_illegalFileChars = array('..', '\\', ':', '|', '<', '>');
+	private static $_illegalFileChars = array('..'.DIRECTORY_SEPARATOR, '\\', ':', '|', '<', '>', '%');
 	private $_uriLocation;
 	private $_rootLocation;
 	private $_sourceAccess;
