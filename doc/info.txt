@@ -5,6 +5,20 @@ https://de.wikipedia.org/wiki/CalDAV
 CardDAV
 =======
 https://de.wikipedia.org/wiki/CardDAV
+BEGIN:VCARD
+VERSION:3.0
+FN:Cyrus Daboo
+N:Daboo;Cyrus
+ADR;TYPE=POSTAL:;2822 Email HQ;Suite 2821;RFCVille;PA;15213;USA
+EMAIL;TYPE=INTERNET,PREF:cyrus@example.com
+NICKNAME:me
+NOTE:Example VCard.
+ORG:Self Employed
+TEL;TYPE=WORK,VOICE:412 605 0499
+TEL;TYPE=FAX:412 605 0705
+URL:http://www.example.com
+UID:1234-5678-9000-1
+END:VCARD
 
 WebDAV
 ======

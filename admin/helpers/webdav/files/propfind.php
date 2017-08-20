@@ -81,7 +81,7 @@ class WebDAVHelperPluginCommand {
 		$filetype = WebDAVHelperPlugin::getFileType($directory);
 		if ($filetype == 'file') { $depth = '0'; }
 		WebDAVHelper::debugAddMessage('Depth: '.$depth);
-		if ($filetype == 'unknown') { return array(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND, array(), ''); }
+		if ($filetype == 'unknown') { return array(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND, array(), '', ''); }
 		$dirEntries = WebDAVHelperPlugin::getDirectoryList($directory, $uriLocation, $depth, 0);
 		$content .= self::_getDirectoryInfo($directory, $uriLocation, $propertiesRequested, $dirEntries, $quota);
 		$content .= '</d:multistatus>'.self::$EOL;
@@ -114,7 +114,7 @@ class WebDAVHelperPluginCommand {
 		foreach ($propertiesRequested as $propertyRequested) {
 			switch($propertyRequested) {
 				case 'displayname':
-					$content .= $prefix.'		<d:displayname>'.$dirEntry['name'].'</d:displayname>'.self::$EOL;
+					$content .= $prefix.'		<d:displayname>'.$dirEntry['html_name'].'</d:displayname>'.self::$EOL;
 					break;
 				case 'getcontentlength':
 					$content .= $prefix.'		<d:getcontentlength>'.$dirEntry['size'].'</d:getcontentlength>'.self::$EOL;

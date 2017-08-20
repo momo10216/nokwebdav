@@ -57,7 +57,7 @@ class WebDAVHelperPluginCommand {
 		$header[] = 'Content-type: '.mime_content_type($filename);
 		$header[] = 'Last-modified: '.gmdate("D, d M Y H:i:s", filemtime($filename))." GMT";
 		if ($command == 'HEAD') { return array(WebDAVHelper::$HTTP_STATUS_OK, $header, '', ''); }
-		return array(WebDAVHelper::$HTTP_STATUS_OK, $header, $content, $filename);
+		return array(WebDAVHelper::$HTTP_STATUS_OK, $header, '', $filename);
 	}
 }
 ?>

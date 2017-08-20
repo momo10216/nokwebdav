@@ -29,6 +29,7 @@ class WebDAVHelperPlugin {
 		$this->_targetAccess = $targetAccess;
 		$this->_uriLocation = $uriLocation;
 		$this->_sourceFileLocation = $fileData['sourceLocation'];
+		if (strpos($this->_sourceFileLocation,'%')) { $this->_sourceFileLocation = rawurldecode($this->_sourceFileLocation); }
 		$this->_targetFileLocation = $fileData['targetLocation'];
 		$this->_rootLocation = $fileData['rootLocation'];
 		$this->_quota = $fileData['quota'];
@@ -45,9 +46,11 @@ class WebDAVHelperPlugin {
 	public function hasAccess($command) {
 		$hasAccess = '';
 		switch(strtoupper($command)) {
+			case 'OPTIONS':
+				$hasAccess =  '1';
+				break;
 			case 'GET':
 			case 'HEAD':
-			case 'OPTIONS':
 			case 'PROPFIND':
 				if ($this->_sourceAccess['read']) { $hasAccess =  '1'; }
 				break;

@@ -143,7 +143,7 @@ class WebDAVHelperPlugin {
 	private function _unlock() {
 		global $_SERVER;
 		if (!isset($_SERVER['HTTP_LOCK_TOKEN']) || empty($_SERVER['HTTP_LOCK_TOKEN'])) {
-			return array(WebDAVHelper::$HTTP_STATUS_ERROR_PRECONDITION_FAILED,array(),'');
+			return array(WebDAVHelper::$HTTP_STATUS_ERROR_PRECONDITION_FAILED,array(),'','');
 		}
 		$token = substr(trim($_SERVER['HTTP_LOCK_TOKEN']), 1, -1);
 		$db = JFactory::getDBO();
@@ -152,9 +152,9 @@ class WebDAVHelperPlugin {
 			->where($db->quoteName('token').'='.$db->quote($token));
 		$db->setQuery($query);
 		if ($db->execute()) {
-			return array(WebDAVHelper::$HTTP_STATUS_NO_CONTENT, array(), '');
+			return array(WebDAVHelper::$HTTP_STATUS_NO_CONTENT, array(), '','');
 		}
-		return array(WebDAVHelper::$HTTP_STATUS_ERROR_CONFLICT,array(),'');
+		return array(WebDAVHelper::$HTTP_STATUS_ERROR_CONFLICT,array(),'','');
 	}
 
 	private static function _parseInfo() {
