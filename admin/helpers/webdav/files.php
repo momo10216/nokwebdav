@@ -31,14 +31,21 @@ class WebDAVHelperPlugin {
 		$this->_sourceFileLocation = $fileData['sourceLocation'];
 		if (strpos($this->_sourceFileLocation,'%')) { $this->_sourceFileLocation = rawurldecode($this->_sourceFileLocation); }
 		$this->_targetFileLocation = $fileData['targetLocation'];
+		if (strpos($this->_targetFileLocation,'%')) { $this->_targetFileLocation = rawurldecode($this->_targetFileLocation); }
 		$this->_rootLocation = $fileData['rootLocation'];
 		$this->_quota = $fileData['quota'];
 	}
 
 	public function inputsValid() {
 		foreach (self::$_illegalFileChars as $illegalFileChar) {
-			if (strpos($this->_sourceFileLocation,$illegalFileChar)) { return false; }
-			if (strpos($this->_targetFileLocation,$illegalFileChar)) { return false; }
+			if (strpos($this->_sourceFileLocation,$illegalFileChar)) {
+				WebDAVHelper::debugAddMessage('Illegal character ('.$illegalFileChar.') found in source file: '.$this->_sourceFileLocation);
+				return false;
+			}
+			if (strpos($this->_targetFileLocation,$illegalFileChar)) {
+				WebDAVHelper::debugAddMessage('Illegal character ('.$illegalFileChar.') found in target file: '.$this->_targetFileLocation);
+				return false;
+			}
 		}
 		return true;
 	}
@@ -164,8 +171,7 @@ class WebDAVHelperPlugin {
 		$fileinfo['html_name'] = htmlspecialchars($filename);
 		$fileinfo['html_ref'] = $link;
 		$fileinfo['type'] = self::getFileType($filenameWithPath);
-		$fileinfo['mime_type'] = mime_content_type($filenameWithPath);
-		if ($fileinfo['mime_type'] == 'directory') { $fileinfo['mime_type'] = 'application/octet-stream'; }
+		$fileinfo['mime_type'] = self::_getMimeType($filenameWithPath);
 		$fileinfo['etag'] = md5_file($filenameWithPath);
 		$fileinfo['ctime'] = filectime($filenameWithPath);
 		$fileinfo['mtime'] = filemtime($filenameWithPath);
@@ -218,6 +224,70 @@ class WebDAVHelperPlugin {
 
 	public static function hrefEncodeFile($filename) {
 		return rawurlencode($filename);
+	}
+
+	private static function _getMimeType($filename) {
+		$defaultType = 'application/octet-stream';
+		$mimeType = mime_content_type($filename);
+		if ($mimeType == 'directory') { return $defaultType; }
+		if ($mimeType != 'inode/x-empty') { return $mimeType; }
+		$knownMimeTypes = array(
+			'txt' => 'text/plain',
+			'htm' => 'text/html',
+			'html' => 'text/html',
+			'php' => 'text/html',
+			'css' => 'text/css',
+			'js' => 'application/javascript',
+			'json' => 'application/json',
+			'xml' => 'application/xml',
+			'swf' => 'application/x-shockwave-flash',
+			'flv' => 'video/x-flv',
+
+			// images
+			'png' => 'image/png',
+			'jpe' => 'image/jpeg',
+			'jpeg' => 'image/jpeg',
+			'jpg' => 'image/jpeg',
+			'gif' => 'image/gif',
+			'bmp' => 'image/bmp',
+			'ico' => 'image/vnd.microsoft.icon',
+			'tiff' => 'image/tiff',
+			'tif' => 'image/tiff',
+			'svg' => 'image/svg+xml',
+			'svgz' => 'image/svg+xml',
+
+			// archives
+			'zip' => 'application/zip',
+			'rar' => 'application/x-rar-compressed',
+			'exe' => 'application/x-msdownload',
+			'msi' => 'application/x-msdownload',
+			'cab' => 'application/vnd.ms-cab-compressed',
+
+			// audio/video
+			'mp3' => 'audio/mpeg',
+			'qt' => 'video/quicktime',
+			'mov' => 'video/quicktime',
+
+			// adobe
+			'pdf' => 'application/pdf',
+			'psd' => 'image/vnd.adobe.photoshop',
+			'ai' => 'application/postscript',
+			'eps' => 'application/postscript',
+			'ps' => 'application/postscript',
+
+			// ms office
+			'doc' => 'application/msword',
+			'rtf' => 'application/rtf',
+			'xls' => 'application/vnd.ms-excel',
+			'ppt' => 'application/vnd.ms-powerpoint',
+
+			// open office
+			'odt' => 'application/vnd.oasis.opendocument.text',
+			'ods' => 'application/vnd.oasis.opendocument.spreadsheet',
+		);
+		$extension = pathinfo($filename, PATHINFO_EXTENSION);
+		if (isset($knownMimeTypes[$extension])) { return $knownMimeTypes[$extension]; }
+		return $defaultType;
 	}
 }
 ?>

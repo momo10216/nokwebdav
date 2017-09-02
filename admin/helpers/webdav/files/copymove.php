@@ -30,13 +30,28 @@ class WebDAVHelperPluginCommand {
 		global $_SERVER;
 
 		list($targetDir, $targetFile) = WebDAVHelperPlugin::getPathAndFilename($targetFileLocation);
-		if (!file_exists($sourceFileLocation)) { return WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND; }
-		if (!is_dir($targetDir)) { return WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND; }
-		if (is_dir($targetFileLocation)) { return WebDAVHelper::$HTTP_STATUS_ERROR_CONFLICT; }
-		if (!empty($_SERVER['CONTENT_LENGTH'])) { return WebDAVHelper::$HTTP_STATUS_ERROR_UNSUPPORTED_MEDIA_TYPE; }
+		if (!file_exists($sourceFileLocation)) {
+			WebDAVHelper::debugAddMessage('Source file missing: '.$sourceFileLocation);
+			return WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND;
+		}
+		if (!is_dir($targetDir)) {
+			WebDAVHelper::debugAddMessage('Target directory missing: '.$targetDir);
+			return WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND;
+		}
+		if (is_dir($targetFileLocation)) {
+			WebDAVHelper::debugAddMessage('Target file is directory: '.$targetFileLocation);
+			return WebDAVHelper::$HTTP_STATUS_ERROR_CONFLICT;
+		}
+		if (!empty($_SERVER['CONTENT_LENGTH'])) {
+			WebDAVHelper::debugAddMessage('Content length not empty: '.$_SERVER['CONTENT_LENGTH']);
+			return WebDAVHelper::$HTTP_STATUS_ERROR_UNSUPPORTED_MEDIA_TYPE;
+		}
 		if (file_exists($targetFileLocation)) {
-			if (isset($this->_SERVER['HTTP_OVERWRITE'])) {
-				if ($this->_SERVER['HTTP_OVERWRITE'] != 'T') { return WebDAVHelper::$HTTP_STATUS_ERROR_PRECONDITION_FAILED; }
+			if (isset($_SERVER['HTTP_OVERWRITE'])) {
+				if ($_SERVER['HTTP_OVERWRITE'] != 'T') {
+					WebDAVHelper::debugAddMessage('Overwrite not allowed: '.$_SERVER['HTTP_OVERWRITE']);
+					return WebDAVHelper::$HTTP_STATUS_ERROR_PRECONDITION_FAILED;
+				}
 			}
 		}
 		if (WebDAVHelper::isLocked('files', $sourceFileLocation, true)) {
@@ -49,6 +64,7 @@ class WebDAVHelperPluginCommand {
 		}
 		if ($command == 'COPY') {
 			if (!WebDAVHelperPlugin::hasEnoughSpace($rootLocation,filesize($sourceFileLocation),$maxSize)) {
+				WebDAVHelper::debugAddMessage('Not enough space: '.filesize($sourceFileLocation).' '.$maxSize);
 				return WebDAVHelper::$HTTP_STATUS_ERROR_INSUFFICIENT_STORAGE;
 			}
 		}
