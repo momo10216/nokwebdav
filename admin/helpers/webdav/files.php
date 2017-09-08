@@ -169,7 +169,7 @@ class WebDAVHelperPlugin {
 		$fileinfo = array();
 		$fileinfo['name'] = $filename;
 		$fileinfo['html_name'] = htmlspecialchars($filename);
-		$fileinfo['html_ref'] = $link;
+		$fileinfo['html_ref'] = htmlspecialchars($link);
 		$fileinfo['type'] = self::getFileType($filenameWithPath);
 		$fileinfo['mime_type'] = self::_getMimeType($filenameWithPath);
 		$fileinfo['etag'] = md5_file($filenameWithPath);
