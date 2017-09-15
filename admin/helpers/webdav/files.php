@@ -59,7 +59,11 @@ class WebDAVHelperPlugin {
 			case 'GET':
 			case 'HEAD':
 			case 'PROPFIND':
-				if ($this->_sourceAccess['read']) { $hasAccess =  '1'; }
+				if ($this->_sourceAccess['read']) {
+					$hasAccess =  '1';
+				} else {
+					WebDAVHelper::debugAddMessage('No read access to "'.$this->_sourceFileLocation.'".');
+				}
 				break;
 			case 'MKCOL':
 				if ($this->_sourceAccess['create']) { $hasAccess =  '1'; }
@@ -84,9 +88,17 @@ class WebDAVHelperPlugin {
 			case 'PROPPATCH':
 			case 'PUT':
 				if (file_exists($this->_sourceFileLocation) === true) {
-					if ($this->_sourceAccess['change']) { $hasAccess =  '1'; }
+					if ($this->_sourceAccess['change']) {
+						$hasAccess =  '1';
+					} else {
+						WebDAVHelper::debugAddMessage('No change access to "'.$this->_sourceFileLocation.'".');
+					}
 				} else {
-					if ($this->_sourceAccess['create']) { $hasAccess =  '1'; }
+					if ($this->_sourceAccess['create']) {
+						$hasAccess =  '1';
+					} else {
+						WebDAVHelper::debugAddMessage('No create access to "'.$this->_sourceFileLocation.'".');
+					}
 				}
 				break;
 			default:
@@ -106,7 +118,7 @@ class WebDAVHelperPlugin {
 				return WebDAVHelperPluginCommand::execute(self::$_allowedCommands);
 			case 'PROPFIND':
 				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files/propfind.php', true);
-				return WebDAVHelperPluginCommand::execute($this->_sourceFileLocation, $this->_uriLocation, $this->_quota);
+				return WebDAVHelperPluginCommand::execute($this->_sourceFileLocation, $this->_uriLocation, $this->_quota, $this->getSize($this->_rootLocation));
 			case 'MKCOL':
 				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/files/mkcol.php', true);
 				return WebDAVHelperPluginCommand::execute($this->_sourceFileLocation);
@@ -151,7 +163,7 @@ class WebDAVHelperPlugin {
 				$file = trim($file,DIRECTORY_SEPARATOR);
 				if (($file != '.') && ($file != '..')) {
 					$newFilename = rtrim($filename,DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$file;
-					$newLink = rtrim($link,'/').'/'.self::hrefEncodeFile($file);
+					$newLink = rtrim($link,'/').'/'.$file;
 					$subDirList = self::getDirectoryList($newFilename, $newLink, $targetDepth, ($currentDepth+1));
 					$dirList = array_merge($dirList, $subDirList);
 				}
@@ -168,8 +180,9 @@ class WebDAVHelperPlugin {
 //		WebDAVHelper::debugAddMessage('Filename: '.$filename);
 		$fileinfo = array();
 		$fileinfo['name'] = $filename;
-		$fileinfo['html_name'] = htmlspecialchars($filename);
-		$fileinfo['html_ref'] = htmlspecialchars($link);
+		$fileinfo['ref'] = $link;
+		$fileinfo['html_name'] = htmlspecialchars($filename,ENT_XML1,'UTF-8');
+		$fileinfo['html_ref'] = htmlspecialchars($link,ENT_XML1,'UTF-8');
 		$fileinfo['type'] = self::getFileType($filenameWithPath);
 		$fileinfo['mime_type'] = self::_getMimeType($filenameWithPath);
 		$fileinfo['etag'] = md5_file($filenameWithPath);
@@ -230,7 +243,7 @@ class WebDAVHelperPlugin {
 		$defaultType = 'application/octet-stream';
 		$mimeType = mime_content_type($filename);
 		if ($mimeType == 'directory') { return $defaultType; }
-		if ($mimeType != 'inode/x-empty') { return $mimeType; }
+		if (($mimeType != 'inode/x-empty') && ($mimeType != $defaultType)) { return $mimeType; }
 		$knownMimeTypes = array(
 			'txt' => 'text/plain',
 			'htm' => 'text/html',
@@ -277,9 +290,12 @@ class WebDAVHelperPlugin {
 
 			// ms office
 			'doc' => 'application/msword',
+			'docx' => 'application/msword',
 			'rtf' => 'application/rtf',
 			'xls' => 'application/vnd.ms-excel',
+			'xlsx' => 'application/vnd.ms-excel',
 			'ppt' => 'application/vnd.ms-powerpoint',
+			'pptx' => 'application/vnd.ms-powerpoint',
 
 			// open office
 			'odt' => 'application/vnd.oasis.opendocument.text',

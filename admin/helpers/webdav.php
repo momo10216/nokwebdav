@@ -158,7 +158,7 @@ class WebDAVHelper {
 			fclose($fhRead);
 			fclose($fhWrite);
 		} else {
-			if (is_string($content)) { $headers[] = 'Content-length: '.strlen($content); }
+			if (is_string($content)) { $headers[] = 'Content-length: '.mb_strlen($content, '8bit'); }
 			self::sendHttpStatusAndHeaders($code, $headers);
 			if (!empty($content)) {
 				self::debugAddMessage('handleCommand: Content='.$content);
