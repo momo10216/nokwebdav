@@ -2,13 +2,16 @@
 /**
 * @version	$Id$
 * @package	Joomla
-* @subpackage	NoK-WebDAV
+* @subpackage	NoKWebDAV
 * @copyright	Copyright (c) 2017 Norbert Kümin. All rights reserved.
 * @license	http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE
 * @author	Norbert Kuemin
 * @authorEmail	momo_102@bluemail.ch
 */
-defined('_JEXEC') or die;
+
+// No direct access to this file
+defined('_JEXEC') or die('Restricted access');
+
 // Include dependancy of the main model form
 jimport('joomla.application.component.modelform');
 // import Joomla modelitem library

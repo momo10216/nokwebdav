@@ -1,4 +1,19 @@
 <?php
+/**
+* @version	$Id$
+* @package	Joomla
+* @subpackage	NoKWebDAV
+* @copyright	Copyright (c) 2017 Norbert Kümin. All rights reserved.
+* @license	http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE
+* @author	Norbert Kuemin
+* @authorEmail	momo_102@bluemail.ch
+*/
+
+define('_JEXEC', 1);
+
+// No direct access to this file
+defined('_JEXEC') or die('Restricted access');
+
 function getInfosFromPath() {
 	global $_SERVER;
 	if (!isset($_SERVER['PATH_INFO'])) {
@@ -96,7 +111,6 @@ register_shutdown_function(function(){
 error_reporting(E_ERROR | E_PARSE);
 $component = 'com_nokwebdav';
 
-define('_JEXEC', 1);
 define('JPATH_BASE', explode('/components/'.$component,__DIR__)[0]);
 define('JPATH_COMPONENT', JPATH_BASE . DIRECTORY_SEPARATOR . 'components'. DIRECTORY_SEPARATOR . $component);
 include_once (JPATH_BASE.'/includes/defines.php' );

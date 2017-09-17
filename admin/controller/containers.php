@@ -9,7 +9,8 @@
 * @authorEmail	momo_102@bluemail.ch
 */
 
-defined('_JEXEC') or die;
+// No direct access to this file
+defined('_JEXEC') or die('Restricted access');
 
 class NoKWebDAVControllerContainers extends JControllerAdmin {
 	public function getModel($name = 'Container', $prefix = 'NoKWebDAVModel', $config = array('ignore_request' => true)) {

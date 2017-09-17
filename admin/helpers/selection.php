@@ -9,7 +9,8 @@
 * @authorEmail	momo_102@bluemail.ch
 */
 
-defined('_JEXEC') or die;
+// No direct access to this file
+defined('_JEXEC') or die('Restricted access');
 
 /**
  * Selection helper.
