@@ -21,6 +21,7 @@ class NoKWebDAVViewContainers extends JViewLegacy {
 
 	function display($tpl = null) {
 		// Init variables
+		NoKWebDAVHelper::addSubmenu('containers');
 		$this->user = JFactory::getUser();
 		$app = JFactory::getApplication();
 		$this->items = $this->get('Items');

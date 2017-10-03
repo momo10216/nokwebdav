@@ -13,7 +13,7 @@
 defined('_JEXEC') or die('Restricted access');
 
 class NoKWebDAVHelper extends JHelperContent {
-	public static function addSidebar($vName) {
+	public static function addSubmenu($vName) {
 		JHtmlSidebar::addEntry(
 			JText::_('COM_NOKWEBDAV_MENU_CONTAINERS'),
 			'index.php?option=com_nokwebdav&view=containers',
