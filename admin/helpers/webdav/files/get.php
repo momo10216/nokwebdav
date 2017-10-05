@@ -63,11 +63,98 @@ class WebDAVHelperPluginCommand {
 	}
 
 	private static function _getFile($filename,$command) {
+		$rangesCount = self::_getRangesCount($filename);
+		if ($rangesCount == 0) { return self::_getFileFull($fileLocation,$command); }
+		if ($rangesCount == 1) { return self::_getFileSingleRange($fileLocation,$command) }
+		return self::_getFileMultiRange($fileLocation,$command);
+	}
+
+	private static function _getFileFull($filename,$command) {
 		$header = array();
 		$header[] = 'Content-type: '.mime_content_type($filename);
 		$header[] = 'Last-modified: '.gmdate("D, d M Y H:i:s", filemtime($filename))." GMT";
 		if ($command == 'HEAD') { return array(WebDAVHelper::$HTTP_STATUS_OK, $header, '', ''); }
 		return array(WebDAVHelper::$HTTP_STATUS_OK, $header, '', $filename);
+	}
+
+	private static function _getFileSingleRange($filename,$command) {
+		$header = array();
+		$header[] = 'Content-type: '.mime_content_type($filename);
+		$header[] = 'Last-modified: '.gmdate("D, d M Y H:i:s", filemtime($filename))." GMT";
+		list($rangeStart, $rangeEnd) = self::_getRanges($filename)[0];
+		$fh = fopen($filename, "r");
+		if (fseek($fh, 0, SEEK_SET) == 0) {
+			fseek($fh, $rangeStart, SEEK_SET);
+			if (feof($fh)) {
+				fclose($fh);
+				return array(WebDAVHelper::$HTTP_STATUS_ERROR_REQUESTED_RANGE_NOT_SATISFIABLE, array(), '', '');
+			}
+			$content = fread($fh, ($rangeEnd-$rangeStart));
+			$header[] = 'Content-range: '.$rangeStart.'-'.$rangeEnd.'/'.filesize($filename);
+		} else {
+			fclose($fh);
+			return array(WebDAVHelper::$HTTP_STATUS_OK, $header, '', $filename);
+		}
+		fclose($fh);
+		return array(WebDAVHelper::$HTTP_STATUS_OK, $header, $content, '');
+	}
+
+	private static function _getFileMultiRange($filename,$command) {
+		$header = array();
+		$fh = fopen($filename, "r");
+		if (fseek($fh, 0, SEEK_SET) == 0) {
+			$multipartSeparator = "MULTIPART_SEPARATOR_".md5(microtime());
+			$header[] = 'Content-type: multipart/byteranges; boundary='.$multipartSeparator);
+			$ranges = self::_getRanges($filename);
+			$content = '';
+			foreach($ranges as $range) {
+				list($rangeStart, $rangeEnd) = $range;
+				fseek($fh, $rangeStart, SEEK_SET);
+				if (feof($fh)) {
+					fclose($fh);
+					return array(WebDAVHelper::$HTTP_STATUS_ERROR_REQUESTED_RANGE_NOT_SATISFIABLE, array(), '', '');
+				}
+				$content .= self::_getFileMultiRangeEntry($multipartSeparator,$filename,$rangeStart,$rangeEnd,fread($fh, ($rangeEnd-$rangeStart)));
+			}
+			$content .= "\n--".$multipartSeparator."--";
+		} else {
+			fclose($fh);
+			$header[] = 'Content-type: '.mime_content_type($filename);
+			$header[] = 'Last-modified: '.gmdate("D, d M Y H:i:s", filemtime($filename))." GMT";
+			return array(WebDAVHelper::$HTTP_STATUS_OK, $header, '', $filename);
+		}
+		fclose($fh);
+		return array(WebDAVHelper::$HTTP_STATUS_OK, $header, $content, '');
+	}
+
+	private static function _getFileMultiRangeEntry($multipartSeparator,$filename,$from,$to,$rangeContent) {
+		$content = "\n--".$multipartSeparator."\n";
+		$content .= "Content-type: ".mime_content_type($filename)."\n";
+		$content .= "Content-range: ".$from."-".$to."/".filesize($filename);
+		$content .= "\n\n".$rangeContent;
+		return $content;
+	}
+
+	private static _getRangesCount($filename) {
+		return count(self::_getRanges($filename));
+	}
+
+	private static _getRanges($filename) {
+		global $SERVER;
+		$retval = array();
+		if (isset($SERVER['HTTP_RANGE'])) {
+			// Only "bytes" supported
+			if (preg_match('/bytes\s*=\s*(.+)/', $this->_SERVER['HTTP_RANGE'], $matches)) {
+				$ranges = explode(",",$matches[1]);
+				foreach($ranges as $range) {
+					list($start,$end) = explode('-',$range,2);
+					if (empty($start)) { $start = '0'; }
+					if (empty($end)) { $end = filesize($filename); }
+					$retval[] = array($start,$end);
+				}
+			}
+		}
+		return $retval;
 	}
 }
 ?>

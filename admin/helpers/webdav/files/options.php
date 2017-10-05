@@ -17,7 +17,7 @@ class WebDAVHelperPluginCommand {
 		$status = WebDAVHelper::$HTTP_STATUS_OK;
 		$header = array(
 			'Allow: '.join(", ", $allowedCommands),
-			'Accept-Ranges: none',
+			'Accept-Ranges: bytes',
 			'DAV: '.join(", ", WebDAVHelper::$DAV_SUPPORTED_PROTOCOLS),
 			'MS-Author-Via: DAV'
 		);
