@@ -64,9 +64,9 @@ class WebDAVHelperPluginCommand {
 
 	private static function _getFile($filename,$command) {
 		$rangesCount = self::_getRangesCount($filename);
-		if ($rangesCount == 0) { return self::_getFileFull($fileLocation,$command); }
-		if ($rangesCount == 1) { return self::_getFileSingleRange($fileLocation,$command) }
-		return self::_getFileMultiRange($fileLocation,$command);
+		if ($rangesCount == 0) { return self::_getFileFull($filename,$command); }
+		if ($rangesCount == 1) { return self::_getFileSingleRange($filename,$command); }
+		return self::_getFileMultiRange($filename,$command);
 	}
 
 	private static function _getFileFull($filename,$command) {
@@ -79,6 +79,7 @@ class WebDAVHelperPluginCommand {
 
 	private static function _getFileSingleRange($filename,$command) {
 		$header = array();
+		$content = '';
 		$header[] = 'Content-type: '.mime_content_type($filename);
 		$header[] = 'Last-modified: '.gmdate("D, d M Y H:i:s", filemtime($filename))." GMT";
 		list($rangeStart, $rangeEnd) = self::_getRanges($filename)[0];
@@ -90,23 +91,23 @@ class WebDAVHelperPluginCommand {
 				return array(WebDAVHelper::$HTTP_STATUS_ERROR_REQUESTED_RANGE_NOT_SATISFIABLE, array(), '', '');
 			}
 			$content = fread($fh, ($rangeEnd-$rangeStart));
+			fclose($fh);
 			$header[] = 'Content-range: '.$rangeStart.'-'.$rangeEnd.'/'.filesize($filename);
 		} else {
 			fclose($fh);
 			return array(WebDAVHelper::$HTTP_STATUS_OK, $header, '', $filename);
 		}
-		fclose($fh);
 		return array(WebDAVHelper::$HTTP_STATUS_OK, $header, $content, '');
 	}
 
 	private static function _getFileMultiRange($filename,$command) {
 		$header = array();
+		$content = '';
 		$fh = fopen($filename, "r");
 		if (fseek($fh, 0, SEEK_SET) == 0) {
 			$multipartSeparator = "MULTIPART_SEPARATOR_".md5(microtime());
-			$header[] = 'Content-type: multipart/byteranges; boundary='.$multipartSeparator);
+			$header[] = 'Content-type: multipart/byteranges; boundary='.$multipartSeparator;
 			$ranges = self::_getRanges($filename);
-			$content = '';
 			foreach($ranges as $range) {
 				list($rangeStart, $rangeEnd) = $range;
 				fseek($fh, $rangeStart, SEEK_SET);
@@ -135,16 +136,16 @@ class WebDAVHelperPluginCommand {
 		return $content;
 	}
 
-	private static _getRangesCount($filename) {
+	private static function _getRangesCount($filename) {
 		return count(self::_getRanges($filename));
 	}
 
-	private static _getRanges($filename) {
-		global $SERVER;
+	private static function _getRanges($filename) {
+		global $_SERVER;
 		$retval = array();
-		if (isset($SERVER['HTTP_RANGE'])) {
+		if (isset($_SERVER['HTTP_RANGE'])) {
 			// Only "bytes" supported
-			if (preg_match('/bytes\s*=\s*(.+)/', $this->_SERVER['HTTP_RANGE'], $matches)) {
+			if (preg_match('/bytes\s*=\s*(.+)/', $_SERVER['HTTP_RANGE'], $matches)) {
 				$ranges = explode(",",$matches[1]);
 				foreach($ranges as $range) {
 					list($start,$end) = explode('-',$range,2);
