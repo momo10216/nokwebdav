@@ -9,6 +9,9 @@
 * @authorEmail	momo_102@bluemail.ch
 */
 
+// No direct access to this file
+defined('_JEXEC') or die('Restricted Access');
+
 $listDirn	= $this->escape($this->state->get('list.direction'));
 $listOrder	= $this->escape($this->state->get('list.ordering'));
 $sortFields	= $this->getSortFields();
