@@ -1,5 +1,4 @@
-DROP TABLE IF EXISTS `#__nokWebDAV_events`;
-DROP TABLE IF EXISTS `#__nokWebDAV_contacts`;
+DROP TABLE IF EXISTS `#__nokWebDAV_datas`;
 DROP TABLE IF EXISTS `#__nokWebDAV_locks`;
 DROP TABLE IF EXISTS `#__nokWebDAV_properties`;
 DROP TABLE IF EXISTS `#__nokWebDAV_containers`;
@@ -59,6 +58,7 @@ CREATE TABLE `#__nokWebDAV_datas` (
 	`container_id` integer NOT NULL,
 	`published` int(1) NOT NULL default 0,
 	`value` text,
+	`expiredate` datetime NULL default NULL,
 	`createdby` varchar(50) NULL default NULL,
 	`createddate` datetime NULL default NULL,
 	`modifiedby` varchar(50) NOT NULL default '',

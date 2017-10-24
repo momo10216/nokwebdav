@@ -3,12 +3,12 @@ ToDo
 Create .htaccess from admin view
 ORDERPATCH: Implementation
 DAV: ordered-collections
-CardDAV
-CalDAV (Todo)
-CalDAV (Calendar)
 
 In Progress
 ===========
+CardDAV
+CalDAV (Todo)
+CalDAV (Calendar)
 
 Done
 ====
