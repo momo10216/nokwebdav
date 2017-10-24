@@ -69,5 +69,5 @@ if ($this->items) {
 	}
 }
 echo '</table>'.$EOL;
-if (!empty($this->paramsMenuEntry->get('pretext'))) { echo $this->paramsMenuEntry->get('posttext'); }
+if (!empty($this->paramsMenuEntry->get('posttext'))) { echo $this->paramsMenuEntry->get('posttext'); }
 ?>
