@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fieldset>
+		<field name="id"  type="text" class="readonly" label="JGLOBAL_FIELD_ID_LABEL"
+			description ="JGLOBAL_FIELD_ID_DESC" size="10" default="0"
+			readonly="true" />
+
+		<field name="name" type="text" label="COM_NOKWEBDAV_CONTAINER_FIELD_NAME_LABEL"
+			description="COM_NOKWEBDAV_CONTAINER_FIELD_NAME_DESC" size="40" required="true" />
+
+		<field name="displayName" type="text" label="COM_NOKWEBDAV_CONTAINER_FIELD_DISPLAY_NAME_LABEL"
+			description="COM_NOKWEBDAV_CONTAINER_FIELD_DISPLAY_NAME_DESC" size="40" />
+
+		<field name="type" type="list" label="COM_NOKWEBDAV_CONTAINER_FIELD_TYPE_LABEL"
+			description="COM_NOKWEBDAV_CONTAINER_FIELD_TYPE_DESC"
+			default="files">
+			<option value="files">COM_NOKWEBDAV_CONTAINER_FIELD_TYPE_FILES</option>
+			<option value="datas">COM_NOKWEBDAV_CONTAINER_FIELD_TYPE_DATAS</option>
+		</field>
+
+		<field name="filepath" type="text" label="COM_NOKWEBDAV_CONTAINER_FIELD_FILEPATH_LABEL"
+			description="COM_NOKWEBDAV_CONTAINER_FIELD_FILEPATH_DESC" size="40" required="true" />
+
+		<field name="published" type="list" label="COM_NOKWEBDAV_CONTAINER_FIELD_PUBLISHED_LABEL"
+			description="COM_NOKWEBDAV_CONTAINER_FIELD_PUBLISHED_DESC"
+			class="btn-group btn-group-yesno"
+			size="1"
+			default="1">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+
+		<field name="quotaValue" type="text" label="COM_NOKWEBDAV_CONTAINER_FIELD_QUOTA_VALUE_LABEL"
+			description="COM_NOKWEBDAV_CONTAINER_FIELD_QUOTA_VALUE_DESC" size="13" />
+
+		<field name="quotaExp" type="list" label="COM_NOKWEBDAV_CONTAINER_FIELD_QUOTA_EXP_LABEL"
+			description="COM_NOKWEBDAV_CONTAINER_FIELD_QUOTA_EXP_DESC"
+			class="btn-group"
+			default="1">
+			<option value="0">COM_NOKWEBDAV_CONTAINER_FIELD_QUOTA_EXP_BYTES</option>
+			<option value="1">COM_NOKWEBDAV_CONTAINER_FIELD_QUOTA_EXP_KBYTES</option>
+			<option value="2">COM_NOKWEBDAV_CONTAINER_FIELD_QUOTA_EXP_MBYTES</option>
+			<option value="3">COM_NOKWEBDAV_CONTAINER_FIELD_QUOTA_EXP_GBYTES</option>
+			<option value="4">COM_NOKWEBDAV_CONTAINER_FIELD_QUOTA_EXP_TBYTES</option>
+			<option value="5">COM_NOKWEBDAV_CONTAINER_FIELD_QUOTA_EXP_PBYTES</option>
+			<option value="6">COM_NOKWEBDAV_CONTAINER_FIELD_QUOTA_EXP_EBYTES</option>
+		</field>
+
+		<field name="asset_id" type="hidden" filter="unset" />
+
+		<field name="createdby" type="text" label="COM_NOKWEBDAV_COMMON_FIELD_CREATEDBY_LABEL"
+			description="COM_NOKWEBDAV_COMMON_FIELD_CREATEDBY_DESC"
+			required="false"
+			readonly="true" />
+
+		<field name="createddate" type="calendar" label="COM_NOKWEBDAV_COMMON_FIELD_CREATEDDATE_LABEL"
+			description="COM_NOKWEBDAV_COMMON_FIELD_CREATEDDATE_DESC"
+			size="22"
+			format="%Y-%m-%d %H:%M:%S" filter="user_utc"
+			required="false"
+			readonly="true" />
+
+		<field name="modifiedby" type="text" label="COM_NOKWEBDAV_COMMON_FIELD_MODIFIEDBY_LABEL"
+			description="COM_NOKWEBDAV_COMMON_FIELD_MODIFIEDBY_DESC"
+			required="false"
+			readonly="true" />
+
+		<field name="modifieddate" type="calendar" label="COM_NOKWEBDAV_COMMON_FIELD_MODIFIEDDATE_LABEL"
+			description="COM_NOKWEBDAV_COMMON_FIELD_MODIFIEDDATE_DESC"
+			size="22"
+			format="%Y-%m-%d %H:%M:%S" filter="user_utc"
+			required="false"
+			readonly="true" />
+
+		<field name="rules" type="rules" label="JCONFIG_PERMISSIONS_LABEL"
+			description="JCONFIG_PERMISSIONS_DESC" validate="rules" filter="rules"
+			component="com_nokwebdav" section="container" />
+	</fieldset>
+</form>
