@@ -157,6 +157,8 @@ if ($item === false || !$item->published) {
 } else {
 //	JLog::add('Container "'.$containerName.'" found.', JLog::DEBUG);
 	$webdavHelper = '';
+	$access = getAccess($item->id);
+	$targetAccess = array();
 	switch($item->type) {
 		case 'files':
 //			JLog::add('Container contains files.', JLog::DEBUG);
@@ -168,9 +170,7 @@ if ($item === false || !$item->published) {
 			}
 //			JLog::add('Root dir: '.$baseDir, JLog::DEBUG);
 			$fileLocation = WebDAVHelper::joinDirAndFile($baseDir, $location);
-			$access = getAccess($item->id);
 			$targetFileLocation = '';
-			$targetAccess = array();
 			$quota = round($item->quotaValue*pow(1024, $item->quotaExp),0);
 //			JLog::add('quota: '.$quota, JLog::DEBUG);
 			if (isset($_SERVER["HTTP_DESTINATION"]) && !empty($_SERVER["HTTP_DESTINATION"])) {
@@ -191,6 +191,9 @@ if ($item === false || !$item->published) {
 				}
 			}
 			$webdavHelper = WebDAVHelper::getFilesInstance($access, $baseDir, $fileLocation, $targetAccess, $targetFileLocation, $uriLocation, $quota);
+			break;
+		case 'datas':
+			$webdavHelper = WebDAVHelper::getDatasInstance($item->id, $access, $targetAccess);
 			break;
 		default:
 			break;

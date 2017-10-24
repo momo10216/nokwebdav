@@ -20,8 +20,11 @@ JHtml::_('formbehavior.chosen', 'select');
 	<div class="row-fluid">
 		<div class="span12">
 			<div class="row-fluid form-horizontal-desktop">
-				<div class="span12">
+				<div class="span6">
 					<?php echo $this->form->renderField('name'); ?>
+				</div>
+				<div class="span6">
+					<?php echo $this->form->renderField('displayName'); ?>
 				</div>
 			</div>
 		</div>

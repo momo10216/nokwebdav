@@ -1,3 +1,53 @@
+CalDAV (Todo)
+=============
+
+BEGIN:VTODO
+UID:20070514T103211Z-123404@example.com
+DTSTAMP:20070514T103211Z
+DTSTART:20070514T110000Z
+DUE:20070709T130000Z
+COMPLETED:20070707T100000Z
+SUMMARY:Submit Revised Internet-Draft
+CLASS:CONFIDENTIAL
+CATEGORIES:FAMILY,FINANCEPRIORITY:1
+STATUS:NEEDS-ACTION
+END:VTODO
+
+https://www.kanzaki.com/docs/ical/
+
+Required:
+           dtstamp (DATE-TIME: instance created) / uid (globally unique identifier) /
+            ;
+            ; The following are OPTIONAL,
+            ; but MUST NOT occur more than once.
+            ;
+            class (TEXT:"PUBLIC" / "PRIVATE" / "CONFIDENTIAL") / completed (DATE-TIME) / created (DATE-TIME) / description (TEXT) /
+            dtstart (DATE-TIME / DATE) / geo (FLOAT;FLOAT) / last-modified (DATE-TIME) / location (TEXT) / organizer (CAL-ADDRESS) /
+            percent-complete (INTEGER) / priority (INTEGER) / recurrence-id (DATE-TIME / DATE) / sequence (INTEGER) /
+            status (TEXT:"NEEDS-ACTION" / "COMPLETED" / "IN-PROCESS" / "CANCELLED" ) / summary (TEXT) / url (TEXT) /
+            ;
+            ; The following is OPTIONAL,
+            ; but SHOULD NOT occur more than once.
+            ;
+            rrule (RECUR) /
+            ;
+            ; Either 'due' or 'duration' MAY appear in
+            ; a 'todoprop', but 'due' and 'duration'
+            ; MUST NOT occur in the same 'todoprop'.
+            ; If 'duration' appear in a 'todoprop',
+            ; then 'dtstart' MUST also appear in
+            ; the same 'todoprop'.
+            ;
+            due (DATE-TIME / DATE) / duration (DURATION) /
+            ;
+            ; The following are OPTIONAL,
+            ; and MAY occur more than once.
+            ;
+            attach (URI / BINARY) / attendee (CAL-ADDRESS) / categories (TEXT) / comment (TEXT) / contact (TEXT) /
+            exdate (DATE-TIME / DATE) / rstatus / related-to (TEXT) / resources (TEXT) / rdate (DATES / DATE-TIME / PERIOD) / x-prop / iana-prop
+
+http://sabre.io/dav/building-a-caldav-client/
+
 CalDAV
 ======
 https://de.wikipedia.org/wiki/CalDAV

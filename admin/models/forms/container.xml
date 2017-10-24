@@ -8,12 +8,14 @@
 		<field name="name" type="text" label="COM_NOKWEBDAV_CONTAINER_FIELD_NAME_LABEL"
 			description="COM_NOKWEBDAV_CONTAINER_FIELD_NAME_DESC" size="40" required="true" />
 
+		<field name="displayName" type="text" label="COM_NOKWEBDAV_CONTAINER_FIELD_DISPLAY_NAME_LABEL"
+			description="COM_NOKWEBDAV_CONTAINER_FIELD_DISPLAY_NAME_DESC" size="40" />
+
 		<field name="type" type="list" label="COM_NOKWEBDAV_CONTAINER_FIELD_TYPE_LABEL"
 			description="COM_NOKWEBDAV_CONTAINER_FIELD_TYPE_DESC"
 			default="files">
 			<option value="files">COM_NOKWEBDAV_CONTAINER_FIELD_TYPE_FILES</option>
-			<option value="contacts">COM_NOKWEBDAV_CONTAINER_FIELD_TYPE_CONTACTS</option>
-			<option value="events">COM_NOKWEBDAV_CONTAINER_FIELD_TYPE_EVENTS</option>
+			<option value="datas">COM_NOKWEBDAV_CONTAINER_FIELD_TYPE_DATAS</option>
 		</field>
 
 		<field name="filepath" type="text" label="COM_NOKWEBDAV_CONTAINER_FIELD_FILEPATH_LABEL"
