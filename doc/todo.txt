@@ -3,6 +3,10 @@ ToDo
 Create .htaccess from admin view
 ORDERPATCH: Implementation
 DAV: ordered-collections
+Web-UI for files
+Web-UI for calendar
+Web-UI for contacts
+Web-UI for todos
 
 In Progress
 ===========
