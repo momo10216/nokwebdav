@@ -47,6 +47,7 @@ Required:
             exdate (DATE-TIME / DATE) / rstatus / related-to (TEXT) / resources (TEXT) / rdate (DATES / DATE-TIME / PERIOD) / x-prop / iana-prop
 
 http://sabre.io/dav/building-a-caldav-client/
+http://calcurse.org/
 
 CalDAV
 ======
