@@ -1,5 +1,9 @@
 ToDo
 ====
+REPORT CalDAV / CardDAV
+GET CalDAV / CardDAV
+PUT CalDAV / CardDAV
+DELETE CalDAV / CardDAV
 Create .htaccess from admin view
 ORDERPATCH: Implementation
 DAV: ordered-collections
@@ -10,9 +14,8 @@ Web-UI for todos
 
 In Progress
 ===========
-CardDAV
-CalDAV (Todo)
-CalDAV (Calendar)
+PROPFIND CalDAV / CardDAV
+
 
 Done
 ====
