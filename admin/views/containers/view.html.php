@@ -25,7 +25,7 @@ class NoKWebDAVViewContainers extends JViewLegacy {
 	 * @return void
 	 */
 	function display($tpl = null)  {
-		NoKWebDAVHelper::addSidebar('containers');
+		NoKWebDAVHelper::addSubmenu('containers');
 		// Get data from the model
 		$this->items = $this->get('Items');
 		$this->pagination = $this->get('Pagination');
