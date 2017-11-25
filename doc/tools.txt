@@ -1,0 +1,5 @@
+cadaver		WebDAV client for Linux (command line)
+Nautilus	WebDAV (file) for Linux (GUI)
+Explorer	WebDAV (file) for Windows (GUI)
+
+calcurse	CalDAV client for Linux (command Line)

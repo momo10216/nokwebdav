@@ -36,3 +36,4 @@ class NoKWebDAVViewContainers extends JViewLegacy {
 		parent::display($tpl);
     }
 }
+?>
