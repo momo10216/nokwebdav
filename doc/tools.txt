@@ -1,5 +1,13 @@
+Files
+=====
 cadaver		WebDAV client for Linux (command line)
 Nautilus	WebDAV (file) for Linux (GUI)
 Explorer	WebDAV (file) for Windows (GUI)
 
-calcurse	CalDAV client for Linux (command Line)
+Contacts/Calendar/Todo
+======================
+Evolution	CardDAV/CalDAV client for Linux (GUI)
+Thunderbird	CardDAV/CalDAV client for Linux/Windows (GUI) (Mozilla Lightning & Mozilla Sunbird)
+Outlook		CardDAV/CalDAV client for Windows (GUI)
+
+
