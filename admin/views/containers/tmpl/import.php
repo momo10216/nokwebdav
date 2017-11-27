@@ -3,14 +3,14 @@
 * @version	$Id$
 * @package	Joomla
 * @subpackage	NoKWebDAV
-* @copyright	Copyright (c) 2017 Norbert Kümin. All rights reserved.
+* @copyright	Copyright (c) 2017 Norbert Kuemin. All rights reserved.
 * @license	http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE
 * @author	Norbert Kuemin
 * @authorEmail	momo_102@bluemail.ch
 */
 
-// No direct access to this file
-defined('_JEXEC') or die('Restricted Access');
+// Check to ensure this file is included in Joomla!
+defined('_JEXEC') or die('Restricted access');
 
 // load tooltip behavior
 JHtml::_('behavior.tooltip');

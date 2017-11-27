@@ -3,7 +3,7 @@
 * @version	$Id$
 * @package	Joomla
 * @subpackage	NoKWebDAV
-* @copyright	Copyright (c) 2017 Norbert Kümin. All rights reserved.
+* @copyright	Copyright (c) 2017 Norbert Kuemin. All rights reserved.
 * @license	http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE
 * @author	Norbert Kuemin
 * @authorEmail	momo_102@bluemail.ch
@@ -13,7 +13,7 @@
 More Info http://php.net/manual/en/book.simplexml.php
 */
 
-// No direct access
+// Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
  
 class ExImportHelper {
