@@ -79,36 +79,35 @@ class WebDAVHelperPlugin {
 	}
 
 	public function handleCommand($command) {
-		$dir = JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/datas';
 		switch($command) {
 			case 'GET':
 			case 'HEAD':
-				JLoader::register('WebDAVHelperPluginCommand', $dir.'/get.php', true);
+//				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/datas/get.php', true);
 				return WebDAVHelperPluginCommand::execute($this->_sourceFileLocation, $this->_uriLocation, $command);
 			case 'OPTIONS':
-				JLoader::register('WebDAVHelperPluginCommand', $dir.'/options.php', true);
+				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/datas/options.php', true);
 				return WebDAVHelperPluginCommand::execute(self::$_allowedCommands);
 			case 'PROPFIND':
-				JLoader::register('WebDAVHelperPluginCommand', $dir.'/propfind.php', true);
+//				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/datas/propfind.php', true);
 				return WebDAVHelperPluginCommand::execute($this->_uriLocation, $this->_quota, $this->getSize($this->_rootLocation));
 			case 'DELETE':
-				JLoader::register('WebDAVHelperPluginCommand', $dir.'/delete.php', true);
+//				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/datas/delete.php', true);
 				return WebDAVHelperPluginCommand::execute($this->_sourceFileLocation);
 			case 'PUT':
-				JLoader::register('WebDAVHelperPluginCommand', $dir.'/put.php', true);
+//				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/datas/put.php', true);
 				return WebDAVHelperPluginCommand::execute($this->_sourceFileLocation, $this->_rootLocation, $this->_quota);
 			case 'COPY':
 			case 'MOVE':
-				JLoader::register('WebDAVHelperPluginCommand', $dir.'/copymove.php', true);
+//				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/datas/copymove.php', true);
 				return WebDAVHelperPluginCommand::execute($this->_sourceFileLocation, $this->_targetFileLocation, $this->_rootLocation, $this->_quota, $command);
 			case 'PROPPATCH':
-				JLoader::register('WebDAVHelperPluginCommand', $dir.'/proppatch.php', true);
+//				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/datas/proppatch.php', true);
 				return WebDAVHelperPluginCommand::execute($this->_sourceFileLocation, $this->_uriLocation);
 			case 'REPORT':
-				JLoader::register('WebDAVHelperPluginCommand', $dir.'/report.php', true);
+//				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/datas/report.php', true);
 				return WebDAVHelperPluginCommand::execute($this->_sourceFileLocation, $this->_uriLocation);
 			case 'ACL':
-				JLoader::register('WebDAVHelperPluginCommand', $dir.'/acl.php', true);
+//				JLoader::register('WebDAVHelperPluginCommand', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav/datas/acl.php', true);
 				return WebDAVHelperPluginCommand::execute($this->_sourceFileLocation, $this->_uriLocation);
 			default:
 				// Unsupported command
