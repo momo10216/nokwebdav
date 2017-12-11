@@ -15,8 +15,7 @@ defined('_JEXEC') or die('Restricted access');
 function decodeType($type) {
 	switch($type) {
 		case 'files': return JText::_('COM_NOKWEBDAV_CONTAINER_FIELD_TYPE_FILES');
-		case 'contacts': return JText::_('COM_NOKWEBDAV_CONTAINER_FIELD_TYPE_CONTACTS');
-		case 'events': return JText::_('COM_NOKWEBDAV_CONTAINER_FIELD_TYPE_EVENTS');
+		case 'datas': return JText::_('COM_NOKWEBDAV_CONTAINER_FIELD_TYPE_DATAS');
 		default: return $type;
 	}
 }
@@ -33,7 +32,7 @@ $user = JFactory::getUser();
 if (!empty($this->paramsMenuEntry->get('pretext'))) { echo $this->paramsMenuEntry->get('pretext'); }
 echo '<table border="1" style="border-style:solid; border-width:1px">'.$EOL;
 echo $TAB.'<tr>';
-echo '<th>'.JText::_('COM_NOKWEBDAV_CONTAINER_FIELD_NAME_LABEL').'</th>';
+echo '<th>'.JText::_('COM_NOKWEBDAV_CONTAINER_FIELD_DISPLAY_NAME_LABEL').'</th>';
 echo '<th>'.JText::_('COM_NOKWEBDAV_CONTAINER_FIELD_TYPE_LABEL').'</th>';
 echo '<th>'.JText::_('COM_NOKWEBDAV_CONTAINER_FIELD_URL_LABEL').'</th>';
 if ($this->paramsMenuEntry->get('show_access') == '1') {
@@ -53,7 +52,7 @@ if ($this->items) {
 			$user->authorise('content.delete', 'com_nokwebdav.container.'.$item->id);
 		if ($hasAccess) {
 			echo $TAB.'<tr>';
-			echo '<td>'.$item->name.'</td>';
+			echo '<td>'.$item->displayName.'</td>';
 			echo '<td>'.decodeType($item->type).'</td>';
 			$url = explode('index.php',(isset($_SERVER['HTTPS']) ? "https" : "http").'://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'])[0];
 			$url .= 'components/com_nokwebdav/connector.php/'.$item->name.'/';
