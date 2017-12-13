@@ -132,9 +132,9 @@ JLog::addLogger(
 		'text_file_path' => '../../tmp/',
 		'text_entry_format' => '{DATETIME} {PRIORITY} {MESSAGE}'
 	),
-//	JLog::ERROR | JLog::DEBUG
+	JLog::ERROR | JLog::DEBUG
 //	JLog::ALL
-	JLog::ERROR
+//	JLog::ERROR
 );
 ini_set("log_errors", 1);
 ini_set("error_log", JPATH_BASE.'/tmp/nokwebdav.log');
