@@ -31,6 +31,7 @@ class NoKWebDAVModelContainers extends JModelList {
 			$config['filter_fields'] = array(
 				'id', 'c.id',
 				'name', 'c.name',
+				'displayName', 'c.displayName',
 				'type', 'c.type',
 				'filepath', 'c.filepath',
 				'published', 'c.published',
@@ -69,7 +70,7 @@ class NoKWebDAVModelContainers extends JModelList {
 		$query = $db->getQuery(true);
 		// Select some fields from the hello table
 		$query
-			->select($db->quoteName(array('c.id', 'c.name', 'c.type', 'c.filepath', 'c.published', 'c.quotaValue', 'c.quotaExp')))
+			->select($db->quoteName(array('c.id', 'c.name', 'c.displayName', 'c.type', 'c.filepath', 'c.published', 'c.quotaValue', 'c.quotaExp')))
 			->from($db->quoteName($this->tableName,$this->tableAlias));
 		// special filtering (houshold, excludeid).
 		$whereExtList = array();
@@ -86,7 +87,7 @@ class NoKWebDAVModelContainers extends JModelList {
 				$query->where('c.id = ' . (int) substr($search, 3).$whereExt);
 			} else {
 				$search = $db->quote('%' . $db->escape($search, true) . '%');
-				$query->where('(c.name LIKE ' . $search . ' OR c.filepath LIKE ' . $search . ')'.$whereExt);
+				$query->where('(c.name LIKE ' . $search . ' OR c.filepath LIKE ' . $search . ' OR c.displayName LIKE ' . $search . ')'.$whereExt);
 			}
 		} else {
 			if (!empty($whereExt)) {
@@ -113,6 +114,7 @@ class NoKWebDAVModelContainers extends JModelList {
         public function getFieldMapping() {
 		return array (
 			'name'=>'c.name',
+			'displayName'=>'c.displayName',
 			'type'=>'c.type',
 			'filepath'=>'c.filepath',
 			'published'=>'c.published',

@@ -25,6 +25,7 @@ class NoKWebDAVModelContainers extends JModelList {
 		return array (
 			'id' => array(JText::_('COM_NOKWEBDAV_COMMON_FIELD_ID_LABEL',true),'`id`'),
 			'name' => array(JText::_('COM_NOKWEBDAV_CONTAINER_FIELD_NAME_LABEL',true),'`name`'),
+			'displayName' => array(JText::_('COM_NOKWEBDAV_CONTAINER_FIELD_DISPLAY_NAME_LABEL',true),'`displayName`'),
 			'type' => array(JText::_('COM_NOKWEBDAV_CONTAINER_FIELD_TYPE_LABEL',true),'`type`'),
 			'filepath' => array(JText::_('COM_NOKWEBDAV_CONTAINER_FIELD_FILEPATH_LABEL',true),'`filepath`'),
 			'published' => array(JText::_('COM_NOKWEBDAV_COMMON_FIELD_PUBLISHED_LABEL',true),'`published`'),

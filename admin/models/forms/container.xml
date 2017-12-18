@@ -19,7 +19,7 @@
 		</field>
 
 		<field name="filepath" type="text" label="COM_NOKWEBDAV_CONTAINER_FIELD_FILEPATH_LABEL"
-			description="COM_NOKWEBDAV_CONTAINER_FIELD_FILEPATH_DESC" size="40" required="true" />
+			description="COM_NOKWEBDAV_CONTAINER_FIELD_FILEPATH_DESC" size="40" />
 
 		<field name="published" type="list" label="COM_NOKWEBDAV_CONTAINER_FIELD_PUBLISHED_LABEL"
 			description="COM_NOKWEBDAV_CONTAINER_FIELD_PUBLISHED_DESC"
