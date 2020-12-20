@@ -185,7 +185,9 @@ class WebDAVHelperPlugin {
 		$fileinfo['html_ref'] = htmlspecialchars($link,ENT_XML1,'UTF-8');
 		$fileinfo['type'] = self::getFileType($filenameWithPath);
 		$fileinfo['mime_type'] = self::_getMimeType($filenameWithPath);
-		$fileinfo['etag'] = md5_file($filenameWithPath);
+		if ($fileinfo['type'] != 'directory') {
+			$fileinfo['etag'] = md5_file($filenameWithPath);
+		}
 		$fileinfo['ctime'] = filectime($filenameWithPath);
 		$fileinfo['mtime'] = filemtime($filenameWithPath);
 		$fileinfo['size'] = filesize($filenameWithPath);
@@ -222,6 +224,7 @@ class WebDAVHelperPlugin {
 			}
 			return $total_size+filesize($path);
 		} else {
+			if (!file_exists($path)) { return 0; }
 			return filesize($path);
 		}
 	}

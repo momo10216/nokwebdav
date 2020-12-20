@@ -33,6 +33,8 @@ class WebDAVHelper {
 	public static $HTTP_STATUS_ERROR_NOT_IMPLEMENTED = '501';
 	public static $HTTP_STATUS_ERROR_INSUFFICIENT_STORAGE = '507';
 	public static $DAV_SUPPORTED_PROTOCOLS = array('1','2');
+	public static $XML_EOL = "\n";
+	public static $XML_PREFIX = "\t";
 	private static $_http_status_text = array('200' => 'OK',
 		'201' => 'Created',
 		'202' => 'Accepted',
@@ -78,6 +80,7 @@ class WebDAVHelper {
 		'501' => 'Not Implemented',
 		'507' => 'Insufficient Storage'
 	);
+	private static $FORMAT_XML = true;
 	private $_type;
 	private $_plugin;
 
@@ -264,6 +267,18 @@ class WebDAVHelper {
 		global $_SERVER;
 		$uuid = md5(microtime().$_SERVER['SERVER_NAME'].getmypid());
 		return substr($uuid, 0, 8)."-".substr($uuid,  8, 4)."-".substr($uuid, 12, 4)."-".substr($uuid, 16, 4)."-".substr($uuid, 20);
+	}
+
+	public static function xmlPreamble($encoding='UTF-8', $version='1.0') {
+		return '<?xml version="'.$version.'" encoding="'.$encoding.'"?>'.self::$XML_EOL;
+	}
+
+	public static function xmlFormat($text, $depth=0) {
+		if (self::$FORMAT_XML === false) { return $text; }
+		$retval = '';
+		if ($depth > 0) { $retval = str_repeat(self::$XML_PREFIX, $depth); }
+		$retval .= $text.self::$XML_EOL;
+		return $retval;
 	}
 
 	private static function _useCommandPlugin($command) {

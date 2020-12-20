@@ -13,9 +13,6 @@
 defined('_JEXEC') or die('Restricted access');
  
 class WebDAVHelperPluginCommand {
-	private static $EOL = "\n";
-	private static $PREFIX = "\t";
-
 	public static function execute($directory, $uriLocation, $quota, $usedSize) {
 		$directory = rtrim($directory,"/");
 		$propertiesRequested = self::_parseInfo();
@@ -74,18 +71,18 @@ class WebDAVHelperPluginCommand {
 	private static function _generateAnswer($directory, $uriLocation, $propertiesRequested, $quota, $usedSize) {
 		$status = WebDAVHelper::$HTTP_STATUS_OK_MULTI_STATUS;
 		$header = array('Content-Type: text/xml; charset="utf-8"');
-		$content = '<?xml version="1.0" encoding="utf-8"?>'.self::$EOL;
+		$content = WebDAVHelper::xmlPreamble();
 		$depth = WebDAVHelperPlugin::getDepth();
 		WebDAVHelper::debugAddMessage('Location: '.$directory);
 //		WebDAVHelper::debugAddMessage('Quota: '.$quota);
-		$content .= '<d:multistatus xmlns:d="DAV:">'.self::$EOL;
+		$content .= WebDAVHelper::xmlFormat('<d:multistatus xmlns:d="DAV:">');
 		$filetype = WebDAVHelperPlugin::getFileType($directory);
 		if ($filetype == 'file') { $depth = '0'; }
 		WebDAVHelper::debugAddMessage('Depth: '.$depth);
 		if ($filetype == 'unknown') { return array(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND, array(), '', ''); }
 		$dirEntries = WebDAVHelperPlugin::getDirectoryList($directory, $uriLocation, $depth, 0);
 		$content .= self::_getDirectoryInfo($directory, $uriLocation, $propertiesRequested, $dirEntries, $quota, $usedSize);
-		$content .= '</d:multistatus>';
+		$content .= WebDAVHelper::xmlFormat('</d:multistatus>');
 		return array($status, $header, $content, '');
 	}
 
@@ -100,7 +97,7 @@ class WebDAVHelperPluginCommand {
 				$content .= self::_getResponse($directory, $dirEntries[0], $propertiesRequested, WebDAVHelper::$HTTP_STATUS_OK, $quota, $usedSize);
 			}
 		}
-		if (empty($content)) { $content .= self::$PREFIX.'<d:response />'.self::$EOL; }
+		if (empty($content)) { $content .= WebDAVHelper::xmlFormat('<d:response />',1); }
 		return $content;
 	}
 
@@ -108,72 +105,73 @@ class WebDAVHelperPluginCommand {
 		$href = $dirEntry['html_ref'];
 		if (strpos($href,'%')) { $href = rawurldecode($href); }
 		$content = '';
-		$content .= self::$PREFIX.'<d:response>'.self::$EOL;
-		$content .= self::$PREFIX.self::$PREFIX.'<d:href>'.$href.'</d:href>'.self::$EOL;
-		$content .= self::_getProperties($filename, $dirEntry, $propertiesRequested, self::$PREFIX.self::$PREFIX, $status, $quota, $usedSize);
-		$content .= self::$PREFIX.'</d:response>'.self::$EOL;
+		$content .= WebDAVHelper::xmlFormat('<d:response>',1);
+		$content .= WebDAVHelper::xmlFormat('<d:href>'.$href.'</d:href>',2);
+		$content .= self::_getProperties($filename, $dirEntry, $propertiesRequested, $status, $quota, $usedSize);
+		$content .= WebDAVHelper::xmlFormat('</d:response>',1);
 		return $content;
 	}
 
-	private static function _getProperties($filename, $dirEntry, $propertiesRequested, $prefix, $status, $quota, $usedSize) {
+	private static function _getProperties($filename, $dirEntry, $propertiesRequested, $status, $quota, $usedSize) {
 		$datens =  'xmlns:b="urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882" b:dt="dateTime.rfc1123"';
-		$content = $prefix.'<d:propstat>'.self::$EOL;
-		$content .= $prefix.self::$PREFIX.'<d:prop>'.self::$EOL;
+		$content = WebDAVHelper::xmlFormat('<d:propstat>', 2);
+		$content .= WebDAVHelper::xmlFormat('<d:prop>', 3);
 		$unknowns = array();
 		foreach ($propertiesRequested as $propertyRequested) {
 			switch($propertyRequested) {
 				case 'displayname':
-					$content .= $prefix.self::$PREFIX.self::$PREFIX.'<d:displayname>'.$dirEntry['html_name'].'</d:displayname>'.self::$EOL;
+					$content .= WebDAVHelper::xmlFormat('<d:displayname>'.$dirEntry['html_name'].'</d:displayname>', 4);
 					break;
 				case 'getcontentlength':
-					$content .= $prefix.self::$PREFIX.self::$PREFIX.'<d:getcontentlength>'.$dirEntry['size'].'</d:getcontentlength>'.self::$EOL;
+					$content .= WebDAVHelper::xmlFormat('<d:getcontentlength>'.$dirEntry['size'].'</d:getcontentlength>', 4);
 					break;
 				case 'getcontenttype':
-					$content .= $prefix.self::$PREFIX.self::$PREFIX.'<d:getcontenttype>'.$dirEntry['mime_type'].'</d:getcontenttype>'.self::$EOL;
+					$content .= WebDAVHelper::xmlFormat('<d:getcontenttype>'.$dirEntry['mime_type'].'</d:getcontenttype>', 4);
 					break;
 				case 'resourcetype':
 					if ($dirEntry['type'] == 'directory') {
-						$content .= $prefix.self::$PREFIX.self::$PREFIX.'<d:resourcetype><d:collection /></d:resourcetype>'.self::$EOL;
+						$content .= WebDAVHelper::xmlFormat('<d:resourcetype><d:collection /></d:resourcetype>', 4);
 					} else {
-						$content .= $prefix.self::$PREFIX.self::$PREFIX.'<d:resourcetype />'.self::$EOL;
+						$content .= WebDAVHelper::xmlFormat('<d:resourcetype />', 4);
 					}
 					break;
 				case 'executable':
 					if ($dirEntry['executable'] == '1') {
-						$content .= $prefix.self::$PREFIX.self::$PREFIX.'<d:executable />'.self::$EOL;
+						$content .= WebDAVHelper::xmlFormat('<d:executable />', 4);
 					}
 					break;
 				case 'creationdate':
-					$content .= $prefix.self::$PREFIX.self::$PREFIX.'<d:creationdate '.$datens.'>'.gmdate('D, d M Y H:i:s', $dirEntry['ctime']).' GMT</d:creationdate>'.self::$EOL;
-					break;
-				case 'getlastmodified':
-					$content .= $prefix.self::$PREFIX.self::$PREFIX.'<d:getlastmodified '.$datens.'>'.gmdate('D, d M Y H:i:s', $dirEntry['mtime']).' GMT</d:getlastmodified>'.self::$EOL;
+					$content .= WebDAVHelper::xmlFormat('<d:creationdate '.$datens.'>'.gmdate('D, d M Y H:i:s', $dirEntry['ctime']).' GMT</d:creationdate>', 4);
 					break;
 				case 'getetag':
-					$content .= $prefix.self::$PREFIX.self::$PREFIX.'<d:getetag>'.$dirEntry['etag'].'</d:getetag>'.self::$EOL;
+					if (isset($dirEntry['etag'])) {
+						$content .= WebDAVHelper::xmlFormat('<d:getetag>'.$dirEntry['etag'].'</d:getetag>', 4);
+					} else {
+						$content .= WebDAVHelper::xmlFormat('<d:getetag />', 4);
+					}
 					break;
 				case 'supportedlock':
 //					if ($dirEntry['type'] == 'directory') {
-//						$content .= $prefix.self::$PREFIX.self::$PREFIX.'<d:supportedlock />'.self::$EOL;
+//						$content .= WebDAVHelper::xmlFormat('<d:supportedlock />', 4);
 //					} else {
-						$content .= $prefix.self::$PREFIX.self::$PREFIX.'<d:supportedlock>'.self::$EOL;
-						$content .= $prefix.self::$PREFIX.self::$PREFIX.self::$PREFIX.'<d:lockentry>'.self::$EOL;
-						$content .= $prefix.self::$PREFIX.self::$PREFIX.self::$PREFIX.self::$PREFIX.'<d:lockscope><d:exclusive /></d:lockscope>'.self::$EOL;
-						$content .= $prefix.self::$PREFIX.self::$PREFIX.self::$PREFIX.self::$PREFIX.'<d:locktype><d:write /></d:locktype>'.self::$EOL;
-						$content .= $prefix.self::$PREFIX.self::$PREFIX.self::$PREFIX.'</d:lockentry>'.self::$EOL;
-						$content .= $prefix.self::$PREFIX.self::$PREFIX.self::$PREFIX.'<d:lockentry>'.self::$EOL;
-						$content .= $prefix.self::$PREFIX.self::$PREFIX.self::$PREFIX.self::$PREFIX.'<d:lockscope><d:shared /></d:lockscope>'.self::$EOL;
-						$content .= $prefix.self::$PREFIX.self::$PREFIX.self::$PREFIX.self::$PREFIX.'<d:locktype><d:write /></d:locktype>'.self::$EOL;
-						$content .= $prefix.self::$PREFIX.self::$PREFIX.self::$PREFIX.'</d:lockentry>'.self::$EOL;
-						$content .= $prefix.self::$PREFIX.self::$PREFIX.'</d:supportedlock>'.self::$EOL;
+						$content .= WebDAVHelper::xmlFormat('<d:supportedlock>', 4);
+						$content .= WebDAVHelper::xmlFormat('<d:lockentry>', 5);
+						$content .= WebDAVHelper::xmlFormat('<d:lockscope><d:exclusive /></d:lockscope>', 6);
+						$content .= WebDAVHelper::xmlFormat('<d:locktype><d:write /></d:locktype>', 6);
+						$content .= WebDAVHelper::xmlFormat('</d:lockentry>', 5);
+						$content .= WebDAVHelper::xmlFormat('<d:lockentry>', 5);
+						$content .= WebDAVHelper::xmlFormat('<d:lockscope><d:shared /></d:lockscope>', 6);
+						$content .= WebDAVHelper::xmlFormat('<d:locktype><d:write /></d:locktype>', 6);
+						$content .= WebDAVHelper::xmlFormat('</d:lockentry>', 5);
+						$content .= WebDAVHelper::xmlFormat('</d:supportedlock>', 4);
 //					}
 					break;
 				case 'quota-used-bytes':
-					$content .= $prefix.self::$PREFIX.self::$PREFIX.'<d:quota-used-bytes>'.$usedSize.'</d:quota-used-bytes>'.self::$EOL;
+					$content .= WebDAVHelper::xmlFormat('<d:quota-used-bytes>'.$usedSize.'</d:quota-used-bytes>', 4);
 					break;
 				case 'quota-available-bytes':
 					if (!empty($quota) && ($quota > 0)) {
-						$content .= $prefix.self::$PREFIX.self::$PREFIX.'<d:quota-available-bytes>'.$quota.'</d:quota-available-bytes>'.self::$EOL;
+						$content .= WebDAVHelper::xmlFormat('<d:quota-available-bytes>'.$quota.'</d:quota-available-bytes>', 4);
 					} else {
 						$unknowns[] = 'quota-available-bytes';
 					}
@@ -186,27 +184,27 @@ class WebDAVHelperPluginCommand {
 						$unknowns[] = $propertyRequested;
 					} else {
 						if (!empty($ns && $ns != 'DAV:')) {
-							$content .= $prefix.self::$PREFIX.self::$PREFIX.'<b:'.$propertyRequested.' xmlns:b="'.$ns.'">'.$value.'</b:'.$propertyRequested.'>'.self::$EOL;
+							$content .= WebDAVHelper::xmlFormat('<b:'.$propertyRequested.' xmlns:b="'.$ns.'">'.$value.'</b:'.$propertyRequested.'>', 4);
 						} else {
-							$content .= $prefix.self::$PREFIX.self::$PREFIX.'<d:'.$propertyRequested.'>'.$value.'</d:'.$propertyRequested.'>'.self::$EOL;
+							$content .= WebDAVHelper::xmlFormat('<d:'.$propertyRequested.'>'.$value.'</d:'.$propertyRequested.'>', 4);
 						}
 					}
 					break;
 			}
 		}
-		$content .= $prefix.self::$PREFIX.'</d:prop>'.self::$EOL;
-		$content .= $prefix.self::$PREFIX.'<d:status>HTTP/1.1 '.WebDAVHelper::getStatus($status).'</d:status>'.self::$EOL;
-		$content .= $prefix.'</d:propstat>'.self::$EOL;
+		$content .= WebDAVHelper::xmlFormat('</d:prop>', 3);
+		$content .= WebDAVHelper::xmlFormat('<d:status>HTTP/1.1 '.WebDAVHelper::getStatus($status).'</d:status>', 3);
+		$content .= WebDAVHelper::xmlFormat('</d:propstat>', 2);
 		if (count($unknowns) > 0) {
-			$content .= $prefix.'<d:propstat>'.self::$EOL;
-			$content .= $prefix.self::$PREFIX.'<d:prop>'.self::$EOL;
-			$content .= $prefix.self::$PREFIX.self::$PREFIX.'<executable xmlns="http://apache.org/dav/props/" />'.self::$EOL;
+			$content .= WebDAVHelper::xmlFormat('<d:propstat>', 2);
+			$content .= WebDAVHelper::xmlFormat('<d:prop>', 3);
+			$content .= WebDAVHelper::xmlFormat('<executable xmlns="http://apache.org/dav/props/" />', 4);
 			foreach ($unknowns as $unknown) {
-				$content .= $prefix.self::$PREFIX.self::$PREFIX.'<d:'.$unknown.' />'.self::$EOL;
+				$content .= WebDAVHelper::xmlFormat('<d:'.$unknown.' />', 4);
 			}
-			$content .= $prefix.self::$PREFIX.'</d:prop>'.self::$EOL;
-			$content .= $prefix.self::$PREFIX.'<d:status>HTTP/1.1 404 Not Found</d:status>'.self::$EOL;
-			$content .= $prefix.'</d:propstat>'.self::$EOL;
+			$content .= WebDAVHelper::xmlFormat('</d:prop>', 3);
+			$content .= WebDAVHelper::xmlFormat('<d:status>HTTP/1.1 404 Not Found</d:status>', 3);
+			$content .= WebDAVHelper::xmlFormat('</d:propstat>', 2);
 		}
 		return $content;
 	}
