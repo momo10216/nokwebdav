@@ -13,8 +13,6 @@
 defined('_JEXEC') or die('Restricted access');
  
 class WebDAVHelperPluginCommand {
-	private static $EOL = "\n";
-
 	public static function execute($resourceLocation, $uriLocation) {
 		$properties = self::_parseInfo();
 		if ($properties === false) { return array(WebDAVHelper::$HTTP_STATUS_ERROR_BAD_REQUEST, array(), ''); }
@@ -119,36 +117,36 @@ class WebDAVHelperPluginCommand {
 	private static function _generateAnswer($uriLocation, $properties, $propstatus) {
 		$status = WebDAVHelper::$HTTP_STATUS_OK_MULTI_STATUS;
 		$header = array('Content-Type: text/xml; charset="utf-8"');
-		$content = '<?xml version="1.0" encoding="utf-8"?>'.self::$EOL;
-		$content .= '<d:multistatus xmlns:d="DAV:">'.self::$EOL;
+		$content = WebDAVHelper::xmlPreamble();
+		$content .= WebDAVHelper::xmlFormat('<d:multistatus xmlns:d="DAV:">');
 		$content .= self::_getResponse($uriLocation, $properties, $propstatus);
-		$content .= '</d:multistatus>'.self::$EOL;
+		$content .= WebDAVHelper::xmlFormat('</d:multistatus>');
 		return array($status, $header, $content, '');
 	}
 
 	private static function _getResponse($uriLocation, $properties, $propstatus) {
 		$content = '';
-		$content .= '	<d:response>'.self::$EOL;
-		$content .= '		<d:href>'.$uriLocation.'</d:href>'.self::$EOL;
-		$content .= self::_getProperties($properties, $propstatus, "\t\t");
-		$content .= '	</d:response>'.self::$EOL;
+		$content .= WebDAVHelper::xmlFormat('<d:response>',1);
+		$content .= WebDAVHelper::xmlFormat('<d:href>'.$uriLocation.'</d:href>',2);
+		$content .= self::_getProperties($properties, $propstatus, 2);
+		$content .= WebDAVHelper::xmlFormat('</d:response>',1);
 		return $content;
 	}
 
-	private static function _getProperties($properties, $propstatus, $prefix) {
-		$content = $prefix.'<d:propstat>'.self::$EOL;
-		$content .= $prefix.'	<d:prop>'.self::$EOL;
+	private static function _getProperties($properties, $propstatus, $depth) {
+		$content = WebDAVHelper::xmlFormat('<d:propstat>',$depth);
+		$content .= WebDAVHelper::xmlFormat('<d:prop>',$depth+1);
 		$unknowns = array();
 		foreach ($properties as $propName => $propData) {
 			if (isset($propData['ns']) && !empty($propData['ns'] && $propData['ns'] != 'DAV:')) {
-				$content .= $prefix.'		<b:'.$propName.' xmlns:b="'.$propData['ns'].'" />'.self::$EOL;
+				$content .= WebDAVHelper::xmlFormat('<b:'.$propName.' xmlns:b="'.$propData['ns'].'" />',$depth+2);
 			} else {
-				$content .= $prefix.'		<d:'.$propName.' />'.self::$EOL;
+				$content .= WebDAVHelper::xmlFormat('<d:'.$propName.' />',$depth+2);
 			}
 		}
-		$content .= $prefix.'	</d:prop>'.self::$EOL;
-		$content .= $prefix.'	<d:status>HTTP/1.1 '.$propstatus.'</d:status>'.self::$EOL;
-		$content .= $prefix.'</d:propstat>'.self::$EOL;
+		$content .= WebDAVHelper::xmlFormat('</d:prop>',$depth+1);
+		$content .= WebDAVHelper::xmlFormat('<d:status>HTTP/1.1 '.$propstatus.'</d:status>',$depth+1);
+		$content .= WebDAVHelper::xmlFormat('</d:propstat>',$depth);
 		return $content;
 	}
 }
