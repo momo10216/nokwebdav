@@ -1,0 +1,35 @@
+.filelist {
+	width: 100%;
+}
+
+.icon {
+	height: 1em;
+}
+
+.col-checkbox {
+	width: 1%;
+}
+
+.col-icon {
+	width: 2em;
+	text-align: right;
+}
+
+.col-name {
+	text-align: left;
+}
+
+.col-mtime {
+	width: 6em;
+	text-align: left;
+}
+
+.col-size {
+	width: 3em;
+	text-align: right;
+}
+
+.col-action {
+	width: 3em;
+	text-align: right;
+}

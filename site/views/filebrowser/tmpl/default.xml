@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<layout title="COM_NOKWEBDAV_FILE_BROWSER_VIEW_LIST_LAYOUT_TITLE">
+		<message><![CDATA[COM_NOKWEBDAV_FILE_BROWSER_VIEW_LIST_LAYOUT_DESC]]></message>
+	</layout>
+	<fields name="request">
+		<!-- Request options -->
+		<fieldset name="request" addfieldpath="/administrator/components/com_nokwebdav/models/fields">
+			<field
+				name="id"
+				type="containerlist"
+				multiple="false"
+				davtype="files"
+				required="true"
+				label="COM_NOKWEBDAV_CONTAINER_LABEL"
+				description="COM_NOKWEBDAV_CONTAINER_DESC"
+			/>
+		</fieldset>
+	</fields>
+</metadata>
