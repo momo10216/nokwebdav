@@ -35,7 +35,9 @@ function displayContainerInfo($view) {
 displayContainerInfo($this);
 $task = JRequest::getVar('task');
 switch ($task) {
-	case 'save':
+	case 'delete':
+		$this->deleteFiles();
+		echo $this->loadTemplate('list');
 		break;
 	case 'list':
 	default:

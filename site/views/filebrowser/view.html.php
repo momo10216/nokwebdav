@@ -21,7 +21,7 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 	protected $id;
 	protected $path;
 	protected $files = array();
-	protected $error = false;
+	protected $error = '';
         protected $dirRead = false;
 	protected $dirEntries = array();
         protected $separateFolderFiles = true;
@@ -54,12 +54,18 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 		// Set correct model
 		$this->item = $this->get('Item');
 
-		if ($this->error) {
-			$app->redirect('index.php', 400);
-		} else {
-			// Init document
-			JFactory::getDocument()->setMetaData('robots', 'noindex, nofollow');
-			parent::display($tpl);
+		switch($this->error) {
+			case 'sanitize':
+				$app->redirect('index.php', 400);
+				break;
+			case 'delete':
+				$app->redirect('index.php', 200);
+				break;
+			default:
+				// Init document
+				JFactory::getDocument()->setMetaData('robots', 'noindex, nofollow');
+				parent::display($tpl);
+				break;
 		}
 	}
 
@@ -98,6 +104,27 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 		return '<a href="'.$uriList->toString().'">'.$text.'</a>';
 	}
 
+	function deleteFiles() {
+		$this->dirRead = false;
+		$path = $this->_getFullPath();
+		foreach($this->files as $file) {
+			$fileWithPath = $path.'/'.$file;
+			if (is_dir($fileWithPath)) {
+				if (!rmdir($fileWithPath)) {
+					$app = JFactory::getApplication();
+					$app->enqueueMessage(JText::_('COM_NOKWEBDAV_DELETE_ERROR'), 'error');
+					$this->error = 'delete';
+				}
+			} else {
+				if (!unlink($fileWithPath)) {
+					$app = JFactory::getApplication();
+					$app->enqueueMessage(JText::_('COM_NOKWEBDAV_DELETE_ERROR'), 'error');
+					$this->error = 'delete';
+				}
+			}
+		}
+	}
+
 	function _sanitzeInput($value, $regexp, $notAllowedList=array()) {
 		if (preg_match('/'.$regexp.'/', $value) < 1) {
 			$this->_displaySanitizationError();
@@ -112,7 +139,7 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 	function _displaySanitizationError() {
 		$app = JFactory::getApplication();
 		$app->enqueueMessage(JText::_('COM_NOKWEBDAV_SANITIZE_ERROR'), 'error');
-		$this->error = true;
+		$this->error = 'sanitize';
 	}
 
 	function _readDir() {
