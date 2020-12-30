@@ -6,13 +6,14 @@ DAV: ordered-collections
 CardDAV
 CalDAV (Todo)
 CalDAV (Calendar)
-Web UI for Files
 Web UI for Contacts
 Web UI for Calendar
 Web UI for Todo
+Audit trail
 
 In Progress
 ===========
+Web UI for Files
 
 Done
 ====

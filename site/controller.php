@@ -35,6 +35,10 @@ class NoKWebDAVController extends JControllerLegacy {
 		$this->input->set('view', $vName);
 		$safeurlparams = array('catid' => 'INT', 'id' => 'INT', 'cid' => 'ARRAY', 'year' => 'INT', 'month' => 'INT', 'limit' => 'UINT', 'limitstart' => 'UINT',
 			'showall' => 'INT', 'return' => 'BASE64', 'filter' => 'STRING', 'filter_order' => 'CMD', 'filter_order_Dir' => 'CMD', 'filter-search' => 'STRING', 'print' => 'BOOLEAN', 'lang' => 'CMD');
+		// Set model
+		$view = $this->getView('filebrowser', 'html');
+		$view->setModel($this->getModel('container'), true);
+
 		parent::display($cachable, $safeurlparams);
 		return $this;
 	}
