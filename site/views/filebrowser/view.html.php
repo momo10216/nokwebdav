@@ -27,6 +27,7 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
         protected $separateFolderFiles = true;
         protected $sortDescending = false;
         protected $multiFileOption = true;
+        protected $allowRecursiveDelete = true;
 	protected $task = '';
 
 	function display($tpl = null) {
@@ -56,6 +57,8 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 
 		// Set correct model
 		$this->item = $this->get('Item');
+
+		// Read config
 
 		if ($this->task == 'download') {
 			$this->download();
@@ -117,6 +120,9 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 		foreach($this->files as $file) {
 			$fileWithPath = $path.'/'.$file;
 			if (is_dir($fileWithPath)) {
+				if ($this->allowRecursiveDelete) {
+					$this->_deleteDirRecursive($fileWithPath);
+				}
 				if (!rmdir($fileWithPath)) {
 					$app = JFactory::getApplication();
 					$app->enqueueMessage(JText::_('COM_NOKWEBDAV_DELETE_ERROR'), 'error');
@@ -162,6 +168,23 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 				$app->enqueueMessage(JText::_('COM_NOKWEBDAV_ZIP_ERROR'), 'error');
 				$this->error = 'create_zip';
 			}
+		}
+	}
+
+	function _deleteDirRecursive($dir) {
+		if ($dh = opendir($dir)) {
+			while (($dirEntry = readdir($dh)) !== false) {
+				if (($dirEntry != '.') && ($dirEntry != '..')) {
+					$relFile = $dir.'/'.$dirEntry;
+					if (is_dir($relFile)) {
+						$this->_deleteDirRecursive($relFile);
+						rmdir($relFile);
+					} else {
+						unlink($relFile);
+					}
+				}
+			}
+			closedir($dh);
 		}
 	}
 
