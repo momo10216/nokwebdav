@@ -27,6 +27,7 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
         protected $separateFolderFiles = true;
         protected $sortDescending = false;
         protected $multiFileOption = true;
+	protected $task = '';
 
 	function display($tpl = null) {
 		// Init variables
@@ -44,15 +45,21 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 		if ($file != '') {
 			array_push($this->files, $file);
 		}
+		$this->task = $app->input->get('task', 'list', 'STRING');
 
 		// Sanitize inputs
 		$this->_sanitzeInput($this->path,'^[0-9a-zA-Z\ .-_+äöüÄÖÜß=()\/]*$',array('..'));
 		foreach($this->files as $file) {
 			$this->_sanitzeInput($file,'^[0-9a-zA-Z\ .,-_+äöüÄÖÜß=()]*$');
 		}
+		$this->_sanitzeInput($this->task,'^[a-z_]*$');
 
 		// Set correct model
 		$this->item = $this->get('Item');
+
+		if ($this->task == 'download') {
+			$this->download();
+		}
 
 		switch($this->error) {
 			case 'sanitize':
@@ -137,6 +144,62 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 			$this->_uploadFile($_FILES[$fieldName]['name'], $_FILES[$fieldName]['tmp_name']);
 		}
 		$this->dirRead = false;
+	}
+
+	function download() {
+		if (count($this->files) == 1) {
+			$path = $this->_getFullPath();
+			$this->_downloadFile($path.'/'.$this->files[0], $this->files[0]);
+		}
+		if (count($this->files) > 1) {
+			$zipFile = $this->_createZipFile();
+			if ($zipFile != '') {
+				$this->_downloadFile($zipFile, date('Ymd_His').'.zip');
+				unlink($zipFile);
+			} else {
+				$app = JFactory::getApplication();
+				$app->enqueueMessage(JText::_('COM_NOKWEBDAV_ZIP_ERROR'), 'error');
+				$this->error = 'create_zip';
+			}
+		}
+	}
+
+	function _createZipFile() {
+		$zipfilename = tempnam(sys_get_temp_dir(), '');
+		$path = $this->_getFullPath();
+		$zip = new ZipArchive;
+		if ($zip->open($zipfilename) === TRUE) {
+			foreach($this->files as $file) {
+				$zip->addFile($path.'/'.$file, $file);
+			}
+			$zip->close();
+		} else {
+		    $zipfilename = '';
+		}
+		return $zipfilename;
+	}
+
+	function _downloadFile($localfile, $filename = '') {
+		if ($filename == '') {
+			$filename = basename($localfile);
+		}
+		JLoader::register('WebDAVHelper', JPATH_COMPONENT_ADMINISTRATOR.'/helpers/webdav.php', true);
+		// Transfer header
+		header('Content-Type: '.WebDAVHelper::getMimeType($localfile));
+		header('Content-Length: '.filesize($localfile));
+		header('Content-Disposition: attachment; filename="'.$filename.'"');
+		header('Content-Transfer-Encoding: binary');
+		header('Expires: 0');
+		header('Pragma: no-cache');
+		// Transfer content
+		$fhRead = fopen($localfile, 'rb');
+		$fhWrite = fopen('php://output', 'wb');
+		stream_copy_to_stream($fhRead, $fhWrite);
+		fclose($fhRead);
+		fclose($fhWrite);
+		// Close the application.
+		$app = JFactory::getApplication();
+		$app->close();
 	}
 
 	function _uploadFile($name, $tmp_name) {
