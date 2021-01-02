@@ -147,6 +147,7 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 	}
 
 	function download() {
+		while ($this->_resolveDirectories()) {}
 		if (count($this->files) == 1) {
 			$path = $this->_getFullPath();
 			$this->_downloadFile($path.'/'.$this->files[0], $this->files[0]);
@@ -162,6 +163,32 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 				$this->error = 'create_zip';
 			}
 		}
+	}
+
+	function _resolveDirectories() {
+		$resolved = false;
+		$path = $this->_getFullPath();
+		$newFileList = array();
+		foreach($this->files as $file) {
+			if (is_dir($path.'/'.$file)) {
+				$resolved = true;
+				if ($dh = opendir($path.'/'.$file)) {
+					while (($dirEntry = readdir($dh)) !== false) {
+						if (($dirEntry != '.') && ($dirEntry != '..')) {
+							$relFile = $file.'/'.$dirEntry;
+							array_push($newFileList, $relFile);
+						}
+					}
+					closedir($dh);
+				}
+			} else {
+				array_push($newFileList, $file);
+			}
+		}
+		if ($resolved) {
+			$this->files = $newFileList;
+		}
+		return $resolved;
 	}
 
 	function _createZipFile() {
