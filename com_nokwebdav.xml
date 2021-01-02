@@ -4,9 +4,9 @@
 	<author>Norbert Kuemin</author>
 	<authorEmail>momo_102@bluemail.ch</authorEmail>
 	<creationDate>August 2017</creationDate>
-	<copyright>(C) 2017 Norbert Kuemin</copyright>
+	<copyright>(C) 2020 Norbert Kuemin</copyright>
 	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
-	<version>1.1.11</version>
+	<version>1.2.0</version>
 	<description>COM_NOKWEBDAV_XML_DESC</description>
 
 	<install>
