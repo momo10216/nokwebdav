@@ -30,6 +30,7 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
         protected $allowRecursiveDelete = true;
         protected $allowFolderCreation = true;
 	protected $task = '';
+	protected $access = array();
 
 	function display($tpl = null) {
 		// Init variables
@@ -63,7 +64,11 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 
 		// Read config
 
-		if ($this->task == 'download') {
+		// Check access
+		$this->access = $this->_getAccess();
+		$this->_checkAccess();
+
+		if (($this->task == 'download') && ($this->error == '')) {
 			$this->download();
 		}
 
@@ -71,6 +76,7 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 			case 'sanitize':
 				$app->redirect('index.php', 400);
 				break;
+			case 'access':
 			case 'delete':
 				$app->redirect('index.php', 200);
 				break;
@@ -286,6 +292,12 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 		$this->error = 'sanitize';
 	}
 
+	function _displayAccessError() {
+		$app = JFactory::getApplication();
+		$app->enqueueMessage(JText::_('COM_NOKWEBDAV_ACCESS_ERROR'), 'error');
+		$this->error = 'access';
+	}
+
 	function _readDir() {
 		if ($this->dirRead) {
 			return;
@@ -347,6 +359,8 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 	function _getFileType($file) {
 		$ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
 		switch($ext) {
+			case 'bmp':
+			case 'tif':
 			case 'png':
 			case 'jpg':
 			case 'jpeg':
@@ -366,6 +380,58 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 				return 'code';
 		}
 		return '';
+	}
+
+	function _getAccess() {
+		$commands = array('read','create','change','delete');
+		$access = array();
+		$user = JFactory::getUser();
+		$assetName = 'com_nokwebdav.container.'.$this->item->id;
+		foreach($commands as $command) {
+			$access[$command] = $user->authorise('content.'.$command, $assetName);
+		}
+		return $access;
+	}
+
+	function _checkAccess() {
+		switch($this->task) {
+			case 'list':
+			case 'download':
+				if (!$this->access['read']) {
+					$this->_displayAccessError();
+				}
+				break;
+			case 'create_folder':
+			case 'create_folder_do':
+				if (!$this->access['create']) {
+					$this->_displayAccessError();
+				}
+				break;
+			case 'upload':
+				if (!$this->access['create'] && !$this->access['change']) {
+					$this->_displayAccessError();
+				}
+				break;
+			case 'upload_do':
+				$path = $this->_getFullPath();
+				foreach($this->files as $file) {
+					if (file_exists($path.'/'.$file)) {
+						if (!$this->access['change']) {
+							$this->_displayAccessError();
+						}
+					} else {
+						if (!$this->access['create']) {
+							$this->_displayAccessError();
+						}
+					}
+				}
+				break;
+			case 'delete':
+				if (!$this->access['delete']) {
+					$this->_displayAccessError();
+				}
+				break;
+		}
 	}
 }
 ?>
