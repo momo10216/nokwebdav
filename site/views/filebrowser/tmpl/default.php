@@ -39,6 +39,13 @@ switch ($task) {
 		$this->deleteFiles();
 		echo $this->loadTemplate('list');
 		break;
+	case 'upload':
+		echo $this->loadTemplate('upload');
+		break;
+	case 'upload_do':
+		$this->uploadFiles('upload-file');
+		echo $this->loadTemplate('list');
+		break;
 	case 'list':
 	default:
 		echo $this->loadTemplate('list');

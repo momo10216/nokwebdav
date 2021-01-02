@@ -125,6 +125,25 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 		}
 	}
 
+	function uploadFiles($fieldName) {
+		global $_FILES;
+		if (is_array($_FILES[$fieldName]['name'])) {
+			// Upload multiple files
+			foreach($_FILES[$fieldName]['name'] as $key => $name) {
+				$this->_uploadFile($name, $_FILES[$fieldName]['tmp_name'][$key]);
+			}
+		} else {
+			// Upload single files
+			$this->_uploadFile($_FILES[$fieldName]['name'], $_FILES[$fieldName]['tmp_name']);
+		}
+		$this->dirRead = false;
+	}
+
+	function _uploadFile($name, $tmp_name) {
+		$filename = basename($name);
+		move_uploaded_file($tmp_name, $this->_getFullPath().'/'.$name);
+	}
+
 	function _sanitzeInput($value, $regexp, $notAllowedList=array()) {
 		if (preg_match('/'.$regexp.'/', $value) < 1) {
 			$this->_displaySanitizationError();
@@ -224,3 +243,4 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 		return '';
 	}
 }
+?>
