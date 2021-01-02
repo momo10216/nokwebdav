@@ -46,6 +46,13 @@ switch ($task) {
 		$this->uploadFiles('upload-file');
 		echo $this->loadTemplate('list');
 		break;
+	case 'create_folder':
+		echo $this->loadTemplate('create_folder');
+		break;
+	case 'create_folder_do':
+		$this->createFolder('folder');
+		echo $this->loadTemplate('list');
+		break;
 	case 'list':
 	default:
 		echo $this->loadTemplate('list');

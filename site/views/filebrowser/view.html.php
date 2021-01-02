@@ -28,6 +28,7 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
         protected $sortDescending = false;
         protected $multiFileOption = true;
         protected $allowRecursiveDelete = true;
+        protected $allowFolderCreation = true;
 	protected $task = '';
 
 	function display($tpl = null) {
@@ -47,6 +48,7 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 			array_push($this->files, $file);
 		}
 		$this->task = $app->input->get('task', 'list', 'STRING');
+		$this->folder = $app->input->get('folder', '', 'STRING');
 
 		// Sanitize inputs
 		$this->_sanitzeInput($this->path,'^[0-9a-zA-Z\ .-_+äöüÄÖÜß=()\/]*$',array('..'));
@@ -54,6 +56,7 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 			$this->_sanitzeInput($file,'^[0-9a-zA-Z\ .,-_+äöüÄÖÜß=()]*$');
 		}
 		$this->_sanitzeInput($this->task,'^[a-z_]*$');
+		$this->_sanitzeInput($this->folder,'^[0-9a-zA-Z\ .-_+äöüÄÖÜß=()\/]*$',array('..'));
 
 		// Set correct model
 		$this->item = $this->get('Item');
@@ -114,6 +117,10 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 		return '<a href="'.$uriList->toString().'">'.$text.'</a>';
 	}
 
+	function isFolderCreationAllowed() {
+		return $this->allowFolderCreation;
+	}
+
 	function deleteFiles() {
 		$this->dirRead = false;
 		$path = $this->_getFullPath();
@@ -169,6 +176,11 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 				$this->error = 'create_zip';
 			}
 		}
+	}
+
+	function createFolder() {
+		$path = $this->_getFullPath();
+		mkdir($path.'/'.$this->folder);
 	}
 
 	function _deleteDirRecursive($dir) {

@@ -104,6 +104,16 @@ function getUploadLink($view) {
 	return '<a href="'.$uriList->toString().'"><img src="'.$view->getIconPath().'/upload.svg" class="icon"></a>';
 }
 
+function getCreateFolderLink($view) {
+	$uriList = new JURI(JURI::Root().'index.php');
+	$uriList->setVar('id', $view->getItem()->id);
+	$uriList->setVar('view', 'filebrowser');
+	$uriList->setVar('option', 'com_nokwebdav');
+	$uriList->setVar('davpath', $view->getPath());
+	$uriList->setVar('task', 'create_folder');
+	return '<a href="'.$uriList->toString().'"><img src="'.$view->getIconPath().'/create_folder.svg" class="icon"></a>';
+}
+
 function getSubmitLink($view, $task, $icon) {
 	return '<a href="" onclick="return submitForm(\''.$task.'\', \''.Text::_('COM_NOKWEBDAV_FILE_BROWSER_EMPTY_SELECTION_ERROR').'\');"><img src="'.$view->getIconPath().'/'.$icon.'" class="icon"></a>';
 }
@@ -122,6 +132,9 @@ function displayDirectoryHeader($view) {
 	echo '<th class="col-mtime">'.JHtml::_('grid.sort', 'COM_NOKWEBDAV_FILE_BROWSER_HEAD_CHANGE_DATE', 'moddate', '', '').'</th>';
 	echo '<th class="col-size">'.JHtml::_('grid.sort', 'COM_NOKWEBDAV_FILE_BROWSER_HEAD_SIZE', 'size', '', '').'</th>';
 	echo '<th class="col-action">';
+	if ($view->isFolderCreationAllowed()) {
+		echo getCreateFolderLink($view);
+	}
 	echo getUploadLink($view);
 	if ($view->getMultiFileOption()) {
 		echo getSubmitLink($view, 'download', 'download.svg');
