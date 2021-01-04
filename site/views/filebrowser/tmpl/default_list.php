@@ -118,8 +118,36 @@ function getSubmitLink($view, $task, $icon) {
 	return '<a href="" onclick="return submitForm(\''.$task.'\', \''.Text::_('COM_NOKWEBDAV_FILE_BROWSER_EMPTY_SELECTION_ERROR').'\');"><img src="'.$view->getIconPath().'/'.$icon.'" class="icon"></a>';
 }
 
+function displayDirectoryHeaderField($view, $class, $label, $field) {
+	$listDir = $view->getSortDir();
+	$listOrder = $view->getSortField();
+	if ($listOrder == '') {
+		$listOrder = 'name';
+	}
+	if ($listDir == '') {
+		$listDir = 'asc';
+	}
+	$dir = 'asc';
+	if (($listOrder == $field) && ($listDir == 'asc')) {
+		$dir = 'desc';
+	}
+	echo '<th class="'.$class.'">';
+	echo '<a href="#" onclick="sorting(\''.$field.'\',\''.$dir.'\'); return false;">';
+	echo JText::_($label);
+	if ($listOrder == $field) {
+		if ($listDir == 'asc') {
+			echo '<span class="icon-arrow-down-3"></span>';
+		} else {
+			echo '<span class="icon-arrow-up-3"></span>';
+		}
+	}
+	echo '</a>';
+	echo '</th>';
+}
+
 function displayDirectoryHeader($view) {
 	global $EOL;
+
 	echo '<form action="'.JRoute::_('index.php?option=com_nokwebdav&view=filebrowser&id='.$view->getItem()->id.'&davpath='.$view->getPath()).'" method="post" name="siteForm" id="siteForm">'.$EOL;
 	echo '<table class="filelist">'.$EOL;
 	echo '<thead>';
@@ -128,9 +156,9 @@ function displayDirectoryHeader($view) {
 		echo '<th class="col-checkbox"><input type="checkbox" name="checkall-toggle" value="" onclick="checkAll(this);"></th>';
 	}
 	echo '<th class="col-icon"></th>';
-	echo '<th class="col-name">'.JHtml::_('grid.sort', 'COM_NOKWEBDAV_FILE_BROWSER_HEAD_NAME', 'name', '', '').'</th>';
-	echo '<th class="col-mtime">'.JHtml::_('grid.sort', 'COM_NOKWEBDAV_FILE_BROWSER_HEAD_CHANGE_DATE', 'moddate', '', '').'</th>';
-	echo '<th class="col-size">'.JHtml::_('grid.sort', 'COM_NOKWEBDAV_FILE_BROWSER_HEAD_SIZE', 'size', '', '').'</th>';
+	displayDirectoryHeaderField($view, 'col-name', 'COM_NOKWEBDAV_FILE_BROWSER_HEAD_NAME', 'name');
+	displayDirectoryHeaderField($view, 'col-mtime', 'COM_NOKWEBDAV_FILE_BROWSER_HEAD_CHANGE_DATE', 'moddate');
+	displayDirectoryHeaderField($view, 'col-size', 'COM_NOKWEBDAV_FILE_BROWSER_HEAD_SIZE', 'size');
 	echo '<th class="col-action">';
 	if ($view->isFolderCreationAllowed()) {
 		echo getCreateFolderLink($view);
@@ -182,12 +210,15 @@ function displayDirectoryList($view) {
 	echo '</tbody>'.$EOL;
 }
 
-function displayDirectoryFooter() {
+function displayDirectoryFooter($view) {
 	global $EOL;
+
+	$listDirn = $view->getSortDir();
+	$listOrder = $view->getSortField();
 	echo '</table>'.$EOL;
 	echo '<input type="hidden" id="task" name="task" value="" />'.$EOL;
-//	echo '<input type="hidden" name="filter_order" value="'.$listOrder.'" />'.$EOL;
-//	echo '<input type="hidden" name="filter_order_Dir" value="'.$listDirn.'" />'.$EOL;
+	echo '<input type="hidden" id="filter_order" name="filter_order" value="'.$listOrder.'" />'.$EOL;
+	echo '<input type="hidden" id="filter_order_Dir" name="filter_order_Dir" value="'.$listDirn.'" />'.$EOL;
 	echo JHtml::_('form.token');
 	echo '</form>'.$EOL;
 }
@@ -195,7 +226,7 @@ function displayDirectoryFooter() {
 function displayDirectory($view) {
 	displayDirectoryHeader($view);
 	displayDirectoryList($view);
-	displayDirectoryFooter();
+	displayDirectoryFooter($view);
 }
 
 JFactory::getDocument()->addStyleSheet(JURI::base().'components/com_nokwebdav/views/filebrowser/main.css');
@@ -207,14 +238,17 @@ function checkAll(checktoggle) {
 		checkboxes[i].checked = checktoggle.checked;
 	}
 }
-
+EOD;
+	JFactory::getDocument()->addScriptDeclaration($script);
+}
+$script = <<<EOD
 function submitForm(task, errorMsg) {
 	checkboxes = document.getElementsByName('davfiles[]');
 	let checked = false;
 	for (var i=0; i<checkboxes.length; i++)  {
 		checked = checked | checkboxes[i].checked
 	}
-	if (checked) {
+	if (checked || (errorMsg == '')) {
 		document.getElementById("task").value = task;
 		document.getElementById("siteForm").submit();
 		return false;
@@ -223,8 +257,14 @@ function submitForm(task, errorMsg) {
 		return false;
 	}
 }
-EOD;
-	JFactory::getDocument()->addScriptDeclaration($script);
+
+function sorting(column, direction) {
+	document.getElementById("filter_order").value = column;
+	document.getElementById("filter_order_Dir").value = direction;
+	submitForm("list", "");
 }
+EOD;
+JFactory::getDocument()->addScriptDeclaration($script);
+
 displayDirectory($this);
 ?>

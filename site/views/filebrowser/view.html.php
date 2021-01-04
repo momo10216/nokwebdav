@@ -12,6 +12,20 @@
 // No direct access to this file
 defined('_JEXEC') or die('Restricted access');
 
+function cmpModDate($a, $b) {
+    if ($a['mtime'] == $b['mtime']) {
+        return 0;
+    }
+    return ($a['mtime'] < $b['mtime']) ? -1 : 1;
+}
+
+function cmpSize($a, $b) {
+    if ($a['size'] == $b['size']) {
+        return 0;
+    }
+    return ($a['size'] < $b['size']) ? -1 : 1;
+}
+
 class NoKWebDAVViewFilebrowser extends JViewLegacy {
 	protected $item;
 	protected $pageHeading = 'COM_NOKWEBDAV_PAGE_TITLE_DEFAULT';
@@ -20,12 +34,14 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 	protected $user;
 	protected $id;
 	protected $path;
+	protected $state;
 	protected $files = array();
 	protected $error = '';
         protected $dirRead = false;
 	protected $dirEntries = array();
         protected $separateFolderFiles = true;
-        protected $sortDescending = false;
+        protected $sortField = 'asc';
+        protected $sortDir = 'asc';
         protected $multiFileOption = true;
         protected $allowRecursiveDelete = true;
         protected $allowFolderCreation = true;
@@ -37,9 +53,10 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 		$this->user = JFactory::getUser();
 		$app = JFactory::getApplication();
 		$currentMenu = $app->getMenu()->getActive();
-		if (is_object( $currentMenu )) {
+		if (is_object($currentMenu)) {
 			$this->paramsMenuEntry = $currentMenu->params;
 		}
+		$this->state = $this->get('State');
 
 		// Read infos from URI
 		$this->path = $app->input->get('davpath', '/', 'STRING');
@@ -50,6 +67,8 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 		}
 		$this->task = $app->input->get('task', 'list', 'STRING');
 		$this->folder = $app->input->get('folder', '', 'STRING');
+		$this->sortField = $app->input->get('filter_order', 'name', 'STRING');
+		$this->sortDir = $app->input->get('filter_order_Dir', 'asc', 'STRING');
 
 		// Sanitize inputs
 		$this->_sanitzeInput($this->path,'^[0-9a-zA-Z\ .-_+äöüÄÖÜß=()\/]*$',array('..'));
@@ -58,11 +77,19 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 		}
 		$this->_sanitzeInput($this->task,'^[a-z_]*$');
 		$this->_sanitzeInput($this->folder,'^[0-9a-zA-Z\ .-_+äöüÄÖÜß=()\/]*$',array('..'));
+		$this->_sanitzeInput($this->sortField,'^[a-zA-Z]*$');
+		$this->_sanitzeInput($this->sortDir,'^(asc|desc)$');
 
 		// Set correct model
 		$this->item = $this->get('Item');
 
 		// Read config
+		if (is_object($this->paramsMenuEntry)) {
+			$this->separateFolderFiles = $this->paramsMenuEntry->get('separate_folders_files') == '1' ? true : false;
+			$this->multiFileOption = $this->paramsMenuEntry->get('multiple_file_action') == '1' ? true : false;
+			$this->allowRecursiveDelete = $this->paramsMenuEntry->get('recursive_delete') == '1' ? true : false;
+			$this->allowFolderCreation = $this->paramsMenuEntry->get('create_folder') == '1' ? true : false;
+		}
 
 		// Check access
 		$this->access = $this->_getAccess();
@@ -109,6 +136,10 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 		return $this->multiFileOption;
 	}
 
+	function getState() {
+		return $this->state;
+	}
+
 	function getIconPath() {
 		return JURI::base().'components/com_nokwebdav/icons';
 	}
@@ -125,6 +156,14 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 
 	function isFolderCreationAllowed() {
 		return $this->allowFolderCreation;
+	}
+
+	function getSortField() {
+		return $this->sortField;
+	}
+
+	function getSortDir() {
+		return $this->sortDir;
 	}
 
 	function deleteFiles() {
@@ -336,8 +375,20 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 	}
 
 	function _sortDirEntries($folders, $files) {
+		switch($this->state->get('list.ordering', 'name')) {
+			case 'moddate':
+				$this->_sortDirEntriesByModDate($folders, $files);
+				break;
+			case 'name':
+			default:
+				$this->_sortDirEntriesByName($folders, $files);
+				break;
+		}
+	}
+
+	function _sortDirEntriesByName($folders, $files) {
 		if ($this->separateFolderFiles) {
-			if ($this->sortDescending) {
+			if ($this->sortDir== 'desc') {
 				$this->dirEntries = array_merge($this->_keySort($files),$this->_keySort($folders));
 			} else {
 				$this->dirEntries = array_merge($this->_keySort($folders),$this->_keySort($files));
@@ -347,11 +398,53 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 		}
 	}
 
+	function _sortDirEntriesByModDate($folders, $files) {
+		if ($this->separateFolderFiles) {
+			if ($this->sortDir== 'desc') {
+				$this->dirEntries = array_merge($this->_ModDateSort($files),$this->_ModDateSort($folders));
+			} else {
+				$this->dirEntries = array_merge($this->_ModDateSort($folders),$this->_ModDateSort($files));
+			}
+		} else {
+			$this->dirEntries = $this->_ModDateSort(array_merge($folders,$files));
+		}
+	}
+
+	function _sortDirEntriesBySize($folders, $files) {
+		if ($this->separateFolderFiles) {
+			if ($this->sortDir== 'desc') {
+				$this->dirEntries = array_merge($this->_SizeSort($files),$this->_SizeSort($folders));
+			} else {
+				$this->dirEntries = array_merge($this->_SizeSort($folders),$this->_SizeSort($files));
+			}
+		} else {
+			$this->dirEntries = $this->_SizeSort(array_merge($folders,$files));
+		}
+	}
+
 	function _keySort($list) {
-		if ($this->sortDescending) {
+		if ($this->sortDir== 'desc') {
 			krsort($list);
 		} else {
 			ksort($list);
+		}
+		return $list;
+	}
+
+	function _ModDateSort($list) {
+		if ($this->sortDir== 'desc') {
+			ursort($list, 'cmpModDate');
+		} else {
+			usort($list, 'cmpModDate');
+		}
+		return $list;
+	}
+
+	function _SizeSort($list) {
+		if ($this->sortDir== 'desc') {
+			ursort($list, 'cmpSize');
+		} else {
+			usort($list, 'cmpSize');
 		}
 		return $list;
 	}

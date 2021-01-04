@@ -44,8 +44,6 @@
 		<language tag="en-GB">en-GB.com_nokwebdav.sys.ini</language>
 		<language tag="de-DE">de-DE.com_nokwebdav.ini</language>
 		<language tag="de-DE">de-DE.com_nokwebdav.sys.ini</language>
-		<language tag="nl-NL">nl-NL.com_nokwebdav.ini</language>
-		<language tag="nl-NL">nl-NL.com_nokwebdav.sys.ini</language>
 	</languages>
 	<administration>
 		<menu>COM_NOKWEBDAV_MENU</menu>
