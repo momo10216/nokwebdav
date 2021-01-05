@@ -41,9 +41,9 @@
 
 	<languages folder="language">
 		<language tag="en-GB">en-GB.com_nokwebdav.ini</language>
-		<language tag="en-GB">en-GB.com_nokwebdav.sys.ini</language>
 		<language tag="de-DE">de-DE.com_nokwebdav.ini</language>
-		<language tag="de-DE">de-DE.com_nokwebdav.sys.ini</language>
+		<language tag="de-CH">de-DE.com_nokwebdav.ini</language>
+		<language tag="de-AT">de-DE.com_nokwebdav.ini</language>
 	</languages>
 	<administration>
 		<menu>COM_NOKWEBDAV_MENU</menu>
@@ -60,11 +60,15 @@
 			<folder>tables</folder>
 			<folder>views</folder>
 		</files>
-		<languages folder="language">
+		<languages folder="admin/language">
 			<language tag="en-GB">en-GB.com_nokwebdav.ini</language>
 			<language tag="en-GB">en-GB.com_nokwebdav.sys.ini</language>
 			<language tag="de-DE">de-DE.com_nokwebdav.ini</language>
 			<language tag="de-DE">de-DE.com_nokwebdav.sys.ini</language>
+			<language tag="de-CH">de-DE.com_nokwebdav.ini</language>
+			<language tag="de-CH">de-DE.com_nokwebdav.sys.ini</language>
+			<language tag="de-AT">de-DE.com_nokwebdav.ini</language>
+			<language tag="de-AT">de-DE.com_nokwebdav.sys.ini</language>
 		</languages>
 	</administration>
 	<updateservers>
