@@ -45,6 +45,7 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
         protected $multiFileOption = true;
         protected $allowRecursiveDelete = true;
         protected $allowFolderCreation = true;
+	protected $showDeleteWarning = true;
 	protected $task = '';
 	protected $access = array();
 
@@ -89,6 +90,7 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 			$this->multiFileOption = $this->paramsMenuEntry->get('multiple_file_action') == '1' ? true : false;
 			$this->allowRecursiveDelete = $this->paramsMenuEntry->get('recursive_delete') == '1' ? true : false;
 			$this->allowFolderCreation = $this->paramsMenuEntry->get('create_folder') == '1' ? true : false;
+			$this->showDeleteWarning = $this->paramsMenuEntry->get('delete_warning') == '1' ? true : false;
 		}
 
 		// Check access
@@ -156,6 +158,10 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 
 	function isFolderCreationAllowed() {
 		return $this->allowFolderCreation;
+	}
+
+	function showDeleteWarning() {
+		return $this->showDeleteWarning;
 	}
 
 	function getSortField() {

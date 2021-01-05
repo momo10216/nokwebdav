@@ -13,13 +13,13 @@ Audit trail
 
 In Progress
 ===========
-Popup for delete
 Fix translations
 
 Done
 ====
 Web UI for Files
 	- Sorting
+	- Popup for delete
 GET range
 GET: Do not read content in one shot and return it - do it block by block
 PUT: Do not read content in one shot and save it - do it block by block

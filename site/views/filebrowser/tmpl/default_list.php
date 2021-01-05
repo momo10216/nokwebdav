@@ -82,7 +82,11 @@ function getDeleteLink($view, $file) {
 	$uriList->setVar('task', 'delete');
 	$uriList->setVar('orderfield', $view->getSortField());
 	$uriList->setVar('orderdir', $view->getSortDir());
-	return '<a href="'.$uriList->toString().'"><img src="'.$view->getIconPath().'/trash.svg" class="icon"></a>';
+	$warning = '';
+	if ($view->showDeleteWarning()) {
+		$warning = ' onclick="return confirm(\''.Text::_('COM_NOKWEBDAV_FILE_BROWSER_DELETE_WARNING').'\');"';
+	}
+	return '<a href="'.$uriList->toString().'"'.$warning.'><img src="'.$view->getIconPath().'/trash.svg" class="icon"></a>';
 }
 
 function getDownloadLink($view, $file) {
@@ -122,8 +126,8 @@ function getCreateFolderLink($view) {
 	return '<a href="'.$uriList->toString().'"><img src="'.$view->getIconPath().'/create_folder.svg" class="icon"></a>';
 }
 
-function getSubmitLink($view, $task, $icon) {
-	return '<a href="" onclick="return submitForm(\''.$task.'\', \''.Text::_('COM_NOKWEBDAV_FILE_BROWSER_EMPTY_SELECTION_ERROR').'\');"><img src="'.$view->getIconPath().'/'.$icon.'" class="icon"></a>';
+function getSubmitLink($view, $task, $icon, $confirmMsg='') {
+	return '<a href="" onclick="return submitForm(\''.$task.'\', \''.Text::_('COM_NOKWEBDAV_FILE_BROWSER_EMPTY_SELECTION_ERROR').'\', \''.$confirmMsg.'\');"><img src="'.$view->getIconPath().'/'.$icon.'" class="icon"></a>';
 }
 
 function displayDirectoryHeaderField($view, $class, $label, $field) {
@@ -174,7 +178,11 @@ function displayDirectoryHeader($view) {
 	echo getUploadLink($view);
 	if ($view->getMultiFileOption()) {
 		echo getSubmitLink($view, 'download', 'download.svg');
-		echo getSubmitLink($view, 'delete', 'trash.svg');
+		if ($view->showDeleteWarning()) {
+			echo getSubmitLink($view, 'delete', 'trash.svg', Text::_('COM_NOKWEBDAV_FILE_BROWSER_DELETE_WARNING'));
+		} else {
+			echo getSubmitLink($view, 'delete', 'trash.svg');
+		}
 	}
 	echo '</th>';
 	echo '</tr>';
@@ -249,7 +257,12 @@ EOD;
 	JFactory::getDocument()->addScriptDeclaration($script);
 }
 $script = <<<EOD
-function submitForm(task, errorMsg) {
+function submitForm(task, errorMsg, confirmMsg) {
+	if (confirmMsg != '') {
+		if (!confirm(confirmMsg)) {
+			return false;
+		}
+	}
 	checkboxes = document.getElementsByName('davfiles[]');
 	let checked = false;
 	for (var i=0; i<checkboxes.length; i++)  {
