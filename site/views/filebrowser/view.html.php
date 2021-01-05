@@ -67,8 +67,8 @@ class NoKWebDAVViewFilebrowser extends JViewLegacy {
 		}
 		$this->task = $app->input->get('task', 'list', 'STRING');
 		$this->folder = $app->input->get('folder', '', 'STRING');
-		$this->sortField = $app->input->get('filter_order', 'name', 'STRING');
-		$this->sortDir = $app->input->get('filter_order_Dir', 'asc', 'STRING');
+		$this->sortField = $app->input->get('orderfield', 'name', 'STRING');
+		$this->sortDir = $app->input->get('orderdir', 'asc', 'STRING');
 
 		// Sanitize inputs
 		$this->_sanitzeInput($this->path,'^[0-9a-zA-Z\ .-_+äöüÄÖÜß=()\/]*$',array('..'));

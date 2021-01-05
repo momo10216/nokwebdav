@@ -80,6 +80,8 @@ function getDeleteLink($view, $file) {
 	$uriList->setVar('davpath', $view->getPath());
 	$uriList->setVar('davfile', $file);
 	$uriList->setVar('task', 'delete');
+	$uriList->setVar('orderfield', $view->getSortField());
+	$uriList->setVar('orderdir', $view->getSortDir());
 	return '<a href="'.$uriList->toString().'"><img src="'.$view->getIconPath().'/trash.svg" class="icon"></a>';
 }
 
@@ -91,6 +93,8 @@ function getDownloadLink($view, $file) {
 	$uriList->setVar('davpath', $view->getPath());
 	$uriList->setVar('davfile', $file);
 	$uriList->setVar('task', 'download');
+	$uriList->setVar('orderfield', $view->getSortField());
+	$uriList->setVar('orderdir', $view->getSortDir());
 	return '<a href="'.$uriList->toString().'"><img src="'.$view->getIconPath().'/download.svg" class="icon"></a>';
 }
 
@@ -101,6 +105,8 @@ function getUploadLink($view) {
 	$uriList->setVar('option', 'com_nokwebdav');
 	$uriList->setVar('davpath', $view->getPath());
 	$uriList->setVar('task', 'upload');
+	$uriList->setVar('orderfield', $view->getSortField());
+	$uriList->setVar('orderdir', $view->getSortDir());
 	return '<a href="'.$uriList->toString().'"><img src="'.$view->getIconPath().'/upload.svg" class="icon"></a>';
 }
 
@@ -111,6 +117,8 @@ function getCreateFolderLink($view) {
 	$uriList->setVar('option', 'com_nokwebdav');
 	$uriList->setVar('davpath', $view->getPath());
 	$uriList->setVar('task', 'create_folder');
+	$uriList->setVar('orderfield', $view->getSortField());
+	$uriList->setVar('orderdir', $view->getSortDir());
 	return '<a href="'.$uriList->toString().'"><img src="'.$view->getIconPath().'/create_folder.svg" class="icon"></a>';
 }
 
@@ -212,13 +220,12 @@ function displayDirectoryList($view) {
 
 function displayDirectoryFooter($view) {
 	global $EOL;
-
 	$listDirn = $view->getSortDir();
 	$listOrder = $view->getSortField();
 	echo '</table>'.$EOL;
 	echo '<input type="hidden" id="task" name="task" value="" />'.$EOL;
-	echo '<input type="hidden" id="filter_order" name="filter_order" value="'.$listOrder.'" />'.$EOL;
-	echo '<input type="hidden" id="filter_order_Dir" name="filter_order_Dir" value="'.$listDirn.'" />'.$EOL;
+	echo '<input type="hidden" id="orderfield" name="orderfield" value="'.$listOrder.'" />'.$EOL;
+	echo '<input type="hidden" id="orderdir" name="orderdir" value="'.$listDirn.'" />'.$EOL;
 	echo JHtml::_('form.token');
 	echo '</form>'.$EOL;
 }
@@ -259,8 +266,8 @@ function submitForm(task, errorMsg) {
 }
 
 function sorting(column, direction) {
-	document.getElementById("filter_order").value = column;
-	document.getElementById("filter_order_Dir").value = direction;
+	document.getElementById("orderfield").value = column;
+	document.getElementById("orderdir").value = direction;
 	submitForm("list", "");
 }
 EOD;
