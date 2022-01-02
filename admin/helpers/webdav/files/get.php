@@ -29,17 +29,7 @@ class WebDAVHelperPluginCommand {
 
 	private static function _getDirectory($directory, $uriLocation, $command) {
 		if ($command == 'HEAD') { return array(WebDAVHelper::$HTTP_STATUS_OK, array(), ''); }
-		$files = scandir($directory);
-		$dirEntries = array();
-		foreach($files as $file) {
-			$file = trim($file,DIRECTORY_SEPARATOR);
-			if (($file != '.') && ($file != '..')) {
-				$newFilename = rtrim($directory,DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$file;
-				$newLink = rtrim($uriLocation,'/').'/'.WebDAVHelperPlugin::hrefEncodeFile($file);
-				$subDirList = WebDAVHelperPlugin::getDirectoryList($newFilename, $newLink, 0, 0);
-				$dirEntries = array_merge($dirEntries, $subDirList);
-			}
-		}
+		$dirEntries = WebDAVHelperPlugin::getDirectoryList($directory, $uriLocation, 1, 0, false);
 		if (count($dirEntries) < 1) { return array(WebDAVHelper::$HTTP_STATUS_ERROR_NOT_FOUND, array(), ''); }
 		$title = 'Index of '.htmlspecialchars($directory);
 		$displayFormat = "%15s  %-19s  %-s".self::$EOL;
@@ -59,7 +49,7 @@ class WebDAVHelperPluginCommand {
 		}
 		$content .= '</pre>';
 		$content .= '</html>'.self::$EOL;
-		return array(WebDAVHelper::$HTTP_STATUS_OK, array(), $content);
+		return array(WebDAVHelper::$HTTP_STATUS_OK, array(), $content, '');
 	}
 
 	private static function _getFile($filename,$command) {
