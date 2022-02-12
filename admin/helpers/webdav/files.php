@@ -152,11 +152,13 @@ class WebDAVHelperPlugin {
 		return 'file';
 	}
 
-	public static function getDirectoryList($filename, $link, $targetDepth, $currentDepth=0) {
+	public static function getDirectoryList($filename, $link, $targetDepth, $currentDepth=0, $addCurrentObject=true) {
 		global $_SERVER;
 //		WebDAVHelper::debugAddMessage('filename: '.$filename);
 		$dirList = array();
-		$dirList[] = self::getObjectInfo($filename, $link);
+		if ($addCurrentObject) {
+			$dirList[] = self::getObjectInfo($filename, $link);
+		}
 		if (is_dir($filename) && (($targetDepth == 'infinity') || ($currentDepth < $targetDepth))) {
 			$files = scandir($filename);
 			foreach($files as $file) {
@@ -164,7 +166,7 @@ class WebDAVHelperPlugin {
 				if (($file != '.') && ($file != '..')) {
 					$newFilename = rtrim($filename,DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$file;
 					$newLink = rtrim($link,'/').'/'.$file;
-					$subDirList = self::getDirectoryList($newFilename, $newLink, $targetDepth, ($currentDepth+1));
+					$subDirList = self::getDirectoryList($newFilename, $newLink, $targetDepth, ($currentDepth+1), true);
 					$dirList = array_merge($dirList, $subDirList);
 				}
 			}
