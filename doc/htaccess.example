@@ -20,4 +20,6 @@ CGIPassAuth on
   SecFilterEngine Off
   SecFilterScanPOST Off
 </IfModule>
-
+<IfModule security2_module>
+    SecRuleEngine Off
+</IfModule>
