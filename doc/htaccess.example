@@ -12,3 +12,14 @@
 	RequestHeader unset Authorization
 </IfModule>
 
+#Solution 3 for PHP/CGI
+CGIPassAuth on
+
+#Solution for mod_security
+<IfModule mod_security.c>
+  SecFilterEngine Off
+  SecFilterScanPOST Off
+</IfModule>
+<IfModule security2_module>
+    SecRuleEngine Off
+</IfModule>

@@ -1,18 +1,21 @@
 ToDo
 ====
+GET index
+	Bugfix: Parent directory for (if not root)
+	Feature: Sorting
 Create .htaccess from admin view
 ORDERPATCH: Implementation
 DAV: ordered-collections
 CardDAV
 CalDAV (Todo)
 CalDAV (Calendar)
-Web UI for Files
 Web UI for Contacts
 Web UI for Calendar
 Web UI for Todo
 
 In Progress
 ===========
+Web UI for Files
 
 Done
 ====
